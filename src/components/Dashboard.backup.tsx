@@ -210,7 +210,7 @@ const Dashboard: React.FC = () => {
     return forecast;
   };
 
-  // Filter to show only year-to-date data (months that have actually occurred)
+  // Filter to show year-to-date data plus add future months for target trajectory
   const today = new Date();
   const thisMonth = today.getMonth(); // 0-11 (0 = January)
   
@@ -224,6 +224,60 @@ const Dashboard: React.FC = () => {
     const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month.date.substring(0, 3));
     return monthIndex <= thisMonth && month.totalDpu > 0 && month.buildVolume > 0;
   });
+
+  // Ensure we show all 12 months on chart - robust null checking
+  const allMonthsData = monthlyTrendData
+    .filter(month => month && month.date) // Filter out any undefined/null months
+    .map(month => {
+      // Safe substring with null checking
+      const monthStr = month.date?.substring(0, 3);
+      if (!monthStr) {
+        console.warn('Invalid month date:', month);
+        return null;
+      }
+      
+      const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(monthStr);
+      
+      if (monthIndex <= thisMonth && month.totalDpu > 0 && month.buildVolume > 0) {
+        // Historical months with actual data
+        return month;
+      } else {
+        // Future months - no actual data, just structure for trendline
+        return {
+          month: month.date,
+          totalDpu: null,
+          buildVolume: null,
+          totalFaults: null
+        };
+      }
+    })
+    .filter(month => month !== null); // Remove any null entries
+
+  // If we don't have enough months, generate the missing ones
+  const expectedMonths = ['Jan-25', 'Feb-25', 'Mar-25', 'Apr-25', 'May-25', 'Jun-25', 'Jul-25', 'Aug-25', 'Sep-25', 'Oct-25', 'Nov-25', 'Dec-25'];
+  
+  const completeMonthsData = expectedMonths.map(expectedMonth => {
+    // Find existing data for this month
+    const existingMonth = allMonthsData.find(m => m.month === expectedMonth);
+    
+    if (existingMonth) {
+      return existingMonth;
+    } else {
+      // Generate placeholder for missing month
+      const monthIndex = expectedMonths.indexOf(expectedMonth);
+      const isHistorical = monthIndex <= thisMonth;
+      
+      return {
+        month: expectedMonth,
+        totalDpu: isHistorical ? 0 : null, // Historical months should have 0, future months null
+        buildVolume: isHistorical ? 0 : null,
+        totalFaults: isHistorical ? 0 : null
+      };
+    }
+  });
+
+  // Use complete 12 months for chart
+  const extendedChartData = completeMonthsData;
 
   // Calculate correlation coefficient between DPU and Build Volume
   const calculateCorrelation = (data: any[]) => {
@@ -243,62 +297,84 @@ const Dashboard: React.FC = () => {
     return denominator === 0 ? 0 : numerator / denominator;
   };
 
-  // Add future months for complete 12-month trajectory view
-  const futureMonths = [
-    { month: 'Oct-25', totalDpu: null, buildVolume: null, totalFaults: null },
-    { month: 'Nov-25', totalDpu: null, buildVolume: null, totalFaults: null },
-    { month: 'Dec-25', totalDpu: null, buildVolume: null, totalFaults: null }
-  ];
-  
-  // Use YTD data + future months for complete trajectory
-  const baseChartData = ytdChartData.length > 0 ? ytdChartData : monthlyTrendData.filter(d => d.totalDpu > 0 && d.buildVolume > 0);
-  const chartData = [...baseChartData, ...futureMonths];
+  // Use complete 12 months data for trajectory visualization
+  const chartData = completeMonthsData;
   const correlationCoefficient = calculateCorrelation(chartData);
 
-  // Calculate target trajectory to 8.2 DPU by year-end
-  const calculateTargetTrajectory = (data: any[]) => {
-    const validData = data.filter(d => d && d.totalDpu > 0);
+  // Calculate DPU trendline data extending through future months to show complete trajectory to 8.2
+  const calculateDPUTrendline = (data: any[]) => {
+    // Safety check for data
+    if (!data || data.length === 0) return [];
+    
+    // Get the last month with actual data - robust filtering
+    const validData = data.filter(d => d && d.totalDpu > 0 && d.month);
     if (validData.length < 1) return [];
 
-    // Get current position and calculate path to 8.2
     const currentDPU = validData[validData.length - 1]?.totalDpu || 12.87;
     const targetDPU = 8.2;
-    const currentIndex = validData.length - 1; // Sep-25 is index 8 (0-based)
-    const totalMonths = data.length; // Should be 12 now
-    const monthsToTarget = Math.max(totalMonths - currentIndex - 1, 1);
+    
+    // Find the index of the last valid month in the complete data array
+    const lastValidMonth = validData[validData.length - 1];
+    const currentMonthIndex = data.findIndex(d => d && d.month === lastValidMonth.month);
+    
+    if (currentMonthIndex === -1) return []; // Safety check
+    
+    const totalMonthsInChart = data.length; // Includes future months
+    const monthsToTarget = Math.max(totalMonthsInChart - currentMonthIndex - 1, 1); // Ensure at least 1 month
     const monthlyReduction = (currentDPU - targetDPU) / monthsToTarget;
-
+    
     return data.map((item, index) => {
-      const monthsFromCurrent = index - currentIndex;
-      const targetForThisMonth = currentDPU - (monthlyReduction * monthsFromCurrent);
-      const clampedTarget = Math.max(targetForThisMonth, targetDPU);
+      // Safety check for item
+      if (!item || !item.month) {
+        return {
+          month: `Month-${index}`,
+          trendlineDPU: 0,
+          isAboveTarget: false,
+          actualDPU: null,
+          variance: 0,
+          isFuture: true
+        };
+      }
       
-      // Determine if this month has actual data
-      const hasActualData = item && item.totalDpu !== null && item.totalDpu > 0;
-      const actualDPU = hasActualData ? item.totalDpu : null;
-      const isAboveTarget = hasActualData ? actualDPU > clampedTarget : false;
-      const isFuture = !hasActualData;
-      
-      return {
-        month: item?.month || `Month-${index}`,
-        targetTrajectory: clampedTarget,
-        isAboveTarget,
-        isFuture,
-        actualDPU,
-        variance: hasActualData ? actualDPU - clampedTarget : 0
-      };
+      if (index <= currentMonthIndex) {
+        // Historical months - compare actual vs what target should have been
+        const targetForThisMonth = currentDPU - (monthlyReduction * (index - currentMonthIndex));
+        const actualDPU = validData[index]?.totalDpu || 0;
+        const isAboveTarget = actualDPU > targetForThisMonth;
+        
+        return {
+          month: item.month,
+          trendlineDPU: targetForThisMonth,
+          isAboveTarget: isAboveTarget,
+          actualDPU: actualDPU,
+          variance: actualDPU - targetForThisMonth,
+          isFuture: false
+        };
+      } else {
+        // Future months - show target trajectory only
+        const targetForThisMonth = currentDPU - (monthlyReduction * (index - currentMonthIndex));
+        
+        return {
+          month: item.month,
+          trendlineDPU: Math.max(targetForThisMonth, 8.2), // Don't go below 8.2
+          isAboveTarget: false, // Future months are targets, not performance
+          actualDPU: null,
+          variance: 0,
+          isFuture: true
+        };
+      }
     });
   };
 
-  const trajectoryData = calculateTargetTrajectory(chartData);
+  const dpuTrendlineData = calculateDPUTrendline(chartData);
 
-  // Merge trajectory data with chart data
+  // Merge trendline data with chart data
   const chartDataWithTrendline = chartData.map((item, index) => ({
     ...item,
-    targetTrajectory: trajectoryData[index]?.targetTrajectory || 0,
-    isAboveTarget: trajectoryData[index]?.isAboveTarget || false,
-    isFuture: trajectoryData[index]?.isFuture || false,
-    variance: trajectoryData[index]?.variance || 0
+    trendlineDPU: dpuTrendlineData[index]?.trendlineDPU || 0,
+    isAboveTarget: dpuTrendlineData[index]?.isAboveTarget || false,
+    targetVariance: dpuTrendlineData[index]?.variance || 0,
+    isFuture: dpuTrendlineData[index]?.isFuture || false
   }));
 
   // Debug: Log the data structure to understand what we're working with
@@ -781,20 +857,21 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  {/* Correlation Analysis */}
-                     <div className="bg-gradient-to-r from-gray-900 to-black border border-yellow-600/30 rounded-lg px-3 py-2 shadow-lg">
-                       <div className="text-xs text-yellow-400 font-medium uppercase tracking-wider">Correlation</div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-bold text-white">
-                        {correlationCoefficient > 0.7 ? '🔗 Strong' : 
-                         correlationCoefficient > 0.3 ? '🔗 Moderate' : 
-                         correlationCoefficient > -0.3 ? '🔗 Weak' : '🔗 Negative'}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        ({correlationCoefficient.toFixed(2)})
-                      </span>
-                    </div>
-                  </div>
+                       {/* Target Trajectory Status */}
+                       <div className="bg-gradient-to-r from-gray-900 to-black border border-yellow-600/30 rounded-lg px-3 py-2 shadow-lg">
+                         <div className="text-xs text-yellow-400 font-medium uppercase tracking-wider">Target Trajectory</div>
+                         <div className="flex items-center space-x-2">
+                           <span className="text-sm font-bold text-white">
+                             {chartDataWithTrendline.filter(d => d.isAboveTarget).length > chartDataWithTrendline.length / 2 ? 
+                               '🔴 Above Target' : 
+                               chartDataWithTrendline.filter(d => !d.isAboveTarget).length > chartDataWithTrendline.length / 2 ?
+                               '🟢 Below Target' : '🟡 Mixed Performance'}
+                           </span>
+                           <span className="text-xs text-gray-400">
+                             ({chartDataWithTrendline.filter(d => !d.isAboveTarget).length}/{chartDataWithTrendline.length} on track)
+                           </span>
+                         </div>
+                       </div>
                   
                   {/* Stage Filter */}
                   <div className="flex items-center space-x-2">
@@ -820,6 +897,24 @@ const Dashboard: React.FC = () => {
               </div>
              <ResponsiveContainer width="100%" height={420}>
                <ComposedChart data={chartDataWithTrendline}>
+                 <defs>
+                   <linearGradient id="trendlineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                     {chartDataWithTrendline.map((item, index) => {
+                       const position = (index / (chartDataWithTrendline.length - 1)) * 100;
+                       let color;
+                       
+                       if (item.isFuture) {
+                         color = '#3B82F6'; // Blue for future target trajectory
+                       } else {
+                         color = item.isAboveTarget ? '#EF4444' : '#10B981'; // Red/Green for historical performance
+                       }
+                       
+                       return (
+                         <stop key={index} offset={`${position}%`} stopColor={color} />
+                       );
+                     })}
+                   </linearGradient>
+                 </defs>
                  <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
                  <XAxis 
                    dataKey="month" 
@@ -838,6 +933,8 @@ const Dashboard: React.FC = () => {
                    }}
                    formatter={(value, name, props) => {
                      const monthData = props.payload;
+                     // Get actual data from admin table source
+                     const actualMonthRecord = data.find(m => m.date === monthData.month);
                      
                      if (name === 'totalDpu') {
                        return [
@@ -845,10 +942,21 @@ const Dashboard: React.FC = () => {
                          `${monthData.month} DPU`
                        ];
                      } else if (name === 'trendlineDPU') {
-                       return [
-                         formatDPU(Number(value)),
-                         'DPU Trend'
-                       ];
+                       if (monthData.isFuture) {
+                         return [
+                           `${formatDPU(Number(value))} 🎯`,
+                           'Target Trajectory (Future)'
+                         ];
+                       } else {
+                         const variance = monthData.targetVariance || 0;
+                         const status = variance > 0 ? 'Above Target' : variance < -0.5 ? 'Below Target' : 'On Target';
+                         const statusColor = variance > 0 ? '🔴' : variance < -0.5 ? '🟢' : '🟡';
+                         
+                         return [
+                           `${formatDPU(Number(value))} ${statusColor}`,
+                           `Target Trajectory (${status})`
+                         ];
+                       }
                      } else if (name === 'buildVolume') {
                        return [
                          formatNumber(Number(value)),
@@ -859,17 +967,38 @@ const Dashboard: React.FC = () => {
                      return [formatNumber(Number(value)), name];
                    }}
                    labelFormatter={(label, payload) => {
-                     if (payload && payload.length > 0) {
+                     if (payload && payload.length > 0 && payload[0]?.payload) {
                        const monthData = payload[0].payload;
-                       return `${label} - Total Faults: ${formatNumber(monthData.totalFaults)}`;
+                       
+                       // Safety check for month data
+                       if (!monthData || !monthData.month) {
+                         return label || 'Unknown Month';
+                       }
+                       
+                       // Get actual admin table data with safety checks
+                       const actualMonthRecord = data.find(m => m && m.date === monthData.month);
+                       
+                       if (!actualMonthRecord) {
+                         return `${label} - No Data Available`;
+                       }
+                       
+                       if (selectedStage === 'All Stages') {
+                         return `${label} - Total Faults: ${formatNumber(actualMonthRecord.totalFaults || 0)} | Total Inspections: ${formatNumber(actualMonthRecord.totalInspections || 0)}`;
+                       } else {
+                         const stageData = actualMonthRecord.stages?.find(s => s && s.name === selectedStage);
+                         if (!stageData) {
+                           return `${label} - ${selectedStage}: No Data`;
+                         }
+                         return `${label} - ${selectedStage} Faults: ${formatNumber(stageData.faults || 0)} | ${selectedStage} Inspected: ${formatNumber(stageData.inspected || 0)}`;
+                       }
                      }
-                     return label;
+                     return label || 'Unknown';
                    }}
                  />
                  <Legend 
                    wrapperStyle={{ paddingTop: '20px' }}
                  />
-                 {/* DPU as Bars */}
+                 {/* DPU as Bars - Only show for months with actual data */}
                  <Bar 
                    yAxisId="dpu"
                    dataKey="totalDpu" 
@@ -881,17 +1010,23 @@ const Dashboard: React.FC = () => {
                      fill: '#000000', 
                      fontSize: 11,
                      fontWeight: 'bold',
-                     formatter: (value) => formatDPU(value)
+                     formatter: (value) => value ? formatDPU(value) : ''
                    }}
                  />
-                 {/* Build Volume Line - Rendered after bars to appear on top */}
+                 {/* Build Volume Line - Only show for months with actual data */}
                  <Line 
                    yAxisId="volume"
                    type="monotone" 
                    dataKey="buildVolume" 
                    stroke="#3B82F6" 
                    strokeWidth={4}
-                   dot={{ fill: '#3B82F6', strokeWidth: 2, r: 5 }}
+                   dot={(props) => {
+                     const { cx, cy, payload, index } = props;
+                     // Only show dots for months with actual data
+                     if (!payload.buildVolume || payload.isFuture) return null;
+                     return <circle key={`build-volume-dot-${index}`} cx={cx} cy={cy} fill="#3B82F6" strokeWidth={2} r={5} />;
+                   }}
+                   connectNulls={false}
                    name={selectedStage === 'All Stages' ? 'Build Volume' : `${selectedStage} Inspected`}
                    label={{ 
                      position: 'top', 
@@ -899,34 +1034,50 @@ const Dashboard: React.FC = () => {
                      fontSize: 10,
                      fontWeight: 'bold',
                      offset: 25,
-                     formatter: (value) => formatNumber(value)
+                     formatter: (value) => value ? formatNumber(value) : ''
                    }}
                  />
-                 {/* Target Trajectory - Dynamic color based on performance */}
+                 {/* Dynamic DPU Trendline - Changes color based on performance vs target */}
                  <Line 
                    yAxisId="dpu"
                    type="monotone" 
-                   dataKey="targetTrajectory" 
-                   stroke="#10B981"
+                   dataKey="trendlineDPU" 
+                   stroke="url(#trendlineGradient)"
                    strokeWidth={3}
                    strokeDasharray="8 4"
                    dot={(props) => {
                      const { cx, cy, payload, index } = props;
-                     if (!payload) return null;
+                     const isAboveTarget = payload.isAboveTarget;
+                     const isFuture = payload.isFuture;
                      
-                     const color = payload.isFuture ? '#3B82F6' : payload.isAboveTarget ? '#EF4444' : '#10B981';
-                     
-                     return (
-                       <circle 
-                         key={`trajectory-${index}`}
-                         cx={cx} 
-                         cy={cy} 
-                         r={payload.isFuture ? 5 : 4} 
-                         fill={color}
-                         stroke={color}
-                         strokeWidth={2}
-                       />
-                     );
+                     if (isFuture) {
+                       // Future months - show as target dots (blue with dashed outline)
+                       return (
+                         <circle 
+                           key={`future-dot-${index}`}
+                           cx={cx} 
+                           cy={cy} 
+                           r={5} 
+                           fill="#3B82F6"
+                           stroke="#FFFFFF"
+                           strokeWidth={2}
+                           strokeDasharray="3,3"
+                         />
+                       );
+                     } else {
+                       // Historical months - color based on performance vs target
+                       return (
+                         <circle 
+                           key={`historical-dot-${index}`}
+                           cx={cx} 
+                           cy={cy} 
+                           r={4} 
+                           fill={isAboveTarget ? '#EF4444' : '#10B981'}
+                           stroke={isAboveTarget ? '#EF4444' : '#10B981'}
+                           strokeWidth={2}
+                         />
+                       );
+                     }
                    }}
                    name="Target Trajectory"
                  />
