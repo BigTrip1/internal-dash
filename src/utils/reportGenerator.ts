@@ -70,27 +70,13 @@ export const generateMonthlyReport = (data: InspectionData[]): MonthlyReportData
     };
   }).sort((a, b) => b.dpu - a.dpu); // Sort by highest DPU first
   
-  // Identify top issues
-  const topIssues = [
-    {
-      stage: stagePerformance[0]?.name || 'CFC',
-      issue: 'High fault rate in final inspection',
-      impact: stagePerformance[0]?.dpu || 0,
-      action: 'Implement enhanced pre-inspection protocols'
-    },
-    {
-      stage: stagePerformance[1]?.name || 'SIP6',
-      issue: 'Process variation causing defects',
-      impact: stagePerformance[1]?.dpu || 0,
-      action: 'Review and standardize process parameters'
-    },
-    {
-      stage: stagePerformance[2]?.name || 'UV3',
-      issue: 'Equipment calibration issues',
-      impact: stagePerformance[2]?.dpu || 0,
-      action: 'Schedule immediate equipment maintenance'
-    }
-  ];
+  // Identify top DPU contributors (data-driven only)
+  const topIssues = stagePerformance.slice(0, 3).map(stage => ({
+    stage: stage.name,
+    issue: `DPU: ${formatDPU(stage.dpu)} (${stage.status.toLowerCase()})`,
+    impact: stage.dpu,
+    action: `Requires analysis - ${stage.status === 'Deteriorated' ? 'declining performance' : stage.status === 'Improved' ? 'positive trend' : 'stable performance'}`
+  }));
   
   // Generate achievements
   const achievements = [];
@@ -755,31 +741,31 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             <div class="section-title">Strategic Context & Industry Position</div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
-                <!-- Industry Benchmarking -->
+                <!-- Performance Status -->
                 <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
                     <h4 style="margin: 0 0 15px 0; color: #1a1a1a; display: flex; align-items: center;">
-                        🏆 <span style="margin-left: 8px;">Industry Benchmarking</span>
+                        📊 <span style="margin-left: 8px;">Current Performance Status</span>
                     </h4>
                     <div style="space-y: 10px;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Industry Leader (Caterpillar):</span>
-                            <strong style="color: #10B981;">5.2 DPU</strong>
+                            <span>Starting Position (Jan-25):</span>
+                            <strong style="color: #EF4444;">20.17 DPU</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Industry Average:</span>
-                            <strong style="color: #F59E0B;">8.7 DPU</strong>
+                            <span>Current Position (Sep-25):</span>
+                            <strong style="color: #F59E0B;">${formatDPU(reportData.currentMonthDPU)} DPU</strong>
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>JCB Current Position:</span>
-                            <strong style="color: #EF4444;">${formatDPU(reportData.currentMonthDPU)} DPU</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>JCB Target Position:</span>
+                            <span>Target Position (Dec-25):</span>
                             <strong style="color: #10B981;">8.2 DPU</strong>
                         </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Gap Remaining:</span>
+                            <strong style="color: #EF4444;">${formatDPU(reportData.currentMonthDPU - 8.2)} DPU</strong>
+                        </div>
                     </div>
-                    <div style="margin-top: 15px; padding: 10px; background: #10B981; background: linear-gradient(90deg, #10B981 0%, #059669 100%); color: white; border-radius: 6px; text-align: center; font-weight: bold; font-size: 12px;">
-                        TARGET ACHIEVEMENT = INDUSTRY TOP 3 POSITION
+                    <div style="margin-top: 15px; padding: 10px; background: #FCB026; color: black; border-radius: 6px; text-align: center; font-weight: bold; font-size: 12px;">
+                        ${Math.round(((20.17 - reportData.currentMonthDPU) / (20.17 - 8.2)) * 100)}% OF TARGET IMPROVEMENT ACHIEVED
                     </div>
                 </div>
                 
@@ -919,92 +905,127 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         <div class="section">
             <div class="section-title">Strategic Decision Framework</div>
             
-            <!-- Immediate Actions (This Month) -->
+            <!-- Critical Focus Areas (Data-Based) -->
             <div style="margin-bottom: 25px;">
-                <h4 style="margin-bottom: 15px; color: #EF4444;">🚨 IMMEDIATE ACTIONS REQUIRED (This Month)</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div style="background: #fef2f2; border: 2px solid #EF4444; border-radius: 10px; padding: 15px;">
-                        <h5 style="margin: 0 0 10px 0; color: #EF4444; font-weight: bold;">QUALITY MANAGEMENT</h5>
-                        <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 14px;">
-                            <li>Implement enhanced inspection protocols for critical stages</li>
-                            <li>Conduct root cause analysis on top 3 fault contributors</li>
-                            <li>Establish daily quality monitoring dashboards</li>
-                        </ul>
-                        <div style="margin-top: 10px; padding: 8px; background: #EF4444; color: white; border-radius: 4px; text-align: center; font-weight: bold; font-size: 12px;">
-                            OWNER: Quality Director | DUE: ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB')}
+                <h4 style="margin-bottom: 15px; color: #EF4444;">🎯 CRITICAL FOCUS AREAS (Data-Based Analysis)</h4>
+                <div style="background: #fef2f2; border: 2px solid #EF4444; border-radius: 10px; padding: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h5 style="margin: 0 0 10px 0; color: #EF4444; font-weight: bold;">📊 HIGHEST DPU STAGES</h5>
+                            <div style="space-y: 8px;">
+                                ${reportData.stagePerformance.slice(0, 3).map(stage => `
+                                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #fee2e2; border-radius: 4px; margin-bottom: 5px;">
+                                        <span style="font-weight: bold;">${stage.name}:</span>
+                                        <span style="color: #EF4444; font-weight: bold;">${formatDPU(stage.dpu)} DPU</span>
+                                    </div>
+                                `).join('')}
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div style="background: #fef2f2; border: 2px solid #EF4444; border-radius: 10px; padding: 15px;">
-                        <h5 style="margin: 0 0 10px 0; color: #EF4444; font-weight: bold;">PRODUCTION MANAGEMENT</h5>
-                        <ul style="margin: 0; padding-left: 20px; color: #374151; font-size: 14px;">
-                            <li>Review and standardize critical process parameters</li>
-                            <li>Implement statistical process control on key stages</li>
-                            <li>Schedule immediate equipment calibration audits</li>
-                        </ul>
-                        <div style="margin-top: 10px; padding: 8px; background: #EF4444; color: white; border-radius: 4px; text-align: center; font-weight: bold; font-size: 12px;">
-                            OWNER: Production Director | DUE: ${new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB')}
+                        
+                        <div>
+                            <h5 style="margin: 0 0 10px 0; color: #10B981; font-weight: bold;">📈 PERFORMANCE TRENDS</h5>
+                            <div style="space-y: 8px;">
+                                <div style="display: flex; justify-content: space-between; padding: 8px; background: #dcfce7; border-radius: 4px; margin-bottom: 5px;">
+                                    <span>Improving Stages:</span>
+                                    <span style="color: #10B981; font-weight: bold;">${reportData.stagePerformance.filter(s => s.status === 'Improved').length}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px; background: #dcfce7; border-radius: 4px; margin-bottom: 5px;">
+                                    <span>Stable Stages:</span>
+                                    <span style="color: #F59E0B; font-weight: bold;">${reportData.stagePerformance.filter(s => s.status === 'Stable').length}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 8px; background: #dcfce7; border-radius: 4px; margin-bottom: 5px;">
+                                    <span>Deteriorating Stages:</span>
+                                    <span style="color: #EF4444; font-weight: bold;">${reportData.stagePerformance.filter(s => s.status === 'Deteriorated').length}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Strategic Actions (Next 3 Months) -->
+            <!-- Performance Summary -->
             <div style="margin-bottom: 25px;">
-                <h4 style="margin-bottom: 15px; color: #F59E0B;">⚡ STRATEGIC ACTIONS (Next 3 Months)</h4>
+                <h4 style="margin-bottom: 15px; color: #F59E0B;">📊 PERFORMANCE SUMMARY</h4>
                 <div style="background: #fffbeb; border: 2px solid #F59E0B; border-radius: 10px; padding: 20px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: center;">
                         <div>
-                            <h6 style="margin: 0 0 8px 0; color: #F59E0B; font-weight: bold;">MONTH 1 PRIORITIES</h6>
-                            <ul style="margin: 0; padding-left: 15px; color: #374151; font-size: 13px;">
-                                <li>Supplier quality agreements</li>
-                                <li>Advanced training programs</li>
-                                <li>Process automation pilots</li>
-                            </ul>
+                            <div style="font-size: 32px; font-weight: bold; color: #10B981; margin-bottom: 8px;">
+                                ${Math.round(((20.17 - reportData.currentMonthDPU) / 20.17) * 100)}%
+                            </div>
+                            <div style="font-size: 12px; color: #374151; text-transform: uppercase; letter-spacing: 0.5px;">
+                                YTD Improvement
+                            </div>
+                            <div style="font-size: 11px; color: #6B7280; margin-top: 4px;">
+                                From 20.17 to ${formatDPU(reportData.currentMonthDPU)} DPU
+                            </div>
                         </div>
+                        
                         <div>
-                            <h6 style="margin: 0 0 8px 0; color: #F59E0B; font-weight: bold;">MONTH 2 PRIORITIES</h6>
-                            <ul style="margin: 0; padding-left: 15px; color: #374151; font-size: 13px;">
-                                <li>Quality system integration</li>
-                                <li>Performance monitoring tools</li>
-                                <li>Customer feedback loops</li>
-                            </ul>
+                            <div style="font-size: 32px; font-weight: bold; color: #F59E0B; margin-bottom: 8px;">
+                                ${formatDPU(reportData.glidePath.requiredMonthlyReduction)}
+                            </div>
+                            <div style="font-size: 12px; color: #374151; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Monthly Reduction Needed
+                            </div>
+                            <div style="font-size: 11px; color: #6B7280; margin-top: 4px;">
+                                To achieve 8.2 target
+                            </div>
                         </div>
+                        
                         <div>
-                            <h6 style="margin: 0 0 8px 0; color: #F59E0B; font-weight: bold;">MONTH 3 PRIORITIES</h6>
-                            <ul style="margin: 0; padding-left: 15px; color: #374151; font-size: 13px;">
-                                <li>Continuous improvement culture</li>
-                                <li>Predictive quality analytics</li>
-                                <li>Certification and compliance</li>
-                            </ul>
+                            <div style="font-size: 32px; font-weight: bold; color: #3B82F6; margin-bottom: 8px;">
+                                ${reportData.glidePath.monthsRemaining}
+                            </div>
+                            <div style="font-size: 12px; color: #374151; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Months Remaining
+                            </div>
+                            <div style="font-size: 11px; color: #6B7280; margin-top: 4px;">
+                                Until target deadline
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Decision Points for Management -->
+            <!-- Target Achievement Analysis -->
             <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 3px solid #1a1a1a; border-radius: 10px; padding: 20px; margin: 20px 0;">
-                <h4 style="margin: 0 0 15px 0; color: #1a1a1a; text-align: center;">⚖️ MANAGEMENT DECISION POINTS</h4>
+                <h4 style="margin: 0 0 15px 0; color: #1a1a1a; text-align: center;">🎯 TARGET ACHIEVEMENT ANALYSIS</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div style="background: #f0fdf4; border: 1px solid #10B981; border-radius: 8px; padding: 15px;">
-                        <h5 style="margin: 0 0 10px 0; color: #10B981; font-weight: bold;">✅ APPROVE ACCELERATION</h5>
-                        <p style="margin: 0; color: #374151; font-size: 14px;">
-                            Authorize enhanced quality measures to achieve 8.2 target by year-end. 
-                            Requires resource commitment and supplier engagement.
-                        </p>
-                        <div style="margin-top: 10px; font-size: 12px; color: #059669; font-weight: bold;">
-                            OUTCOME: 85% success probability, industry leadership position
+                        <h5 style="margin: 0 0 10px 0; color: #10B981; font-weight: bold;">📈 CURRENT TRAJECTORY</h5>
+                        <div style="space-y: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Historical Rate:</span>
+                                <span style="font-weight: bold;">${formatDPU((20.17 - reportData.currentMonthDPU) / 9)}/month</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Required Rate:</span>
+                                <span style="font-weight: bold;">${formatDPU(reportData.glidePath.requiredMonthlyReduction)}/month</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Acceleration Needed:</span>
+                                <span style="color: #EF4444; font-weight: bold;">${Math.round((reportData.glidePath.requiredMonthlyReduction / ((20.17 - reportData.currentMonthDPU) / 9)) * 100)}%</span>
+                            </div>
                         </div>
                     </div>
                     
                     <div style="background: #fef2f2; border: 1px solid #EF4444; border-radius: 8px; padding: 15px;">
-                        <h5 style="margin: 0 0 10px 0; color: #EF4444; font-weight: bold;">⚠️ MAINTAIN STATUS QUO</h5>
-                        <p style="margin: 0; color: #374151; font-size: 14px;">
-                            Continue current improvement rate without additional investment. 
-                            Target achievement delayed to Q2 2026.
-                        </p>
-                        <div style="margin-top: 10px; font-size: 12px; color: #DC2626; font-weight: bold;">
-                            OUTCOME: 35% success probability, competitive disadvantage
+                        <h5 style="margin: 0 0 10px 0; color: #EF4444; font-weight: bold;">⚠️ RISK FACTORS</h5>
+                        <div style="space-y: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Status:</span>
+                                <span style="color: #EF4444; font-weight: bold;">${reportData.glidePath.riskAssessment}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Gap to Target:</span>
+                                <span style="font-weight: bold;">${formatDPU(reportData.currentMonthDPU - 8.2)} DPU</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Time Pressure:</span>
+                                <span style="color: ${reportData.glidePath.monthsRemaining <= 3 ? '#EF4444' : '#F59E0B'}; font-weight: bold;">
+                                    ${reportData.glidePath.monthsRemaining <= 3 ? 'HIGH' : 'MODERATE'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1024,84 +1045,91 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     
                     <div style="margin-bottom: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #fee2e2; border-radius: 4px;">
-                            <span style="font-weight: bold;">Target Miss Probability:</span>
-                            <span style="color: #EF4444; font-weight: bold;">${reportData.glidePath.riskAssessment === 'Critical' ? '75%' : reportData.glidePath.riskAssessment === 'At Risk' ? '45%' : '15%'}</span>
+                            <span style="font-weight: bold;">Current Status:</span>
+                            <span style="color: ${reportData.glidePath.riskAssessment === 'Critical' ? '#EF4444' : reportData.glidePath.riskAssessment === 'At Risk' ? '#F59E0B' : '#10B981'}; font-weight: bold;">${reportData.glidePath.riskAssessment}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #fee2e2; border-radius: 4px;">
-                            <span style="font-weight: bold;">Customer Impact Risk:</span>
-                            <span style="color: #EF4444; font-weight: bold;">HIGH</span>
+                            <span style="font-weight: bold;">Required Monthly Reduction:</span>
+                            <span style="color: #EF4444; font-weight: bold;">${formatDPU(reportData.glidePath.requiredMonthlyReduction)}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #fee2e2; border-radius: 4px;">
-                            <span style="font-weight: bold;">Competitive Disadvantage:</span>
-                            <span style="color: #EF4444; font-weight: bold;">MODERATE</span>
+                            <span style="font-weight: bold;">Months Remaining:</span>
+                            <span style="color: #F59E0B; font-weight: bold;">${reportData.glidePath.monthsRemaining}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #fee2e2; border-radius: 4px;">
-                            <span style="font-weight: bold;">Supplier Dependency:</span>
-                            <span style="color: #F59E0B; font-weight: bold;">MEDIUM</span>
+                            <span style="font-weight: bold;">Improvement Acceleration Needed:</span>
+                            <span style="color: #EF4444; font-weight: bold;">${Math.round((reportData.glidePath.requiredMonthlyReduction / ((20.17 - reportData.currentMonthDPU) / 9)) * 100)}%</span>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Success Factors -->
+                <!-- Data-Driven Insights -->
                 <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
                     <h4 style="margin: 0 0 15px 0; color: #10B981; display: flex; align-items: center;">
-                        🎯 <span style="margin-left: 8px;">SUCCESS FACTORS</span>
+                        🎯 <span style="margin-left: 8px;">DATA-DRIVEN INSIGHTS</span>
                     </h4>
                     
                     <div style="margin-bottom: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #dcfce7; border-radius: 4px;">
-                            <span style="font-weight: bold;">Management Commitment:</span>
-                            <span style="color: #10B981; font-weight: bold;">CRITICAL</span>
+                            <span style="font-weight: bold;">Best Performing Stage:</span>
+                            <span style="color: #10B981; font-weight: bold;">${reportData.stagePerformance.slice().sort((a, b) => a.dpu - b.dpu)[0]?.name || 'N/A'} (${formatDPU(reportData.stagePerformance.slice().sort((a, b) => a.dpu - b.dpu)[0]?.dpu || 0)})</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #dcfce7; border-radius: 4px;">
-                            <span style="font-weight: bold;">Resource Availability:</span>
-                            <span style="color: #10B981; font-weight: bold;">HIGH</span>
+                            <span style="font-weight: bold;">Highest Risk Stage:</span>
+                            <span style="color: #EF4444; font-weight: bold;">${reportData.stagePerformance[0]?.name || 'N/A'} (${formatDPU(reportData.stagePerformance[0]?.dpu || 0)})</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #dcfce7; border-radius: 4px;">
-                            <span style="font-weight: bold;">Team Capability:</span>
-                            <span style="color: #10B981; font-weight: bold;">STRONG</span>
+                            <span style="font-weight: bold;">Stages Improving:</span>
+                            <span style="color: #10B981; font-weight: bold;">${reportData.stagePerformance.filter(s => s.status === 'Improved').length} of ${reportData.stagePerformance.length}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #dcfce7; border-radius: 4px;">
-                            <span style="font-weight: bold;">Technology Readiness:</span>
-                            <span style="color: #F59E0B; font-weight: bold;">DEVELOPING</span>
+                            <span style="font-weight: bold;">Stages Requiring Attention:</span>
+                            <span style="color: #EF4444; font-weight: bold;">${reportData.stagePerformance.filter(s => s.dpu > 2).length} of ${reportData.stagePerformance.length}</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Executive Recommendations -->
+            <!-- Mathematical Analysis -->
             <div style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 10px; padding: 25px; margin: 20px 0;">
-                <h4 style="margin: 0 0 20px 0; color: #1a1a1a; text-align: center; font-size: 18px;">🎯 EXECUTIVE RECOMMENDATIONS</h4>
+                <h4 style="margin: 0 0 20px 0; color: #1a1a1a; text-align: center; font-size: 18px;">📐 MATHEMATICAL ANALYSIS</h4>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-                    <div style="text-align: center;">
-                        <div style="background: #10B981; color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                            <div style="font-size: 24px; font-weight: bold;">APPROVE</div>
-                            <div style="font-size: 12px;">Accelerated Program</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                        <h5 style="margin: 0 0 15px 0; color: #1a1a1a; font-weight: bold;">📊 IMPROVEMENT METRICS</h5>
+                        <div style="space-y: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Total Improvement Needed:</span>
+                                <strong>${formatDPU(reportData.currentMonthDPU - 8.2)} DPU</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Time Available:</span>
+                                <strong>${reportData.glidePath.monthsRemaining} months</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Required Rate:</span>
+                                <strong style="color: #EF4444;">${formatDPU(reportData.glidePath.requiredMonthlyReduction)}/month</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Historical Rate:</span>
+                                <strong style="color: #10B981;">${formatDPU((20.17 - reportData.currentMonthDPU) / 9)}/month</strong>
+                            </div>
                         </div>
-                        <p style="margin: 0; font-size: 13px; color: #374151;">
-                            Authorize enhanced quality measures for 8.2 target achievement
-                        </p>
                     </div>
                     
-                    <div style="text-align: center;">
-                        <div style="background: #F59E0B; color: black; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                            <div style="font-size: 24px; font-weight: bold;">MONITOR</div>
-                            <div style="font-size: 12px;">Weekly Progress</div>
+                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                        <h5 style="margin: 0 0 15px 0; color: #1a1a1a; font-weight: bold;">🎯 TARGET FEASIBILITY</h5>
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px; font-weight: bold; margin-bottom: 10px; color: ${reportData.glidePath.riskAssessment === 'On Track' ? '#10B981' : reportData.glidePath.riskAssessment === 'At Risk' ? '#F59E0B' : '#EF4444'};">
+                                ${reportData.glidePath.riskAssessment === 'On Track' ? '✅' : reportData.glidePath.riskAssessment === 'At Risk' ? '⚠️' : '🚨'}
+                            </div>
+                            <div style="font-size: 16px; font-weight: bold; color: #1a1a1a; margin-bottom: 8px;">
+                                ${reportData.glidePath.riskAssessment}
+                            </div>
+                            <div style="font-size: 12px; color: #6B7280;">
+                                Based on mathematical trajectory analysis
+                            </div>
                         </div>
-                        <p style="margin: 0; font-size: 13px; color: #374151;">
-                            Implement weekly executive reviews for accountability
-                        </p>
-                    </div>
-                    
-                    <div style="text-align: center;">
-                        <div style="background: #3B82F6; color: white; padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                            <div style="font-size: 24px; font-weight: bold;">ENGAGE</div>
-                            <div style="font-size: 12px;">Key Suppliers</div>
-                        </div>
-                        <p style="margin: 0; font-size: 13px; color: #374151;">
-                            Direct supplier engagement for quality partnerships
-                        </p>
                     </div>
                 </div>
             </div>
@@ -1122,27 +1150,27 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 </div>
                 
                 <div style="background: #fffbeb; border: 2px solid #F59E0B; border-radius: 10px; padding: 20px;">
-                    <h5 style="margin: 0 0 15px 0; color: #F59E0B; font-weight: bold;">🎯 IMPROVEMENT OPPORTUNITIES</h5>
+                    <h5 style="margin: 0 0 15px 0; color: #F59E0B; font-weight: bold;">📊 DATA OBSERVATIONS</h5>
                     <ul style="margin: 0; padding-left: 20px; color: #374151;">
-                        <li style="margin-bottom: 8px;">Accelerate improvement rate by ${Math.round((reportData.glidePath.requiredMonthlyReduction / ((20.17 - reportData.currentMonthDPU) / 9)) * 100)}% to meet targets</li>
-                        <li style="margin-bottom: 8px;">Focus resources on ${reportData.stagePerformance[0]?.name || 'critical'} stage performance</li>
-                        <li style="margin-bottom: 8px;">Implement predictive quality analytics</li>
-                        <li style="margin-bottom: 8px;">Establish supplier quality partnerships</li>
+                        <li style="margin-bottom: 8px;">Current improvement rate needs ${Math.round((reportData.glidePath.requiredMonthlyReduction / ((20.17 - reportData.currentMonthDPU) / 9)) * 100)}% acceleration to meet 8.2 target</li>
+                        <li style="margin-bottom: 8px;">${reportData.stagePerformance[0]?.name || 'Highest DPU stage'} shows ${formatDPU(reportData.stagePerformance[0]?.dpu || 0)} DPU - primary focus area</li>
+                        <li style="margin-bottom: 8px;">Build volume of ${formatNumber(reportData.buildVolume)} units maintained during quality improvement</li>
+                        <li style="margin-bottom: 8px;">${reportData.stagePerformance.filter(s => s.status === 'Improved').length} stages showing month-over-month improvement</li>
                     </ul>
                 </div>
             </div>
         </div>
 
-        <!-- Top Issues -->
+        <!-- Top DPU Contributors -->
         <div class="section">
-            <div class="section-title">Top Quality Issues & Actions</div>
+            <div class="section-title">Top DPU Contributors (Data Analysis)</div>
             <table class="glide-path-table">
                 <thead>
                     <tr>
                         <th>Stage</th>
-                        <th>Issue</th>
-                        <th>DPU Impact</th>
-                        <th>Action Required</th>
+                        <th>Performance Status</th>
+                        <th>DPU Value</th>
+                        <th>Trend Analysis</th>
                     </tr>
                 </thead>
                 <tbody>
