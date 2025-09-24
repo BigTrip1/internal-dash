@@ -326,6 +326,13 @@ const AdminTable: React.FC = () => {
             <Download className="w-4 h-4" />
             <span>Download Data</span>
           </button>
+          <a
+            href="/seed"
+            className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Seed Database</span>
+          </a>
           <button
             onClick={() => setIsAddStageModalOpen(true)}
             className="jcb-button"

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Settings, ChevronDown, User } from 'lucide-react';
+import { BarChart3, Settings, Database, ChevronDown, User } from 'lucide-react';
 import Image from 'next/image';
 import { useData } from '@/context/DataContext';
 
@@ -14,6 +14,7 @@ const Navigation: React.FC = () => {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: BarChart3 },
     { name: 'Admin Panel', href: '/admin', icon: Settings },
+    { name: 'Seed DB', href: '/seed', icon: Database },
   ];
 
   return (
