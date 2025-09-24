@@ -247,24 +247,30 @@ const Dashboard: React.FC = () => {
   const chartData = ytdChartData.length > 0 ? ytdChartData : monthlyTrendData.filter(d => d.totalDpu > 0 && d.buildVolume > 0);
   const correlationCoefficient = calculateCorrelation(chartData);
 
-  // Calculate DPU trendline data using linear regression
+  // Calculate DPU trendline data using linear regression with target trajectory
   const calculateDPUTrendline = (data: any[]) => {
     const validData = data.filter(d => d.totalDpu > 0);
     if (validData.length < 2) return [];
 
-    const n = validData.length;
-    const sumX = validData.reduce((sum, _, index) => sum + index, 0);
-    const sumY = validData.reduce((sum, d) => sum + d.totalDpu, 0);
-    const sumXY = validData.reduce((sum, d, index) => sum + (index * d.totalDpu), 0);
-    const sumXX = validData.reduce((sum, _, index) => sum + (index * index), 0);
-
-    const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-    const intercept = (sumY - slope * sumX) / n;
-
-    return validData.map((_, index) => ({
-      month: validData[index].month,
-      trendlineDPU: slope * index + intercept
-    }));
+    // Calculate target trajectory line (from current to 8.2 target)
+    const currentDPU = validData[validData.length - 1]?.totalDpu || 12.87;
+    const targetDPU = 8.2;
+    const monthsToTarget = 4; // Oct, Nov, Dec, Jan
+    const monthlyReduction = (currentDPU - targetDPU) / monthsToTarget;
+    
+    return validData.map((_, index) => {
+      const targetForThisMonth = currentDPU - (monthlyReduction * (index - (validData.length - 1)));
+      const actualDPU = validData[index].totalDpu;
+      const isAboveTarget = actualDPU > targetForThisMonth;
+      
+      return {
+        month: validData[index].month,
+        trendlineDPU: targetForThisMonth,
+        isAboveTarget: isAboveTarget,
+        actualDPU: actualDPU,
+        variance: actualDPU - targetForThisMonth
+      };
+    });
   };
 
   const dpuTrendlineData = calculateDPUTrendline(chartData);
@@ -272,7 +278,9 @@ const Dashboard: React.FC = () => {
   // Merge trendline data with chart data
   const chartDataWithTrendline = chartData.map((item, index) => ({
     ...item,
-    trendlineDPU: dpuTrendlineData[index]?.trendlineDPU || 0
+    trendlineDPU: dpuTrendlineData[index]?.trendlineDPU || 0,
+    isAboveTarget: dpuTrendlineData[index]?.isAboveTarget || false,
+    targetVariance: dpuTrendlineData[index]?.variance || 0
   }));
 
   // Debug: Log the data structure to understand what we're working with
@@ -755,20 +763,21 @@ const Dashboard: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  {/* Correlation Analysis */}
-                     <div className="bg-gradient-to-r from-gray-900 to-black border border-yellow-600/30 rounded-lg px-3 py-2 shadow-lg">
-                       <div className="text-xs text-yellow-400 font-medium uppercase tracking-wider">Correlation</div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-bold text-white">
-                        {correlationCoefficient > 0.7 ? '🔗 Strong' : 
-                         correlationCoefficient > 0.3 ? '🔗 Moderate' : 
-                         correlationCoefficient > -0.3 ? '🔗 Weak' : '🔗 Negative'}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        ({correlationCoefficient.toFixed(2)})
-                      </span>
-                    </div>
-                  </div>
+                       {/* Target Trajectory Status */}
+                       <div className="bg-gradient-to-r from-gray-900 to-black border border-yellow-600/30 rounded-lg px-3 py-2 shadow-lg">
+                         <div className="text-xs text-yellow-400 font-medium uppercase tracking-wider">Target Trajectory</div>
+                         <div className="flex items-center space-x-2">
+                           <span className="text-sm font-bold text-white">
+                             {chartDataWithTrendline.filter(d => d.isAboveTarget).length > chartDataWithTrendline.length / 2 ? 
+                               '🔴 Above Target' : 
+                               chartDataWithTrendline.filter(d => !d.isAboveTarget).length > chartDataWithTrendline.length / 2 ?
+                               '🟢 Below Target' : '🟡 Mixed Performance'}
+                           </span>
+                           <span className="text-xs text-gray-400">
+                             ({chartDataWithTrendline.filter(d => !d.isAboveTarget).length}/{chartDataWithTrendline.length} on track)
+                           </span>
+                         </div>
+                       </div>
                   
                   {/* Stage Filter */}
                   <div className="flex items-center space-x-2">
@@ -794,6 +803,17 @@ const Dashboard: React.FC = () => {
               </div>
              <ResponsiveContainer width="100%" height={420}>
                <ComposedChart data={chartDataWithTrendline}>
+                 <defs>
+                   <linearGradient id="trendlineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                     {chartDataWithTrendline.map((item, index) => {
+                       const position = (index / (chartDataWithTrendline.length - 1)) * 100;
+                       const color = item.isAboveTarget ? '#EF4444' : '#10B981';
+                       return (
+                         <stop key={index} offset={`${position}%`} stopColor={color} />
+                       );
+                     })}
+                   </linearGradient>
+                 </defs>
                  <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
                  <XAxis 
                    dataKey="month" 
@@ -812,6 +832,8 @@ const Dashboard: React.FC = () => {
                    }}
                    formatter={(value, name, props) => {
                      const monthData = props.payload;
+                     // Get actual data from admin table source
+                     const actualMonthRecord = data.find(m => m.date === monthData.month);
                      
                      if (name === 'totalDpu') {
                        return [
@@ -819,9 +841,13 @@ const Dashboard: React.FC = () => {
                          `${monthData.month} DPU`
                        ];
                      } else if (name === 'trendlineDPU') {
+                       const variance = monthData.targetVariance || 0;
+                       const status = variance > 0 ? 'Above Target' : variance < -0.5 ? 'Below Target' : 'On Target';
+                       const statusColor = variance > 0 ? '🔴' : variance < -0.5 ? '🟢' : '🟡';
+                       
                        return [
-                         formatDPU(Number(value)),
-                         'DPU Trend'
+                         `${formatDPU(Number(value))} ${statusColor}`,
+                         `Target Trajectory (${status})`
                        ];
                      } else if (name === 'buildVolume') {
                        return [
@@ -835,7 +861,15 @@ const Dashboard: React.FC = () => {
                    labelFormatter={(label, payload) => {
                      if (payload && payload.length > 0) {
                        const monthData = payload[0].payload;
-                       return `${label} - Total Faults: ${formatNumber(monthData.totalFaults)}`;
+                       // Get actual admin table data
+                       const actualMonthRecord = data.find(m => m.date === monthData.month);
+                       
+                       if (selectedStage === 'All Stages') {
+                         return `${label} - Total Faults: ${formatNumber(actualMonthRecord?.totalFaults || 0)} | Total Inspections: ${formatNumber(actualMonthRecord?.totalInspections || 0)}`;
+                       } else {
+                         const stageData = actualMonthRecord?.stages.find(s => s.name === selectedStage);
+                         return `${label} - ${selectedStage} Faults: ${formatNumber(stageData?.faults || 0)} | ${selectedStage} Inspected: ${formatNumber(stageData?.inspected || 0)}`;
+                       }
                      }
                      return label;
                    }}
@@ -876,16 +910,29 @@ const Dashboard: React.FC = () => {
                      formatter: (value) => formatNumber(value)
                    }}
                  />
-                 {/* DPU Trendline */}
+                 {/* Dynamic DPU Trendline - Changes color based on performance vs target */}
                  <Line 
                    yAxisId="dpu"
                    type="monotone" 
                    dataKey="trendlineDPU" 
-                   stroke="#10B981" 
+                   stroke="url(#trendlineGradient)"
                    strokeWidth={3}
                    strokeDasharray="8 4"
-                   dot={false}
-                   name="DPU Trend"
+                   dot={(props) => {
+                     const { cx, cy, payload } = props;
+                     const isAboveTarget = payload.isAboveTarget;
+                     return (
+                       <circle 
+                         cx={cx} 
+                         cy={cy} 
+                         r={4} 
+                         fill={isAboveTarget ? '#EF4444' : '#10B981'}
+                         stroke={isAboveTarget ? '#EF4444' : '#10B981'}
+                         strokeWidth={2}
+                       />
+                     );
+                   }}
+                   name="Target Trajectory"
                  />
                </ComposedChart>
              </ResponsiveContainer>
