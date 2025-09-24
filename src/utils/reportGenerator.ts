@@ -153,7 +153,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JCB Monthly Quality Performance Report</title>
+    <title>LOADALL Internal Quality Performance Report</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -171,12 +171,12 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .header {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
             color: black;
-            padding: 40px 30px;
+            padding: 50px 30px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 120px;
+            min-height: 140px;
         }
         .header::before {
             content: '';
@@ -217,18 +217,19 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .header h1 {
             margin: 0 0 8px 0;
-            font-size: 32px;
+            font-size: 36px;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         .header .subtitle {
-            margin: 0 0 12px 0;
-            font-size: 18px;
-            font-weight: 600;
+            margin: 0 0 15px 0;
+            font-size: 22px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1.2px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         .header .meta-info {
             font-size: 14px;
@@ -263,13 +264,17 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .kpi-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border: 2px solid #FCB026;
-            border-radius: 12px;
-            padding: 25px 20px;
+            border: 3px solid #FCB026;
+            border-radius: 15px;
+            padding: 30px 25px;
             text-align: center;
             position: relative;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
             transition: transform 0.2s ease;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         .kpi-card::before {
             content: '';
@@ -277,23 +282,58 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 6px;
             background: linear-gradient(90deg, #FCB026 0%, #F59E0B 100%);
-            border-radius: 12px 12px 0 0;
+            border-radius: 15px 15px 0 0;
+        }
+        .kpi-progress-circle {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+        .kpi-progress-circle svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+        .kpi-progress-circle .progress-bg {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 4;
+        }
+        .kpi-progress-circle .progress-fill {
+            fill: none;
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.3s ease;
         }
         .kpi-value {
-            font-size: 32px;
+            font-size: 42px;
             font-weight: bold;
             color: #1a1a1a;
-            margin-bottom: 5px;
+            margin: 10px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         .kpi-label {
-            font-size: 12px;
-            color: #6c757d;
+            font-size: 13px;
+            color: #495057;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+            font-size: 12px;
             font-weight: 600;
         }
+        .kpi-trend.positive { color: #10B981; }
+        .kpi-trend.negative { color: #EF4444; }
+        .kpi-trend.neutral { color: #6B7280; }
         .status-indicator {
             position: absolute;
             top: 10px;
@@ -445,11 +485,19 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     <img src="/jcb-logo.png" alt="JCB Logo" style="width: 80px; height: 80px; object-fit: contain;" />
                 </div>
                 <div class="header-text">
-                    <h1>JCB Digital Factory</h1>
-                    <div class="subtitle">Monthly Quality Performance Report</div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <h1 style="margin: 0;">JCB Digital Factory</h1>
+                        <div style="background: #FF0000; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+                            CONFIDENTIAL
+                        </div>
+                    </div>
+                    <div class="subtitle">LOADALL INTERNAL QUALITY PERFORMANCE REPORT</div>
                     <div class="meta-info">
-                        Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | 
-                        Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | 
+                            Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</span>
+                            <span style="font-size: 12px; opacity: 0.7;">Distribution: Quality Management, Production Management, Senior Leadership</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -463,20 +511,77 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 <div class="kpi-card">
                     <div class="status-indicator ${reportData.glidePath.riskAssessment === 'On Track' ? 'status-green' : 
                                                    reportData.glidePath.riskAssessment === 'At Risk' ? 'status-amber' : 'status-red'}"></div>
+                    <div class="kpi-progress-circle">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
+                            <circle class="progress-fill" cx="18" cy="18" r="16" 
+                                    stroke="${reportData.currentMonthDPU > 15 ? '#EF4444' : reportData.currentMonthDPU > 10 ? '#F59E0B' : '#10B981'}"
+                                    stroke-dasharray="${Math.min((reportData.currentMonthDPU / 20) * 100, 100)}, 100"></circle>
+                        </svg>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
+                            ${Math.round((1 - reportData.currentMonthDPU / 20) * 100)}%
+                        </div>
+                    </div>
                     <div class="kpi-value">${formatDPU(reportData.currentMonthDPU)}</div>
                     <div class="kpi-label">Current Month DPU</div>
+                    <div class="kpi-trend ${reportData.currentMonthDPU < reportData.lastMonthDPU ? 'positive' : 'negative'}">
+                        ${reportData.currentMonthDPU < reportData.lastMonthDPU ? '↓' : '↑'} 
+                        ${formatDPU(Math.abs(reportData.currentMonthDPU - reportData.lastMonthDPU))} vs last month
+                    </div>
                 </div>
                 <div class="kpi-card">
+                    <div class="kpi-progress-circle">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
+                            <circle class="progress-fill" cx="18" cy="18" r="16" 
+                                    stroke="#FCB026"
+                                    stroke-dasharray="${Math.min((reportData.glidePath.requiredMonthlyReduction / 2) * 100, 100)}, 100"></circle>
+                        </svg>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
+                            TARGET
+                        </div>
+                    </div>
                     <div class="kpi-value">${formatDPU(reportData.glidePath.requiredMonthlyReduction)}</div>
                     <div class="kpi-label">Required Monthly Reduction</div>
+                    <div class="kpi-trend ${reportData.glidePath.riskAssessment === 'On Track' ? 'positive' : reportData.glidePath.riskAssessment === 'At Risk' ? 'neutral' : 'negative'}">
+                        ${reportData.glidePath.riskAssessment} - ${reportData.glidePath.riskAssessment === 'Critical' ? 'Immediate action required' : 'Enhanced measures needed'}
+                    </div>
                 </div>
                 <div class="kpi-card">
+                    <div class="kpi-progress-circle">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
+                            <circle class="progress-fill" cx="18" cy="18" r="16" 
+                                    stroke="#3B82F6"
+                                    stroke-dasharray="${Math.min((reportData.buildVolume / 2000) * 100, 100)}, 100"></circle>
+                        </svg>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
+                            ${Math.round((reportData.buildVolume / 2000) * 100)}%
+                        </div>
+                    </div>
                     <div class="kpi-value">${formatNumber(reportData.buildVolume)}</div>
                     <div class="kpi-label">Build Volume</div>
+                    <div class="kpi-trend positive">
+                        📈 ${reportData.buildVolume > 1500 ? 'Excellent production levels' : 'Good production levels'}
+                    </div>
                 </div>
                 <div class="kpi-card">
+                    <div class="kpi-progress-circle">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
+                            <circle class="progress-fill" cx="18" cy="18" r="16" 
+                                    stroke="${reportData.glidePath.monthsRemaining <= 2 ? '#EF4444' : reportData.glidePath.monthsRemaining <= 4 ? '#F59E0B' : '#10B981'}"
+                                    stroke-dasharray="${100 - (reportData.glidePath.monthsRemaining / 12) * 100}, 100"></circle>
+                        </svg>
+                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
+                            ${Math.round((12 - reportData.glidePath.monthsRemaining) / 12 * 100)}%
+                        </div>
+                    </div>
                     <div class="kpi-value">${reportData.glidePath.monthsRemaining}</div>
                     <div class="kpi-label">Months to Target</div>
+                    <div class="kpi-trend ${reportData.glidePath.monthsRemaining <= 3 ? 'negative' : 'neutral'}">
+                        ⏱️ ${reportData.glidePath.monthsRemaining <= 3 ? 'Urgent timeline' : 'Adequate time remaining'}
+                    </div>
                 </div>
             </div>
 
@@ -540,13 +645,79 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </table>
 
             <div style="margin: 25px 0;">
+                <h4 style="margin-bottom: 20px;">DPU Trajectory to 8.2 Target:</h4>
+                
+                <!-- Glide Path Chart -->
+                <div style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <svg width="100%" height="200" viewBox="0 0 800 200" style="background: white; border-radius: 6px;">
+                        <!-- Grid lines -->
+                        <defs>
+                            <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
+                                <path d="M 80 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                        
+                        <!-- Y-axis labels -->
+                        <text x="30" y="25" font-size="12" fill="#666" text-anchor="middle">20</text>
+                        <text x="30" y="65" font-size="12" fill="#666" text-anchor="middle">15</text>
+                        <text x="30" y="105" font-size="12" fill="#666" text-anchor="middle">10</text>
+                        <text x="30" y="145" font-size="12" fill="#666" text-anchor="middle">8.2</text>
+                        <text x="30" y="185" font-size="12" fill="#666" text-anchor="middle">5</text>
+                        
+                        <!-- Target line at 8.2 -->
+                        <line x1="50" y1="145" x2="750" y2="145" stroke="#10B981" stroke-width="3" stroke-dasharray="5,5"/>
+                        <text x="760" y="149" font-size="12" fill="#10B981" font-weight="bold">TARGET</text>
+                        
+                        <!-- Current DPU point -->
+                        <circle cx="150" cy="${200 - (reportData.currentMonthDPU / 20) * 200}" r="6" fill="#EF4444"/>
+                        <text x="150" y="${200 - (reportData.currentMonthDPU / 20) * 200 - 15}" font-size="12" fill="#EF4444" text-anchor="middle" font-weight="bold">
+                            Current: ${formatDPU(reportData.currentMonthDPU)}
+                        </text>
+                        
+                        <!-- Glide path line -->
+                        <path d="M 150 ${200 - (reportData.currentMonthDPU / 20) * 200} 
+                                 L 300 ${200 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 200}
+                                 L 450 ${200 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 200}
+                                 L 600 ${200 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 200}
+                                 L 750 145" 
+                              stroke="#FCB026" stroke-width="4" fill="none"/>
+                        
+                        <!-- Month labels -->
+                        <text x="150" y="195" font-size="11" fill="#666" text-anchor="middle">Current</text>
+                        <text x="300" y="195" font-size="11" fill="#666" text-anchor="middle">${reportData.glidePath.monthlyTargets[0]?.month || 'Oct'}</text>
+                        <text x="450" y="195" font-size="11" fill="#666" text-anchor="middle">${reportData.glidePath.monthlyTargets[1]?.month || 'Nov'}</text>
+                        <text x="600" y="195" font-size="11" fill="#666" text-anchor="middle">${reportData.glidePath.monthlyTargets[2]?.month || 'Dec'}</text>
+                        <text x="750" y="195" font-size="11" fill="#666" text-anchor="middle">Target</text>
+                        
+                        <!-- Risk zone -->
+                        <rect x="50" y="105" width="700" height="40" fill="#EF4444" opacity="0.1"/>
+                        <text x="400" y="125" font-size="12" fill="#EF4444" text-anchor="middle" font-weight="bold">CRITICAL ZONE (>10 DPU)</text>
+                    </svg>
+                    
+                    <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 12px; color: #666;">
+                            <strong>Trajectory Status:</strong> 
+                            <span style="color: ${reportData.glidePath.riskAssessment === 'On Track' ? '#10B981' : reportData.glidePath.riskAssessment === 'At Risk' ? '#F59E0B' : '#EF4444'}; font-weight: bold;">
+                                ${reportData.glidePath.riskAssessment}
+                            </span>
+                        </div>
+                        <div style="font-size: 12px; color: #666;">
+                            <strong>Required Monthly Reduction:</strong> ${formatDPU(reportData.glidePath.requiredMonthlyReduction)} DPU
+                        </div>
+                    </div>
+                </div>
+                
                 <h4 style="margin-bottom: 15px;">Monthly Glide Path Targets:</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
-                    ${reportData.glidePath.monthlyTargets.slice(0, 4).map(target => `
-                        <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; text-align: center; border: 1px solid #e0e0e0;">
-                            <div style="font-weight: bold; color: #1a1a1a;">${target.month}</div>
-                            <div style="font-size: 18px; font-weight: bold; color: ${target.isAchievable ? '#10B981' : '#EF4444'};">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;">
+                    ${reportData.glidePath.monthlyTargets.slice(0, 4).map((target, index) => `
+                        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${target.isAchievable ? '#10B981' : '#EF4444'}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <div style="font-weight: bold; color: #1a1a1a; font-size: 14px; margin-bottom: 8px;">${target.month}</div>
+                            <div style="font-size: 24px; font-weight: bold; color: ${target.isAchievable ? '#10B981' : '#EF4444'}; margin-bottom: 5px;">
                                 ${formatDPU(target.targetDPU)}
+                            </div>
+                            <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ${target.isAchievable ? '✓ Achievable' : '⚠ Challenging'}
                             </div>
                         </div>
                     `).join('')}
