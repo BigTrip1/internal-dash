@@ -810,17 +810,34 @@ const Dashboard: React.FC = () => {
                      borderRadius: '8px',
                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                    }}
-                   formatter={(value, name) => {
-                     return [
-                       name === 'totalDpu' ? formatDPU(Number(value)) : 
-                       name === 'trendlineDPU' ? formatDPU(Number(value)) :
-                       name === 'buildVolume' ? formatNumber(Number(value)) : formatNumber(Number(value)),
-                       name === 'totalDpu' ? 
-                         `${selectedStage === 'All Stages' ? 'Total DPU' : `${selectedStage} DPU`}` : 
-                         name === 'trendlineDPU' ? 'DPU Trend' :
-                         name === 'buildVolume' ? 
-                         `${selectedStage === 'All Stages' ? 'Build Volume' : `${selectedStage} Inspected`}` : 'Total Faults'
-                     ];
+                   formatter={(value, name, props) => {
+                     const monthData = props.payload;
+                     
+                     if (name === 'totalDpu') {
+                       return [
+                         formatDPU(Number(value)),
+                         `${monthData.month} DPU`
+                       ];
+                     } else if (name === 'trendlineDPU') {
+                       return [
+                         formatDPU(Number(value)),
+                         'DPU Trend'
+                       ];
+                     } else if (name === 'buildVolume') {
+                       return [
+                         formatNumber(Number(value)),
+                         selectedStage === 'All Stages' ? 'Build Volume' : `${selectedStage} Inspected`
+                       ];
+                     }
+                     
+                     return [formatNumber(Number(value)), name];
+                   }}
+                   labelFormatter={(label, payload) => {
+                     if (payload && payload.length > 0) {
+                       const monthData = payload[0].payload;
+                       return `${label} - Total Faults: ${formatNumber(monthData.totalFaults)}`;
+                     }
+                     return label;
                    }}
                  />
                  <Legend 
