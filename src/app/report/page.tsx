@@ -26,6 +26,20 @@ const ReportPage: React.FC = () => {
     }
   }, [data]);
 
+  // Update report HTML when theme changes
+  useEffect(() => {
+    if (data.length > 0 && reportHTML) {
+      const reportData = generateMonthlyReport(data);
+      const html = generateReportHTML(reportData);
+      // Apply theme class to the HTML
+      const themedHTML = html.replace(
+        '<body>',
+        `<body class="${isDarkTheme ? 'dark-theme' : 'light-theme'}">`
+      );
+      setReportHTML(themedHTML);
+    }
+  }, [isDarkTheme, data, reportHTML]);
+
   const handleDownloadPDF = async () => {
     try {
       const response = await fetch('/api/generate-pdf', {

@@ -146,16 +146,47 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             line-height: 1.6;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
         }
         .report-container {
             width: 100%;
             max-width: none;
             margin: 0;
-            background: white;
             min-height: 100vh;
             box-shadow: 0 0 30px rgba(0,0,0,0.1);
             position: relative;
+        }
+        .light-theme {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+        }
+        .light-theme .report-container {
+            background: white;
+            color: #1a1a1a;
+        }
+        .dark-theme {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+        .dark-theme .report-container {
+            background: #1f1f1f;
+            color: #ffffff;
+        }
+        .dark-theme .section {
+            border-bottom-color: #404040;
+        }
+        .dark-theme .kpi-card {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            color: #ffffff;
+        }
+        .dark-theme .glide-path-table th {
+            background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
+            color: #000;
+        }
+        .dark-theme .glide-path-table td {
+            background: #2d2d2d;
+            color: #ffffff;
+        }
+        .dark-theme .stage-card {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            color: #ffffff;
         }
         .report-container::before {
             content: '';
@@ -170,9 +201,9 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .header {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
             color: black;
-            padding: 40px 60px;
+            padding: 25px 60px;
             position: relative;
-            min-height: 160px;
+            min-height: 100px;
             display: flex;
             align-items: center;
         }
@@ -199,7 +230,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             grid-template-columns: auto 1fr auto;
             align-items: center;
             width: 100%;
-            gap: 40px;
+            gap: 30px;
         }
         .jcb-logo {
             background: transparent;
@@ -216,20 +247,20 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .main-title {
             margin: 0;
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 2px;
-            line-height: 1.2;
+            line-height: 1.1;
             color: #000;
             font-family: 'Arial', 'Helvetica', sans-serif;
         }
         .subtitle {
-            margin: 8px 0 0 0;
-            font-size: 16px;
-            font-weight: 600;
+            margin: 2px 0;
+            font-size: 13px;
+            font-weight: 500;
             opacity: 0.8;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .confidential {
             background: #FF0000;
@@ -244,12 +275,12 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             border: 2px solid #000;
         }
         .distribution {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             color: #000;
-            opacity: 0.8;
-            letter-spacing: 0.5px;
-            margin-top: 5px;
+            opacity: 0.7;
+            letter-spacing: 0.3px;
+            margin-top: 2px;
         }
         .section {
             padding: 25px 50px;
@@ -260,20 +291,30 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             border-bottom: none;
         }
         
-        /* One-page layout optimization */
+        /* Single page layout - compact for scrolling screenshots */
         @media screen {
             .section {
+                margin-bottom: 10px;
+                padding: 20px 50px;
+            }
+            .kpi-grid {
+                margin-bottom: 20px;
+            }
+            .section-title {
                 margin-bottom: 15px;
+                font-size: 24px;
             }
         }
         
         @media print {
             .report-container {
                 page-break-inside: avoid;
+                height: auto;
             }
             .section {
                 page-break-inside: avoid;
                 break-inside: avoid;
+                padding: 15px 40px;
             }
         }
         .section-title {
@@ -514,20 +555,26 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         <!-- Header -->
         <div class="header">
             <div class="header-content">
-                <!-- Left: JCB Logo -->
-                <div class="jcb-logo">
-                    <img src="/jcb-logo.png" alt="JCB Logo" style="width: 120px; height: 120px; object-fit: contain;" />
+                <!-- Left: JCB Logo and Meta Info -->
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div class="jcb-logo">
+                        <img src="/jcb-logo.png" alt="JCB Logo" style="width: 80px; height: 80px; object-fit: contain;" />
+                    </div>
+                    <div style="text-align: left;">
+                        <div class="subtitle">Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')}</div>
+                        <div class="subtitle">Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</div>
+                        <div class="distribution">Created By: Adam Lawton - Senior Production Analyst</div>
+                    </div>
                 </div>
                 
                 <!-- Center: Main Title -->
                 <div class="header-main">
-                    <h1 class="main-title">LOADALL INTERNAL QUALITY<br>PERFORMANCE REPORT</h1>
-                    <div class="subtitle">Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</div>
-                    <div class="distribution">Created By: Adam Lawton - Senior Production Analyst</div>
+                    <h1 class="main-title">LOADALL QUALITY<br>PERFORMANCE REPORT</h1>
                 </div>
                 
-                <!-- Right: Empty space for balance -->
+                <!-- Right: Confidential -->
                 <div class="header-right">
+                    <div class="confidential">CONFIDENTIAL</div>
                 </div>
             </div>
         </div>
