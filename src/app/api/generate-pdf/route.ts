@@ -8,12 +8,20 @@ async function getInspectionData() {
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
     const response = await fetch(`${baseUrl}/api/inspections`);
     if (!response.ok) {
-      throw new Error('Failed to fetch inspection data');
+      throw new Error(`Failed to fetch inspection data: ${response.status}`);
     }
-    return await response.json();
+    const data = await response.json();
+    console.log('📊 Raw data received:', typeof data, Array.isArray(data), data?.length);
+    
+    // Ensure we have an array
+    if (!Array.isArray(data)) {
+      console.error('❌ Data is not an array:', data);
+      return [];
+    }
+    
+    return data;
   } catch (error) {
-    console.error('Error fetching data:', error);
-    // Return fallback data structure
+    console.error('❌ Error fetching data:', error);
     return [];
   }
 }
@@ -27,6 +35,19 @@ export async function POST(request: NextRequest) {
     // Get inspection data
     const data = await getInspectionData();
     console.log(`📊 Retrieved ${data.length} months of data`);
+
+    // Check if we have data
+    if (!data || data.length === 0) {
+      console.error('❌ No inspection data available');
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'No inspection data available. Please ensure the database is seeded with data.',
+          details: 'Data array is empty or undefined'
+        },
+        { status: 400 }
+      );
+    }
 
     // Generate report data and HTML
     const reportData = generateMonthlyReport(data);

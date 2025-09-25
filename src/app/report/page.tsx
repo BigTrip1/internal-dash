@@ -99,7 +99,8 @@ const ReportPage: React.FC = () => {
 
   const handleDownloadPDF = async () => {
     try {
-      const response = await fetch('/api/generate-pdf', {
+      // Try the simple PDF method first
+      const response = await fetch('/api/simple-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,23 +108,26 @@ const ReportPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error(`PDF generation failed: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `PDF generation failed: ${response.statusText}`);
       }
 
-      const pdfBlob = await response.blob();
+      // Get the HTML content
+      const htmlContent = await response.text();
       
-      const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `LOADALL-Quality-Report-${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      // Create a new window with the HTML content
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+        
+        // Give user instructions
+        alert('Report opened in new window. Use Ctrl+P (or Cmd+P) to print/save as PDF.');
+      }
 
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}. Please try the Print/PDF button instead.`);
     }
   };
 
@@ -293,6 +297,22 @@ const ReportPage: React.FC = () => {
                  >
                    <FileText className="w-4 h-4" />
                    <span>Print Report</span>
+                 </button>
+                 
+                 <button
+                   onClick={async () => {
+                     try {
+                       const response = await fetch('/api/inspections');
+                       const data = await response.json();
+                       alert(`Database contains ${data.length} months of data. ${data.length === 0 ? 'Please seed the database first.' : 'Data is available for PDF generation.'}`);
+                     } catch (error) {
+                       alert('Error checking database: ' + error);
+                     }
+                   }}
+                   className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white font-bold rounded-lg shadow-lg hover:bg-gray-700 transition-colors duration-200"
+                 >
+                   <FileText className="w-4 h-4" />
+                   <span>Check Data</span>
                  </button>
                </div>
           </div>
