@@ -156,6 +156,13 @@ const AdminTable: React.FC = () => {
   const ADMIN_USERNAME = 'Admin';
   const ADMIN_PASSWORD = '12Quality34???';
 
+  // Protected core stages that cannot be deleted
+  const PROTECTED_STAGES = [
+    'UV2', 'CABWT', 'SIP6', 'CFC', 'CABSIP', 'UV3', 'SIGN',
+    'SIP1', 'SIP2', 'SIP3', 'SIP4', 'SIP5', 'SIP7', 'SIP8',
+    'LECREC', 'CT', 'CABIP', 'CABWT2', 'UV4', 'FINAL'
+  ];
+
   const stageNames = getStageNames();
 
   // Lock system functions
@@ -232,14 +239,52 @@ const AdminTable: React.FC = () => {
       alert('Table is locked. Please unlock to remove stages.');
       return;
     }
-    if (confirm('Are you sure you want to remove this stage? This action cannot be undone.')) {
-      try {
-        setLocalError(null);
-        await removeStage(stageId);
-      } catch (error) {
-        setLocalError('Failed to remove stage. Please try again.');
-        console.error('Error removing stage:', error);
+
+    // Get the stage name from the stageId
+    const stageName = stageId.replace(/-\d+$/, '').toUpperCase();
+    
+    // Check if this is a protected stage
+    if (PROTECTED_STAGES.includes(stageName)) {
+      const confirmed = confirm(
+        `⚠️ WARNING: "${stageName}" is a PROTECTED CORE STAGE!\n\n` +
+        `Removing this stage may break the production tracking system.\n\n` +
+        `Are you absolutely sure you want to remove this critical stage?\n\n` +
+        `This action cannot be undone and may require database restoration.`
+      );
+      
+      if (!confirmed) return;
+      
+      // Double confirmation for protected stages
+      const doubleConfirmed = confirm(
+        `🚨 FINAL WARNING: You are about to delete a PROTECTED STAGE!\n\n` +
+        `Stage: ${stageName}\n` +
+        `This will affect all historical data and may break reports.\n\n` +
+        `Type "DELETE" in the next prompt to confirm this destructive action.`
+      );
+      
+      if (!doubleConfirmed) return;
+      
+      const deleteConfirmation = prompt(
+        `Type "DELETE" to permanently remove the protected stage "${stageName}":`
+      );
+      
+      if (deleteConfirmation !== 'DELETE') {
+        alert('Protected stage deletion cancelled.');
+        return;
       }
+    } else {
+      // Regular confirmation for non-protected stages
+      if (!confirm('Are you sure you want to remove this stage? This action cannot be undone.')) {
+        return;
+      }
+    }
+
+    try {
+      setLocalError(null);
+      await removeStage(stageId);
+    } catch (error) {
+      setLocalError('Failed to remove stage. Please try again.');
+      console.error('Error removing stage:', error);
     }
   };
 
@@ -408,13 +453,36 @@ const AdminTable: React.FC = () => {
             <Download className="w-4 h-4" />
             <span>Download Data</span>
           </button>
-          <a
-            href="/seed"
-            className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Seed Database</span>
-          </a>
+                   <a
+                     href="/seed"
+                     className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
+                   >
+                     <Plus className="w-4 h-4" />
+                     <span>Seed Database</span>
+                   </a>
+                   <button
+                     onClick={async () => {
+                       if (!confirm('This will add missing core stages to existing data. Continue?')) return;
+                       
+                       try {
+                         const response = await fetch('/api/add-missing-stages', { method: 'POST' });
+                         const result = await response.json();
+                         
+                         if (result.success) {
+                           alert(`✅ Success! Added ${result.details.totalStagesAdded} missing stages to ${result.details.monthsUpdated} months.`);
+                           window.location.reload(); // Refresh to show updated data
+                         } else {
+                           alert(`❌ Error: ${result.error}`);
+                         }
+                       } catch (error) {
+                         alert('❌ Failed to add missing stages: ' + error);
+                       }
+                     }}
+                     className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
+                   >
+                     <Plus className="w-4 h-4" />
+                     <span>Add Missing Stages</span>
+                   </button>
           <button
             onClick={() => {
               if (isLocked) {
@@ -471,15 +539,30 @@ const AdminTable: React.FC = () => {
                          {stageNames.map((stageName, index) => (
                            <th key={stageName} className={`text-center text-xs font-bold uppercase tracking-wider text-yellow-400 py-3 px-4 min-w-[240px] ${index > 0 ? 'border-l-2 border-yellow-600/40' : ''}`}>
                              <div className="flex items-center justify-between mb-3">
-                               <span className="flex-1 text-yellow-400 font-bold text-sm">{stageName}</span>
+                               <div className="flex items-center flex-1">
+                                 <span className="text-yellow-400 font-bold text-sm">{stageName}</span>
+                                 {PROTECTED_STAGES.includes(stageName) && (
+                                   <span className="ml-2 px-1 py-0.5 bg-blue-600 text-white text-xs rounded font-bold" title="Protected Core Stage">
+                                     🔒
+                                   </span>
+                                 )}
+                               </div>
                                <button
                                  onClick={() => handleRemoveStage(getStageId(stageName))}
                                  className={`ml-2 p-1 rounded transition-colors duration-200 ${
                                    isLocked 
                                      ? 'text-gray-600 cursor-not-allowed opacity-50' 
+                                     : PROTECTED_STAGES.includes(stageName)
+                                     ? 'text-orange-400 hover:text-orange-300 hover:bg-orange-900/50'
                                      : 'text-red-400 hover:text-red-300 hover:bg-red-900/50'
                                  }`}
-                                 title={isLocked ? "Table is locked" : "Remove stage"}
+                                 title={
+                                   isLocked 
+                                     ? "Table is locked" 
+                                     : PROTECTED_STAGES.includes(stageName)
+                                     ? "Remove protected stage (requires admin confirmation)"
+                                     : "Remove stage"
+                                 }
                                  disabled={isLocked}
                                >
                                  <Trash2 className="w-3 h-3" />

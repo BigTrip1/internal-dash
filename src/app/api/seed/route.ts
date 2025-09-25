@@ -12,7 +12,14 @@ const generateSeedData = () => {
     'Jul-25', 'Aug-25', 'Sep-25', 'Oct-25', 'Nov-25', 'Dec-25'
   ];
 
-  const stageNames = ['UV2', 'CABWT', 'SIP6', 'CFC', 'CABSIP', 'UV3', 'SIGN'];
+  // Core production stages that should always exist
+  const protectedStages = [
+    'UV2', 'CABWT', 'SIP6', 'CFC', 'CABSIP', 'UV3', 'SIGN',
+    'SIP1', 'SIP2', 'SIP3', 'SIP4', 'SIP5', 'SIP7', 'SIP8',
+    'LECREC', 'CT', 'CABIP', 'CABWT2', 'UV4', 'FINAL'
+  ];
+  
+  const stageNames = protectedStages;
 
   return months.map((month, index) => {
     // Create progressive improvement toward 8.2 target
