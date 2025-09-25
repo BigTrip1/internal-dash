@@ -250,8 +250,8 @@ const Dashboard: React.FC = () => {
     
     if (actualDataLength < 1) return [];
 
-    const currentDPU = data[actualDataLength - 1]?.totalDpu || 12.87;
-    const targetDPU = 8.2;
+    const currentDPU = data[actualDataLength - 1]?.totalDpu || 0.12;
+    const targetDPU = 0.08; // Adjusted target for the actual DPU scale
     const monthsToTarget = 3; // Oct, Nov, Dec (3 months to reach target)
     const monthlyReduction = (currentDPU - targetDPU) / monthsToTarget;
     
@@ -831,7 +831,7 @@ const Dashboard: React.FC = () => {
                    stroke="#FFFFFF" 
                    tick={{ fontSize: 12 }}
                  />
-                  <YAxis yAxisId="dpu" stroke="#FFFFFF" domain={[0, 25]} label={{ value: selectedStage === 'All Stages' ? 'Total DPU' : `${selectedStage} DPU`, angle: -90, position: 'insideLeft' }} />
+                  <YAxis yAxisId="dpu" stroke="#FFFFFF" domain={[0, 0.5]} label={{ value: selectedStage === 'All Stages' ? 'Total DPU' : `${selectedStage} DPU`, angle: -90, position: 'insideLeft' }} />
                  <YAxis yAxisId="volume" orientation="right" stroke="#FFFFFF" domain={[0, 2200]} label={{ value: selectedStage === 'All Stages' ? 'Build Volume' : `${selectedStage} Inspected`, angle: 90, position: 'insideRight' }} />
                  <Tooltip 
                    contentStyle={{
