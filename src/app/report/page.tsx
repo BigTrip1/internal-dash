@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '@/context/DataContext';
 import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGenerator';
-import { ArrowLeft, Download, FileText, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Sun, Moon, Camera } from 'lucide-react';
 import Link from 'next/link';
 
 const ReportPage: React.FC = () => {
@@ -40,6 +40,47 @@ const ReportPage: React.FC = () => {
     }
   }, [isDarkTheme, data]);
 
+  const handleTakeScreenshot = async () => {
+    try {
+      // Hide the header controls for clean screenshot
+      const headerControls = document.querySelector('.print\\:hidden');
+      if (headerControls) {
+        (headerControls as HTMLElement).style.display = 'none';
+      }
+
+      // Wait a moment for the UI to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Use html2canvas to capture the full page
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(document.body, {
+        height: window.innerHeight,
+        width: window.innerWidth,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
+        scale: 1
+      });
+
+      // Restore header controls
+      if (headerControls) {
+        (headerControls as HTMLElement).style.display = '';
+      }
+
+      // Create download link
+      const link = document.createElement('a');
+      link.download = `LOADALL-Quality-Report-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL();
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error('Error taking screenshot:', error);
+      alert('Failed to take screenshot. Please try again or use browser screenshot tools.');
+    }
+  };
+
   const handleDownloadPDF = async () => {
     try {
       const response = await fetch('/api/generate-pdf', {
@@ -70,6 +111,65 @@ const ReportPage: React.FC = () => {
     }
   };
 
+  // Add right-click save functionality
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'IMG' || target.closest('.report-container')) {
+        e.preventDefault();
+        
+        // Create a simple right-click menu
+        const menu = document.createElement('div');
+        menu.style.cssText = `
+          position: fixed;
+          top: ${e.clientY}px;
+          left: ${e.clientX}px;
+          background: #1a1a1a;
+          border: 1px solid #FCB026;
+          border-radius: 8px;
+          padding: 8px;
+          z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        `;
+        
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Save Report Image';
+        saveButton.style.cssText = `
+          background: #FCB026;
+          color: #000;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+          width: 100%;
+        `;
+        
+        saveButton.onclick = () => {
+          handleTakeScreenshot();
+          document.body.removeChild(menu);
+        };
+        
+        menu.appendChild(saveButton);
+        document.body.appendChild(menu);
+        
+        // Remove menu on click outside
+        setTimeout(() => {
+          const removeMenu = (e: MouseEvent) => {
+            if (!menu.contains(e.target as Node)) {
+              document.body.removeChild(menu);
+              document.removeEventListener('click', removeMenu);
+            }
+          };
+          document.addEventListener('click', removeMenu);
+        }, 100);
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    return () => document.removeEventListener('contextmenu', handleContextMenu);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
@@ -98,35 +198,43 @@ const ReportPage: React.FC = () => {
               <h1 className="text-xl font-bold text-black">LOADALL Quality Performance Report</h1>
             </div>
             
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={() => setIsDarkTheme(!isDarkTheme)}
-                className={`flex items-center space-x-2 px-4 py-2 font-bold rounded-lg shadow-lg transition-colors duration-200 ${
-                  isDarkTheme 
-                    ? 'bg-yellow-600 text-black hover:bg-yellow-700' 
-                    : 'bg-gray-800 text-white hover:bg-gray-900'
-                }`}
-              >
-                {isDarkTheme ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-                <span>{isDarkTheme ? 'Light' : 'Dark'}</span>
-              </button>
-              
-              <button
-                onClick={handleDownloadPDF}
-                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download PDF</span>
-              </button>
-              
-              <button
-                onClick={() => window.print()}
-                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200"
-              >
-                <FileText className="w-4 h-4" />
-                <span>Print Report</span>
-              </button>
-            </div>
+               <div className="flex items-center space-x-3">
+                 <button
+                   onClick={() => setIsDarkTheme(!isDarkTheme)}
+                   className={`flex items-center space-x-2 px-4 py-2 font-bold rounded-lg shadow-lg transition-colors duration-200 ${
+                     isDarkTheme 
+                       ? 'bg-yellow-600 text-black hover:bg-yellow-700' 
+                       : 'bg-gray-800 text-white hover:bg-gray-900'
+                   }`}
+                 >
+                   {isDarkTheme ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                   <span>{isDarkTheme ? 'Light' : 'Dark'}</span>
+                 </button>
+                 
+                 <button
+                   onClick={handleTakeScreenshot}
+                   className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-lg hover:bg-purple-700 transition-colors duration-200"
+                 >
+                   <Camera className="w-4 h-4" />
+                   <span>Screenshot</span>
+                 </button>
+                 
+                 <button
+                   onClick={handleDownloadPDF}
+                   className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200"
+                 >
+                   <Download className="w-4 h-4" />
+                   <span>Download PDF</span>
+                 </button>
+                 
+                 <button
+                   onClick={() => window.print()}
+                   className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200"
+                 >
+                   <FileText className="w-4 h-4" />
+                   <span>Print Report</span>
+                 </button>
+               </div>
           </div>
         </div>
       </div>

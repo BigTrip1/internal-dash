@@ -428,18 +428,6 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             opacity: 0.8;
             letter-spacing: 0.5px;
         }
-        .confidential {
-            background: #FF0000;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 900;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            box-shadow: 0 4px 8px rgba(255,0,0,0.3);
-            border: 2px solid #000;
-        }
         .distribution {
             font-size: 12px;
             font-weight: 600;
@@ -721,26 +709,15 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         <!-- Header -->
         <div class="header">
             <div class="header-content">
-                <!-- Left: JCB Logo and Meta Info -->
-                <div style="display: flex; align-items: center; gap: 20px;">
-                    <div class="jcb-logo">
-                        <img src="/jcb-logo.png" alt="JCB Logo" style="width: 80px; height: 80px; object-fit: contain;" />
-                    </div>
-                    <div style="text-align: left;">
-                        <div class="subtitle">Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')}</div>
-                        <div class="subtitle">Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</div>
-                        <div class="distribution">Created By: Adam Lawton - Senior Production Analyst</div>
-                    </div>
+                <!-- Left: JCB Logo -->
+                <div class="jcb-logo">
+                    <img src="/jcb-logo.png" alt="JCB Logo" style="width: 80px; height: 80px; object-fit: contain;" />
                 </div>
                 
                 <!-- Center: Main Title -->
                 <div class="header-main">
                     <h1 class="main-title">LOADALL QUALITY<br>PERFORMANCE REPORT</h1>
-                </div>
-                
-                <!-- Right: Confidential -->
-                <div class="header-right">
-                    <div class="confidential">CONFIDENTIAL</div>
+                    <div class="subtitle">Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} • Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')} • Adam Lawton - Senior Production Analyst</div>
                 </div>
             </div>
         </div>
