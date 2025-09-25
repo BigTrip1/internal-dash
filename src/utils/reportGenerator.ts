@@ -275,6 +275,61 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             border-color: #FCB026;
             color: #ffffff;
         }
+        
+        /* COMPLETE DARK MODE - ALL WHITE ELEMENTS */
+        .dark-theme .executive-summary-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+            border: 2px solid #FCB026 !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .performance-status-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+            border: 2px solid #10B981 !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .trajectory-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+            border: 2px solid #F59E0B !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .chart-container {
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
+            border: 3px solid #FCB026 !important;
+        }
+        .dark-theme .chart-svg {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
+            border: 1px solid #FCB026 !important;
+        }
+        .dark-theme .target-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+            border: 2px solid #10B981 !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .analysis-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+            border: 3px solid #FCB026 !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .metrics-box {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
+            border: 1px solid #FCB026 !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .feasibility-box {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
+            border: 1px solid #FCB026 !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .highlights-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+            border: 2px solid #10B981 !important;
+            color: #ffffff !important;
+        }
+        .dark-theme .observations-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+            border: 2px solid #F59E0B !important;
+            color: #ffffff !important;
+        }
         .report-container::before {
             content: '';
             position: absolute;
@@ -756,7 +811,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </div>
 
             <!-- Executive Performance Narrative -->
-            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <div class="executive-summary-box" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                 <h4 style="margin: 0 0 15px 0; color: #1a1a1a; font-size: 16px;">📊 EXECUTIVE PERFORMANCE SUMMARY</h4>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
@@ -837,7 +892,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 
                 <!-- Enhanced Glide Path Chart -->
                 <div class="glide-path-chart" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
-                    <svg width="100%" height="320" viewBox="0 0 1400 320" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 10px; border: 1px solid #e0e0e0;">
+                    <svg class="chart-svg" width="100%" height="320" viewBox="0 0 1400 320" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 10px; border: 1px solid #e0e0e0;">
                         <!-- Grid lines -->
                         <defs>
                             <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
@@ -916,7 +971,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 <h4 style="margin-bottom: 20px;">Monthly Glide Path Targets:</h4>
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px;">
                     ${reportData.glidePath.monthlyTargets.slice(0, 4).map((target, index) => `
-                        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${target.isAchievable ? '#10B981' : '#EF4444'}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        <div class="target-card" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${target.isAchievable ? '#10B981' : '#EF4444'}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                             <div style="font-weight: bold; color: #1a1a1a; font-size: 14px; margin-bottom: 8px;">${target.month}</div>
                             <div style="font-size: 24px; font-weight: bold; color: ${target.isAchievable ? '#10B981' : '#EF4444'}; margin-bottom: 5px;">
                                 ${formatDPU(target.targetDPU)}
@@ -936,7 +991,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-bottom: 30px;">
                 <!-- Performance Status -->
-                <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
+                <div class="performance-status-box" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
                     <h4 style="margin: 0 0 15px 0; color: #1a1a1a; display: flex; align-items: center;">
                         📊 <span style="margin-left: 8px;">Current Performance Status</span>
                     </h4>
@@ -1258,7 +1313,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 </div>
                 
                 <!-- Data-Driven Insights -->
-                <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
+                <div class="trajectory-box" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
                     <h4 style="margin: 0 0 15px 0; color: #10B981; display: flex; align-items: center;">
                         🎯 <span style="margin-left: 8px;">DATA-DRIVEN INSIGHTS</span>
                     </h4>
@@ -1285,11 +1340,11 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </div>
             
             <!-- Mathematical Analysis -->
-            <div style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 10px; padding: 25px; margin: 20px 0;">
+            <div class="analysis-box" style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 10px; padding: 25px; margin: 20px 0;">
                 <h4 style="margin: 0 0 20px 0; color: #1a1a1a; text-align: center; font-size: 18px;">📐 MATHEMATICAL ANALYSIS</h4>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                    <div class="metrics-box" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
                         <h5 style="margin: 0 0 15px 0; color: #1a1a1a; font-weight: bold;">📊 IMPROVEMENT METRICS</h5>
                         <div style="space-y: 8px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -1311,7 +1366,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                         </div>
                     </div>
                     
-                    <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                    <div class="feasibility-box" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px;">
                         <h5 style="margin: 0 0 15px 0; color: #1a1a1a; font-weight: bold;">🎯 TARGET FEASIBILITY</h5>
                         <div style="text-align: center;">
                             <div style="font-size: 48px; font-weight: bold; margin-bottom: 10px; color: ${reportData.glidePath.riskAssessment === 'On Track' ? '#10B981' : reportData.glidePath.riskAssessment === 'At Risk' ? '#F59E0B' : '#EF4444'};">
@@ -1334,7 +1389,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             <div class="section-title">Performance Highlights & Achievements</div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                <div style="background: #f0fdf4; border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
+                <div class="highlights-box" style="background: #f0fdf4; border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
                     <h5 style="margin: 0 0 15px 0; color: #10B981; font-weight: bold;">✅ THIS MONTH'S SUCCESSES</h5>
                     <ul style="margin: 0; padding-left: 20px; color: #374151;">
                         ${reportData.achievements.map(achievement => `
@@ -1343,7 +1398,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     </ul>
                 </div>
                 
-                <div style="background: #fffbeb; border: 2px solid #F59E0B; border-radius: 10px; padding: 20px;">
+                <div class="observations-box" style="background: #fffbeb; border: 2px solid #F59E0B; border-radius: 10px; padding: 20px;">
                     <h5 style="margin: 0 0 15px 0; color: #F59E0B; font-weight: bold;">📊 DATA OBSERVATIONS</h5>
                     <ul style="margin: 0; padding-left: 20px; color: #374151;">
                         <li style="margin-bottom: 8px;">Current improvement rate needs ${Math.round((reportData.glidePath.requiredMonthlyReduction / ((20.17 - reportData.currentMonthDPU) / 9)) * 100)}% acceleration to meet 8.2 target</li>
