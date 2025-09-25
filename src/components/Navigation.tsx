@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Settings, Database, ChevronDown, User } from 'lucide-react';
+import { BarChart3, Settings, Database, ChevronDown, User, FileText } from 'lucide-react';
 import Image from 'next/image';
 import { useData } from '@/context/DataContext';
 
@@ -11,11 +11,12 @@ const Navigation: React.FC = () => {
   const pathname = usePathname();
   const { data } = useData();
 
-  const navigation = [
-    { name: 'Dashboard', href: '/', icon: BarChart3 },
-    { name: 'Admin Panel', href: '/admin', icon: Settings },
-    { name: 'Seed DB', href: '/seed', icon: Database },
-  ];
+const navigation = [
+  { name: 'Dashboard', href: '/', icon: BarChart3 },
+  { name: 'Admin Panel', href: '/admin', icon: Settings },
+  { name: 'Print Report', href: '/report', icon: FileText },
+  { name: 'Seed DB', href: '/seed', icon: Database },
+];
 
   return (
     <div className="jcb-header">

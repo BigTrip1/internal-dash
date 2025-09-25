@@ -12,40 +12,9 @@ const MonthlyReportGenerator: React.FC = () => {
   const [reportHTML, setReportHTML] = useState<string>('');
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'success' | 'error'>('idle');
 
-  const handleGenerateReport = async () => {
-    setIsGenerating(true);
-    try {
-      // Call the PDF generation API
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`PDF generation failed: ${response.statusText}`);
-      }
-
-      // Get the PDF blob
-      const pdfBlob = await response.blob();
-      
-      // Create download link for A4 PDF
-      const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `LOADALL-Quality-Report-A4-${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
-    } finally {
-      setIsGenerating(false);
-    }
+  const handleGenerateReport = () => {
+    // Open the print-optimized report page in a new tab
+    window.open('/report', '_blank');
   };
 
   const handlePreviewReport = () => {
@@ -276,20 +245,10 @@ const MonthlyReportGenerator: React.FC = () => {
             
             <button
               onClick={handleGenerateReport}
-              disabled={isGenerating}
-              className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50"
+              className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
             >
-              {isGenerating ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Generating...</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4" />
-                  <span>Generate Report</span>
-                </>
-              )}
+              <FileText className="w-4 h-4" />
+              <span>Open Print Report</span>
             </button>
           </div>
           
