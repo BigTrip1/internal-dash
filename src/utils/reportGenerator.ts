@@ -362,14 +362,15 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .glide-path-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
-            border-radius: 8px;
+            margin: 10px 0;
+            border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            font-size: 11px;
         }
         .glide-path-table th,
         .glide-path-table td {
-            padding: 15px 12px;
+            padding: 6px 8px;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
         }
@@ -497,7 +498,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         <div class="header">
             <div class="header-content">
                 <div class="jcb-logo">
-                    <img src="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAJYCAYAAACadoJwAAABOGlDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAACiRlZG9SgNBFIW/WUXFQiOIWFhsJQqKWbVwyySKCIIxWiTpsj+sErK7zI4/eQhLuy1s7H0CK0vBQvEJfAPFKoXMrrBFwOBp5pszl3Nn7oBRruxW94wS9EIlG/tVs9lqm5MvTDBGpo6bxJV6/VBzGIU+Q/p+R+j1dV1nDZ//qWk3lgoYAJuen7ggykD3SsUKRArMO92MHzTL00YNxBMwE+T8ptnJ+UOzbLbaIL50fZCxMZXl5LykWfnXui+1KO7L8+BMmZZt22bFixzfPOknyu8l5kHoRjKOZEf5HpDfL9NcXqgntmLZ9s7qP989Uvofcvo8zuYrFp4Lr5B7IS9/URhbo/dFRroIR/cwPii87Ru4W4PZ28JbtqC0AY/pD8DGT/28T+DjAAAAIGNIUk0AAHolAACAgwAA+f8AAIDoAABSCAABFVgAADqXAAAXb9daH5AAAEagSURBVHja7d0FmFV1/gfgoUsaQbpjYBAQXXXt7sZYdRV17VwLu9ZYA8Uu7FxduxMDWzHXXFv/xtqKsQrf//M7F1yQAYeBmbnxfp7nfdyVwZm5955zz+eeX5RFRBkAAEBt8CAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAAAAAKCAAAIACAgAAoIAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAeBAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAQAEBAAAUEAAAAAUEAABQQAAAADwIAACAAgIAABSf/wddnsElMGDdwgAAAABJRU5ErkJggg==" alt="JCB Logo" style="width: 45px; height: 45px; object-fit: contain;" />
+                    <div style="width: 45px; height: 45px; background: #FCB026; border: 2px solid #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; color: #000;">JCB</div>
                 </div>
                 <div class="header-text">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
@@ -684,11 +685,11 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </table>
 
             <div style="margin: 25px 0;">
-                <h4 style="margin-bottom: 20px;">DPU Trajectory to 8.2 Target:</h4>
+                <h4 style="margin-bottom: 8px; font-size: 12px;">DPU Trajectory to 8.2 Target:</h4>
                 
                 <!-- Glide Path Chart -->
-                <div style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-                    <svg width="100%" height="200" viewBox="0 0 800 200" style="background: white; border-radius: 6px;">
+                <div style="background: #f8f9fa; border: 1px solid #FCB026; border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                    <svg width="100%" height="120" viewBox="0 0 800 120" style="background: white; border-radius: 4px;">
                         <!-- Grid lines -->
                         <defs>
                             <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
