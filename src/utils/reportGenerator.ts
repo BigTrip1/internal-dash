@@ -34,9 +34,16 @@ export interface MonthlyReportData {
 }
 
 export const generateMonthlyReport = (data: InspectionData[]): MonthlyReportData => {
-  // Get current data (using September as latest complete month)
-  const latestMonth = data.find(month => month.date === 'Sep-25') || data[data.length - 1];
-  const previousMonth = data.find(month => month.date === 'Aug-25') || data[data.length - 2];
+  // Debug: Log the actual data we're working with
+  console.log('📊 Report Generator - Data received:', data.length, 'months');
+  console.log('📊 Available dates:', data.map(d => d.date));
+  
+  // Get current data (latest month with actual data, not just 0s)
+  const latestMonth = data.filter(month => month.totalInspections > 0).pop() || data[data.length - 1];
+  const previousMonth = data.filter(month => month.totalInspections > 0 && month !== latestMonth).pop() || data[data.length - 2];
+  
+  console.log('📊 Latest month:', latestMonth?.date, 'DPU:', latestMonth?.totalDpu);
+  console.log('📊 Previous month:', previousMonth?.date, 'DPU:', previousMonth?.totalDpu);
   
   // Calculate current month DPU
   const currentMonthDPU = latestMonth.totalDpu;

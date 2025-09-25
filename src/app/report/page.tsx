@@ -304,7 +304,8 @@ const ReportPage: React.FC = () => {
                      try {
                        const response = await fetch('/api/inspections');
                        const data = await response.json();
-                       alert(`Database contains ${data.length} months of data. ${data.length === 0 ? 'Please seed the database first.' : 'Data is available for PDF generation.'}`);
+                       const validData = data.filter((month: any) => month.totalInspections > 0);
+                       alert(`Database contains ${data.length} total months, ${validData.length} with actual data. ${validData.length === 0 ? 'Please seed the database first.' : 'Data is available for PDF generation.'}`);
                      } catch (error) {
                        alert('Error checking database: ' + error);
                      }

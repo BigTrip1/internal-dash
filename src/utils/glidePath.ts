@@ -90,12 +90,13 @@ export const calculateGlidePath = (data: GlidePathData): GlidePathResult => {
 };
 
 export const getCurrentGlidePath = (currentDPU: number): GlidePathResult => {
-  const now = new Date();
+  // For the report, we're using September 2025 as current month
+  // and December 2025 as target month
   return calculateGlidePath({
     currentDPU,
     targetDPU: 8.2,
-    currentMonth: now.getMonth(),
-    currentYear: now.getFullYear(),
+    currentMonth: 8, // September (0-indexed)
+    currentYear: 2025,
     targetMonth: 11, // December (0-indexed)
     targetYear: 2025
   });
