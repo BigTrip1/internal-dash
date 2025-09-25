@@ -259,40 +259,47 @@ const Dashboard: React.FC = () => {
 
   // Calculate DPU trendline data extending through future months to show complete trajectory to 8.2
   const calculateDPUTrendline = (data: any[]) => {
-    // Get the last month with actual data
-    const validData = data.filter(d => d.totalDpu > 0);
-    if (validData.length < 1) return [];
+    // Find the last month with actual data
+    const lastActualDataIndex = data.findIndex(d => d.totalDpu === 0 || d.totalDpu === null || !d.totalDpu) - 1;
+    const actualDataLength = lastActualDataIndex >= 0 ? lastActualDataIndex + 1 : data.filter(d => d.totalDpu > 0).length;
+    
+    if (actualDataLength < 1) return [];
 
-    const currentDPU = validData[validData.length - 1]?.totalDpu || 12.87;
+    const currentDPU = data[actualDataLength - 1]?.totalDpu || 12.87;
     const targetDPU = 8.2;
-    const currentMonthIndex = validData.length - 1; // Index of Sep-25 in the data
-    const totalMonthsInChart = data.length; // Includes future months
-    const monthsToTarget = totalMonthsInChart - currentMonthIndex - 1; // Oct, Nov, Dec
+    const monthsToTarget = 3; // Oct, Nov, Dec (3 months to reach target)
     const monthlyReduction = (currentDPU - targetDPU) / monthsToTarget;
     
     return data.map((item, index) => {
-      if (index <= currentMonthIndex) {
-        // Historical months - compare actual vs what target should have been
-        const targetForThisMonth = currentDPU - (monthlyReduction * (index - currentMonthIndex));
-        const actualDPU = validData[index]?.totalDpu || 0;
+      if (index < actualDataLength) {
+        // Historical months - show what the target trajectory should have been
+        const monthsFromStart = index;
+        const startingDPU = data[0]?.totalDpu || 20.17;
+        const totalReductionNeeded = startingDPU - targetDPU;
+        const totalMonthsToTarget = data.length - 1; // 11 months from Jan to Dec
+        const expectedReductionPerMonth = totalReductionNeeded / totalMonthsToTarget;
+        const targetForThisMonth = startingDPU - (expectedReductionPerMonth * monthsFromStart);
+        
+        const actualDPU = item.totalDpu || 0;
         const isAboveTarget = actualDPU > targetForThisMonth;
         
         return {
           month: item.month,
-          trendlineDPU: targetForThisMonth,
+          trendlineDPU: Math.max(targetForThisMonth, 8.2),
           isAboveTarget: isAboveTarget,
           actualDPU: actualDPU,
           variance: actualDPU - targetForThisMonth,
           isFuture: false
         };
       } else {
-        // Future months - show target trajectory only
-        const targetForThisMonth = currentDPU - (monthlyReduction * (index - currentMonthIndex));
+        // Future months - show target trajectory from current position
+        const monthsFromCurrent = index - (actualDataLength - 1);
+        const targetForThisMonth = currentDPU - (monthlyReduction * monthsFromCurrent);
         
         return {
           month: item.month,
-          trendlineDPU: Math.max(targetForThisMonth, 8.2), // Don't go below 8.2
-          isAboveTarget: false, // Future months are targets, not performance
+          trendlineDPU: Math.max(targetForThisMonth, 8.2),
+          isAboveTarget: false,
           actualDPU: null,
           variance: 0,
           isFuture: true
@@ -306,6 +313,10 @@ const Dashboard: React.FC = () => {
   // Merge trendline data with chart data
   const chartDataWithTrendline = chartData.map((item, index) => ({
     ...item,
+    // Ensure totalDpu is undefined (not null) for future months so bars don't render
+    totalDpu: (item.totalDpu === null || item.totalDpu === 0) ? undefined : item.totalDpu,
+    // Ensure buildVolume is undefined (not null) for future months so line doesn't render
+    buildVolume: (item.buildVolume === null || item.buildVolume === 0) ? undefined : item.buildVolume,
     trendlineDPU: dpuTrendlineData[index]?.trendlineDPU || 0,
     isAboveTarget: dpuTrendlineData[index]?.isAboveTarget || false,
     targetVariance: dpuTrendlineData[index]?.variance || 0,
@@ -314,6 +325,8 @@ const Dashboard: React.FC = () => {
 
   // Debug: Log the data structure to understand what we're working with
   console.log('chartData:', chartData);
+  console.log('chartDataWithTrendline:', chartDataWithTrendline);
+  console.log('Sample month data:', chartDataWithTrendline[0]);
 
   // Enhanced tooltip recommendations
   const getRecommendation = (value: number, metric: string) => {
@@ -856,7 +869,7 @@ const Dashboard: React.FC = () => {
                    stroke="#FFFFFF" 
                    tick={{ fontSize: 12 }}
                  />
-                 <YAxis yAxisId="dpu" stroke="#FFFFFF" label={{ value: selectedStage === 'All Stages' ? 'Total DPU' : `${selectedStage} DPU`, angle: -90, position: 'insideLeft' }} />
+                  <YAxis yAxisId="dpu" stroke="#FFFFFF" domain={[0, 25]} label={{ value: selectedStage === 'All Stages' ? 'Total DPU' : `${selectedStage} DPU`, angle: -90, position: 'insideLeft' }} />
                  <YAxis yAxisId="volume" orientation="right" stroke="#FFFFFF" domain={[0, 2200]} label={{ value: selectedStage === 'All Stages' ? 'Build Volume' : `${selectedStage} Inspected`, angle: 90, position: 'insideRight' }} />
                  <Tooltip 
                    contentStyle={{
@@ -932,7 +945,7 @@ const Dashboard: React.FC = () => {
                      fill: '#000000', 
                      fontSize: 11,
                      fontWeight: 'bold',
-                     formatter: (value) => value ? formatDPU(value) : ''
+                     formatter: (value) => (value && value > 0) ? formatDPU(value) : ''
                    }}
                  />
                  {/* Build Volume Line - Only show for months with actual data */}
