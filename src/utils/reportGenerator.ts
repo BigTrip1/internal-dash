@@ -163,18 +163,55 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             color: #1a1a1a;
         }
         .dark-theme {
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background: #000000;
         }
         .dark-theme .report-container {
-            background: #1f1f1f;
+            background: #000000;
             color: #ffffff;
         }
         .dark-theme .section {
-            border-bottom-color: #404040;
+            border-bottom-color: #333333;
+        }
+        .dark-theme .section-title {
+            background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
+            color: #000;
         }
         .dark-theme .kpi-card {
-            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            border: 2px solid #FCB026;
             color: #ffffff;
+            box-shadow: 0 8px 16px rgba(252,176,38,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .dark-theme .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FCB026 0%, #F59E0B 100%);
+            border-radius: 15px 15px 0 0;
+        }
+        .dark-theme .kpi-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 0%, rgba(252,176,38,0.03) 25%, transparent 50%, rgba(252,176,38,0.03) 75%, transparent 100%);
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .dark-theme .kpi-value {
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .dark-theme .kpi-label {
+            color: #cccccc;
+        }
+        .dark-theme .glide-path-table {
+            background: #1a1a1a;
+            border: 2px solid #FCB026;
         }
         .dark-theme .glide-path-table th {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
@@ -183,9 +220,59 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .dark-theme .glide-path-table td {
             background: #2d2d2d;
             color: #ffffff;
+            border-bottom-color: #404040;
+        }
+        .dark-theme .glide-path-table tbody tr:nth-child(even) {
+            background-color: #1a1a1a;
+        }
+        .dark-theme .glide-path-table tbody tr:hover {
+            background-color: #FCB026;
+            color: #000;
         }
         .dark-theme .stage-card {
-            background: linear-gradient(135deg, #2d2d2d 0%, #3a3a3a 100%);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 2px solid #FCB026;
+            color: #ffffff;
+            box-shadow: 0 4px 8px rgba(252,176,38,0.15);
+        }
+        .dark-theme .stage-card::before {
+            background: linear-gradient(90deg, #FCB026 0%, #F59E0B 100%);
+        }
+        .dark-theme .kpi-progress-circle .progress-bg {
+            stroke: #404040;
+        }
+        .dark-theme h4, .dark-theme h5, .dark-theme h6 {
+            color: #ffffff;
+        }
+        .dark-theme .action-list li {
+            background: #2d2d2d;
+            border-left-color: #FCB026;
+            color: #ffffff;
+        }
+        .dark-theme .critical-action {
+            background: #2d1a1a;
+            border-left-color: #EF4444;
+        }
+        .dark-theme .achievement {
+            background: #1a2d1a;
+            border-left-color: #10B981;
+        }
+        .dark-theme .glide-path-chart {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            border: 3px solid #FCB026;
+        }
+        .dark-theme .stage-performance-container {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            border: 2px solid #FCB026;
+        }
+        .dark-theme .performance-insight-box {
+            background: #2d2d2d;
+            border-left-color: #FCB026;
+            color: #ffffff;
+        }
+        .dark-theme .decision-box {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            border-color: #FCB026;
             color: #ffffff;
         }
         .report-container::before {
@@ -749,7 +836,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 <h4 style="margin-bottom: 25px; font-size: 20px; font-weight: 700; color: #1a1a1a;">🎯 DPU TRAJECTORY TO 8.2 YEAR-END TARGET</h4>
                 
                 <!-- Enhanced Glide Path Chart -->
-                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
+                <div class="glide-path-chart" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
                     <svg width="100%" height="320" viewBox="0 0 1400 320" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 10px; border: 1px solid #e0e0e0;">
                         <!-- Grid lines -->
                         <defs>
@@ -911,7 +998,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </div>
             
             <!-- Key Performance Insights -->
-            <div style="background: #f8f9fa; border-left: 6px solid #FCB026; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+            <div class="performance-insight-box" style="background: #f8f9fa; border-left: 6px solid #FCB026; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
                 <h4 style="margin: 0 0 15px 0; color: #1a1a1a;">🎯 KEY PERFORMANCE INSIGHTS</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
@@ -936,7 +1023,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </div>
             
             <!-- Stage Performance Heat Map -->
-            <div style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin: 20px 0;">
+            <div class="stage-performance-container" style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin: 20px 0;">
                 <h4 style="margin: 0 0 20px 0; color: #1a1a1a; text-align: center;">🌡️ STAGE PERFORMANCE HEAT MAP</h4>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 25px;">

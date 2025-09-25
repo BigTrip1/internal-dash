@@ -28,7 +28,7 @@ const ReportPage: React.FC = () => {
 
   // Update report HTML when theme changes
   useEffect(() => {
-    if (data.length > 0 && reportHTML) {
+    if (data.length > 0) {
       const reportData = generateMonthlyReport(data);
       const html = generateReportHTML(reportData);
       // Apply theme class to the HTML
@@ -38,7 +38,7 @@ const ReportPage: React.FC = () => {
       );
       setReportHTML(themedHTML);
     }
-  }, [isDarkTheme, data, reportHTML]);
+  }, [isDarkTheme, data]);
 
   const handleDownloadPDF = async () => {
     try {
