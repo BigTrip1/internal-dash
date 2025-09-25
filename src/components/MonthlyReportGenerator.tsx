@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
-import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGenerator';
+import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGeneratorNew';
 import { FileText, Download, Eye } from 'lucide-react';
 
 const MonthlyReportGenerator: React.FC = () => {
@@ -12,9 +12,38 @@ const MonthlyReportGenerator: React.FC = () => {
   const [reportHTML, setReportHTML] = useState<string>('');
   const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'success' | 'error'>('idle');
 
-  const handleGenerateReport = () => {
-    // Open the print-optimized report page in a new tab
-    window.open('/report', '_blank');
+  const handleGenerateReport = async () => {
+    setIsGenerating(true);
+    try {
+      // Call the PDF generation API for direct download
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`PDF generation failed: ${response.statusText}`);
+      }
+
+      // Get the PDF blob and auto-download
+      const pdfBlob = await response.blob();
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `LOADALL-Quality-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handlePreviewReport = () => {
@@ -233,27 +262,28 @@ const MonthlyReportGenerator: React.FC = () => {
             </ul>
           </div>
           
-          <div className="flex space-x-3">
-            <button
-              onClick={handlePreviewReport}
-              disabled={isGenerating}
-              className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50"
-            >
-              <Eye className="w-4 h-4" />
-              <span>Preview Report</span>
-            </button>
-            
+          <div className="flex justify-center">
             <button
               onClick={handleGenerateReport}
-              className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
+              disabled={isGenerating}
+              className="px-8 py-4 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-3 disabled:opacity-50 text-lg"
             >
-              <FileText className="w-4 h-4" />
-              <span>Open Print Report</span>
+              {isGenerating ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Generating Professional PDF...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-5 h-5" />
+                  <span>Download Executive Report</span>
+                </>
+              )}
             </button>
           </div>
           
           <div className="text-xs text-gray-400 bg-gray-800/30 rounded p-3 border border-gray-700">
-            <strong>Instructions:</strong> Click "Preview Report" to review the monthly quality report, then "Print/Save as PDF" to create a PDF for email distribution. The report includes glide path calculations showing the monthly DPU reduction targets needed to achieve the 8.2 year-end goal.
+            <strong>Professional Executive Report:</strong> Click "Download Executive Report" to generate and auto-download a professional 5-page PDF report optimized for management distribution. Includes executive summary, performance analysis, stage heat map, decision framework, and future roadmap.
           </div>
         </div>
       </div>

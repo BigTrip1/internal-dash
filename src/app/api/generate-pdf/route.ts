@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
-import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGenerator';
+import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGeneratorNew';
 
 // Get inspection data from API
 async function getInspectionData() {
@@ -55,70 +55,40 @@ export async function POST(request: NextRequest) {
       ]
     });
 
-    // Generate A4 Portrait PDF
-    console.log('📄 Generating A4 Portrait PDF...');
-    const page1 = await browser.newPage();
-    await page1.setViewport({ width: 794, height: 1123 }); // A4 dimensions in pixels
-    await page1.setContent(htmlContent, {
-      waitUntil: ['networkidle0', 'domcontentloaded']
+    // Generate optimized A4 PDF
+    console.log('📄 Generating optimized A4 PDF...');
+    const page = await browser.newPage();
+    
+    // Set optimal viewport for A4
+    await page.setViewport({ width: 794, height: 1123 });
+    
+    // Set content with faster loading
+    await page.setContent(htmlContent, {
+      waitUntil: ['domcontentloaded']
     });
 
-    const a4Buffer = await page1.pdf({
+    // Generate PDF with optimized settings
+    const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: {
-        top: '10mm',
-        bottom: '10mm', 
-        left: '10mm',
-        right: '10mm'
+        top: '8mm',
+        bottom: '8mm', 
+        left: '8mm',
+        right: '8mm'
       },
       preferCSSPageSize: true,
       displayHeaderFooter: false
     });
 
-    // Generate A3 Landscape HTML with different styling
-    const a3HtmlContent = htmlContent.replace(
-      '@page { size: A4; margin: 15mm; }',
-      '@page { size: A3 landscape; margin: 15mm; }'
-    ).replace(
-      'font-size: 12px;',
-      'font-size: 10px;'
-    ).replace(
-      'padding: 15px 20px;',
-      'padding: 10px 15px;'
-    );
+    console.log('✅ Professional PDF generated successfully');
 
-    // Generate A3 Landscape PDF
-    console.log('📄 Generating A3 Landscape PDF...');
-    const page2 = await browser.newPage();
-    await page2.setViewport({ width: 1684, height: 1191 }); // A3 landscape dimensions
-    await page2.setContent(a3HtmlContent, {
-      waitUntil: ['networkidle0', 'domcontentloaded']
-    });
-
-    const a3Buffer = await page2.pdf({
-      format: 'A3',
-      landscape: true,
-      printBackground: true,
-      margin: {
-        top: '15mm',
-        bottom: '15mm',
-        left: '15mm', 
-        right: '15mm'
-      },
-      preferCSSPageSize: true,
-      displayHeaderFooter: false
-    });
-
-    console.log('✅ PDFs generated successfully');
-
-    // For now, return the A4 version (we can enhance this later to return both)
-    return new NextResponse(a4Buffer, {
+    return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="LOADALL-Quality-Report-A4-${new Date().toISOString().split('T')[0]}.pdf"`,
-        'Content-Length': a4Buffer.length.toString()
+        'Content-Disposition': `attachment; filename="LOADALL-Quality-Report-${new Date().toISOString().split('T')[0]}.pdf"`,
+        'Content-Length': pdfBuffer.length.toString()
       }
     });
 

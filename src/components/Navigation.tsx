@@ -14,7 +14,6 @@ const Navigation: React.FC = () => {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: BarChart3 },
   { name: 'Admin Panel', href: '/admin', icon: Settings },
-  { name: 'Print Report', href: '/report', icon: FileText },
   { name: 'Seed DB', href: '/seed', icon: Database },
 ];
 
