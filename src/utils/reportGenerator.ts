@@ -163,30 +163,131 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             position: relative;
         }
         .light-theme {
-            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            background: #f8f9fa;
         }
         .light-theme .report-container {
-            background: white;
+            background: #ffffff;
             color: #1a1a1a;
         }
+        
+        /* LIGHT MODE STYLING */
+        .light-theme .kpi-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            color: #1a1a1a;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .light-theme .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .light-theme .kpi-card .kpi-icon {
+            width: 24px;
+            height: 24px;
+            background: #FCB026;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000000;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .light-theme .kpi-card .kpi-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .light-theme .kpi-card .status-excellent {
+            background: #10B981;
+            color: #ffffff;
+        }
+        .light-theme .kpi-card .status-good {
+            background: #10B981;
+            color: #ffffff;
+        }
+        .light-theme .kpi-card .status-needs-attention {
+            background: #F59E0B;
+            color: #ffffff;
+        }
+        .light-theme .kpi-card .status-critical {
+            background: #EF4444;
+            color: #ffffff;
+        }
+        .light-theme .kpi-card .status-poor {
+            background: #EF4444;
+            color: #ffffff;
+        }
+        .light-theme .kpi-card .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 8px 0;
+            line-height: 1;
+        }
+        .light-theme .kpi-card .kpi-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .light-theme .kpi-card .kpi-detail {
+            font-size: 12px;
+            color: #9CA3AF;
+            margin-top: 8px;
+        }
+        .light-theme .kpi-card .trend-up {
+            color: #10B981;
+        }
+        .light-theme .kpi-card .trend-down {
+            color: #10B981;
+        }
+        .light-theme .kpi-card .trend-neutral {
+            color: #6B7280;
+        }
+        .light-theme .glide-path-chart {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .light-theme .chart-title {
+            color: #1a1a1a;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .light-theme .chart-subtitle {
+            color: #6B7280;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .light-theme .chart-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+        }
         .dark-theme {
-            background: #000000;
+            background: #1a1a1a;
         }
         .dark-theme .report-container {
-            background: #000000;
+            background: #1a1a1a;
             color: #ffffff;
         }
         
-        /* SIMPLE DARK MODE - NO WHITE ANYWHERE */
-        .dark-theme * {
-            background: transparent !important;
-            color: #ffffff !important;
-        }
-        
-        .dark-theme .report-container {
-            background: #000000 !important;
-        }
-        
+        /* DASHBOARD-STYLE DARK MODE */
         .dark-theme .header {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%) !important;
             color: #000000 !important;
@@ -207,38 +308,90 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .dark-theme .section {
             border-bottom-color: #333333;
         }
+        /* DASHBOARD-STYLE KPI CARDS */
         .dark-theme .kpi-card {
-            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-            border: 2px solid #FCB026;
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 20px;
             color: #ffffff;
-            box-shadow: 0 8px 16px rgba(252,176,38,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        .dark-theme .kpi-card::before {
-            content: '';
+        .dark-theme .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.4);
+        }
+        .dark-theme .kpi-card .kpi-icon {
+            width: 24px;
+            height: 24px;
+            background: #FCB026;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000000;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .dark-theme .kpi-card .kpi-status {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #FCB026 0%, #F59E0B 100%);
-            border-radius: 15px 15px 0 0;
+            top: 16px;
+            right: 16px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
         }
-        .dark-theme .kpi-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(45deg, transparent 0%, rgba(252,176,38,0.03) 25%, transparent 50%, rgba(252,176,38,0.03) 75%, transparent 100%);
-            pointer-events: none;
-            opacity: 0.5;
-        }
-        .dark-theme .kpi-value {
+        .dark-theme .kpi-card .status-excellent {
+            background: #10B981;
             color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
-        .dark-theme .kpi-label {
-            color: #cccccc;
+        .dark-theme .kpi-card .status-good {
+            background: #10B981;
+            color: #ffffff;
+        }
+        .dark-theme .kpi-card .status-needs-attention {
+            background: #F59E0B;
+            color: #ffffff;
+        }
+        .dark-theme .kpi-card .status-critical {
+            background: #EF4444;
+            color: #ffffff;
+        }
+        .dark-theme .kpi-card .status-poor {
+            background: #EF4444;
+            color: #ffffff;
+        }
+        .dark-theme .kpi-card .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 8px 0;
+            line-height: 1;
+        }
+        .dark-theme .kpi-card .kpi-subtitle {
+            font-size: 14px;
+            color: #9CA3AF;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dark-theme .kpi-card .kpi-detail {
+            font-size: 12px;
+            color: #6B7280;
+            margin-top: 8px;
+        }
+        .dark-theme .kpi-card .trend-up {
+            color: #10B981;
+        }
+        .dark-theme .kpi-card .trend-down {
+            color: #10B981;
+        }
+        .dark-theme .kpi-card .trend-neutral {
+            color: #6B7280;
         }
         .dark-theme .glide-path-table {
             background: #1a1a1a;
@@ -288,9 +441,59 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             background: #1a2d1a;
             border-left-color: #10B981;
         }
+        /* DASHBOARD-STYLE CHART */
         .dark-theme .glide-path-chart {
-            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-            border: 3px solid #FCB026;
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .dark-theme .chart-title {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .dark-theme .chart-subtitle {
+            color: #9CA3AF;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .dark-theme .chart-container {
+            background: #1a1a1a;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .dark-theme .chart-svg {
+            background: transparent;
+        }
+        .dark-theme .chart-grid {
+            stroke: #374151;
+        }
+        .dark-theme .chart-axis {
+            stroke: #6B7280;
+        }
+        .dark-theme .chart-axis-text {
+            fill: #9CA3AF;
+            font-size: 12px;
+        }
+        .dark-theme .chart-bar {
+            fill: #FCB026;
+        }
+        .dark-theme .chart-line {
+            stroke: #3B82F6;
+            stroke-width: 3;
+        }
+        .dark-theme .chart-target-line {
+            stroke: #10B981;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+        }
+        .dark-theme .chart-legend {
+            fill: #ffffff;
+            font-size: 12px;
         }
         .dark-theme .stage-performance-container {
             background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
@@ -734,80 +937,59 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             <div class="section-title">Executive Summary</div>
             
             <div class="kpi-grid">
+                <!-- Current Month DPU Card -->
                 <div class="kpi-card">
-                    <div class="status-indicator ${reportData.glidePath.riskAssessment === 'On Track' ? 'status-green' : 
-                                                   reportData.glidePath.riskAssessment === 'At Risk' ? 'status-amber' : 'status-red'}"></div>
-                    <div class="kpi-progress-circle">
-                        <svg viewBox="0 0 36 36">
-                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
-                            <circle class="progress-fill" cx="18" cy="18" r="16" 
-                                    stroke="${reportData.currentMonthDPU > 15 ? '#EF4444' : reportData.currentMonthDPU > 10 ? '#F59E0B' : '#10B981'}"
-                                    stroke-dasharray="${Math.min((reportData.currentMonthDPU / 20) * 100, 100)}, 100"></circle>
-                        </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
-                            ${Math.round((1 - reportData.currentMonthDPU / 20) * 100)}%
-                        </div>
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-status status-${reportData.currentMonthDPU > 15 ? 'critical' : reportData.currentMonthDPU > 10 ? 'needs-attention' : 'excellent'}">
+                        ${reportData.currentMonthDPU > 15 ? 'Critical' : reportData.currentMonthDPU > 10 ? 'Needs Attention' : 'Excellent'}
                     </div>
                     <div class="kpi-value">${formatDPU(reportData.currentMonthDPU)}</div>
-                    <div class="kpi-label">Current Month DPU</div>
-                    <div class="kpi-trend ${reportData.currentMonthDPU < reportData.lastMonthDPU ? 'positive' : 'negative'}">
-                        ${reportData.currentMonthDPU < reportData.lastMonthDPU ? '↓' : '↑'} 
-                        ${formatDPU(Math.abs(reportData.currentMonthDPU - reportData.lastMonthDPU))} vs last month
+                    <div class="kpi-subtitle">
+                        <span class="trend-${reportData.currentMonthDPU < reportData.lastMonthDPU ? 'down' : 'up'}">
+                            ${reportData.currentMonthDPU < reportData.lastMonthDPU ? '↓' : '↑'} 
+                            ${formatDPU(Math.abs(reportData.currentMonthDPU - reportData.lastMonthDPU))} vs last month
+                        </span>
                     </div>
+                    <div class="kpi-detail">Current Month DPU</div>
                 </div>
+
+                <!-- Build Volume Card -->
                 <div class="kpi-card">
-                    <div class="kpi-progress-circle">
-                        <svg viewBox="0 0 36 36">
-                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
-                            <circle class="progress-fill" cx="18" cy="18" r="16" 
-                                    stroke="#FCB026"
-                                    stroke-dasharray="${Math.min((reportData.glidePath.requiredMonthlyReduction / 2) * 100, 100)}, 100"></circle>
-                        </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
-                            TARGET
-                        </div>
-                    </div>
-                    <div class="kpi-value">${formatDPU(reportData.glidePath.requiredMonthlyReduction)}</div>
-                    <div class="kpi-label">Required Monthly Reduction</div>
-                    <div class="kpi-trend ${reportData.glidePath.riskAssessment === 'On Track' ? 'positive' : reportData.glidePath.riskAssessment === 'At Risk' ? 'neutral' : 'negative'}">
-                        ${reportData.glidePath.riskAssessment} - ${reportData.glidePath.riskAssessment === 'Critical' ? 'Immediate action required' : 'Enhanced measures needed'}
-                    </div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-progress-circle">
-                        <svg viewBox="0 0 36 36">
-                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
-                            <circle class="progress-fill" cx="18" cy="18" r="16" 
-                                    stroke="#3B82F6"
-                                    stroke-dasharray="${Math.min((reportData.buildVolume / 2000) * 100, 100)}, 100"></circle>
-                        </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
-                            ${Math.round((reportData.buildVolume / 2000) * 100)}%
-                        </div>
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-status status-${reportData.buildVolume > 1500 ? 'excellent' : 'good'}">
+                        ${reportData.buildVolume > 1500 ? 'Excellent' : 'Good'}
                     </div>
                     <div class="kpi-value">${formatNumber(reportData.buildVolume)}</div>
-                    <div class="kpi-label">Build Volume</div>
-                    <div class="kpi-trend positive">
-                        📈 ${reportData.buildVolume > 1500 ? 'Excellent production levels' : 'Good production levels'}
+                    <div class="kpi-subtitle">
+                        <span class="trend-up">Units</span>
                     </div>
+                    <div class="kpi-detail">Build Volume - ${reportData.buildVolume > 1500 ? 'Excellent production levels' : 'Good production levels'}</div>
                 </div>
+
+                <!-- Total Faults Card -->
                 <div class="kpi-card">
-                    <div class="kpi-progress-circle">
-                        <svg viewBox="0 0 36 36">
-                            <circle class="progress-bg" cx="18" cy="18" r="16"></circle>
-                            <circle class="progress-fill" cx="18" cy="18" r="16" 
-                                    stroke="${reportData.glidePath.monthsRemaining <= 2 ? '#EF4444' : reportData.glidePath.monthsRemaining <= 4 ? '#F59E0B' : '#10B981'}"
-                                    stroke-dasharray="${100 - (reportData.glidePath.monthsRemaining / 12) * 100}, 100"></circle>
-                        </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold;">
-                            ${Math.round((12 - reportData.glidePath.monthsRemaining) / 12 * 100)}%
-                        </div>
+                    <div class="kpi-icon">⚠️</div>
+                    <div class="kpi-status status-${reportData.totalFaults > 20000 ? 'critical' : reportData.totalFaults > 15000 ? 'needs-attention' : 'good'}">
+                        ${reportData.totalFaults > 20000 ? 'Critical' : reportData.totalFaults > 15000 ? 'Needs Attention' : 'Good'}
+                    </div>
+                    <div class="kpi-value">${formatNumber(reportData.totalFaults)}</div>
+                    <div class="kpi-subtitle">
+                        <span class="trend-neutral">Issues</span>
+                    </div>
+                    <div class="kpi-detail">Total Faults - Quality control focus needed</div>
+                </div>
+
+                <!-- Trajectory Status Card -->
+                <div class="kpi-card">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-status status-${reportData.glidePath.riskAssessment === 'On Track' ? 'excellent' : reportData.glidePath.riskAssessment === 'At Risk' ? 'needs-attention' : 'critical'}">
+                        ${reportData.glidePath.riskAssessment}
                     </div>
                     <div class="kpi-value">${reportData.glidePath.monthsRemaining}</div>
-                    <div class="kpi-label">Months to Target</div>
-                    <div class="kpi-trend ${reportData.glidePath.monthsRemaining <= 3 ? 'negative' : 'neutral'}">
-                        ⏱️ ${reportData.glidePath.monthsRemaining <= 3 ? 'Urgent timeline' : 'Adequate time remaining'}
+                    <div class="kpi-subtitle">
+                        <span class="trend-${reportData.glidePath.monthsRemaining <= 3 ? 'up' : 'neutral'}">Months to Target</span>
                     </div>
+                    <div class="kpi-detail">${reportData.glidePath.monthsRemaining <= 3 ? 'Urgent timeline' : 'Adequate time remaining'}</div>
                 </div>
             </div>
 
@@ -896,43 +1078,45 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </table>
 
             <div style="margin: 25px 0;">
-                <h4 style="margin-bottom: 25px; font-size: 20px; font-weight: 700; color: #1a1a1a;">🎯 DPU TRAJECTORY TO 8.2 YEAR-END TARGET</h4>
+                <div class="chart-title">DPU Trend vs Build Volume</div>
+                <div class="chart-subtitle">Interactive Performance Analytics with DPU Trendline - Year to Date</div>
                 
-                <!-- Enhanced Glide Path Chart -->
-                <div class="glide-path-chart" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
-                    <svg class="chart-svg" width="100%" height="320" viewBox="0 0 1400 320" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 10px; border: 1px solid #e0e0e0;">
+                <!-- Dashboard-Style Chart -->
+                <div class="glide-path-chart">
+                    <div class="chart-container">
+                        <svg class="chart-svg" width="100%" height="320" viewBox="0 0 1400 320">
                         <!-- Grid lines -->
                         <defs>
                             <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
-                                <path d="M 80 0 L 0 0 0 20" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                                <path d="M 80 0 L 0 0 0 20" fill="none" stroke="#374151" stroke-width="1"/>
                             </pattern>
                         </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)" />
+                        <rect width="100%" height="100%" fill="url(#grid)" class="chart-grid" />
                         
                         <!-- Y-axis labels -->
-                        <text x="40" y="35" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">20</text>
-                        <text x="40" y="95" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">15</text>
-                        <text x="40" y="155" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">10</text>
-                        <text x="40" y="215" font-size="16" fill="#10B981" text-anchor="middle" font-weight="bold">8.2</text>
-                        <text x="40" y="275" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">5</text>
+                        <text x="40" y="35" class="chart-axis-text" text-anchor="middle" font-weight="bold">20</text>
+                        <text x="40" y="95" class="chart-axis-text" text-anchor="middle" font-weight="bold">15</text>
+                        <text x="40" y="155" class="chart-axis-text" text-anchor="middle" font-weight="bold">10</text>
+                        <text x="40" y="215" class="chart-axis-text" text-anchor="middle" font-weight="bold" fill="#10B981">8.2</text>
+                        <text x="40" y="275" class="chart-axis-text" text-anchor="middle" font-weight="bold">5</text>
                         
-                        <!-- Enhanced Target line at 8.2 -->
-                        <line x1="100" y1="215" x2="1300" y2="215" stroke="#10B981" stroke-width="5" stroke-dasharray="10,5"/>
-                        <text x="1320" y="220" font-size="16" fill="#10B981" font-weight="bold">YEAR-END TARGET: 8.2 DPU</text>
+                        <!-- Target line at 8.2 -->
+                        <line x1="100" y1="215" x2="1300" y2="215" class="chart-target-line"/>
+                        <text x="1320" y="220" class="chart-legend" font-weight="bold">YEAR-END TARGET: 8.2 DPU</text>
                         
-                        <!-- Current DPU point -->
-                        <circle cx="250" cy="${295 - (reportData.currentMonthDPU / 20) * 295}" r="12" fill="#EF4444" stroke="#fff" stroke-width="3"/>
-                        <text x="250" y="${295 - (reportData.currentMonthDPU / 20) * 295 - 25}" font-size="16" fill="#EF4444" text-anchor="middle" font-weight="bold">
-                            CURRENT: ${formatDPU(reportData.currentMonthDPU)} DPU
+                        <!-- Current DPU bar -->
+                        <rect x="220" y="${295 - (reportData.currentMonthDPU / 20) * 295}" width="60" height="${(reportData.currentMonthDPU / 20) * 295}" class="chart-bar"/>
+                        <text x="250" y="${295 - (reportData.currentMonthDPU / 20) * 295 - 25}" class="chart-legend" text-anchor="middle" font-weight="bold">
+                            ${formatDPU(reportData.currentMonthDPU)}
                         </text>
                         
-                        <!-- Enhanced Glide path line -->
+                        <!-- DPU Trend line -->
                         <path d="M 250 ${295 - (reportData.currentMonthDPU / 20) * 295} 
                                  L 500 ${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}
                                  L 750 ${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295}
                                  L 1000 ${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295}
                                  L 1200 215" 
-                              stroke="#FCB026" stroke-width="6" fill="none" stroke-linecap="round"/>
+                              class="chart-line" fill="none" stroke-linecap="round"/>
                         
                         <!-- Target milestone points -->
                         <circle cx="500" cy="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}" r="8" fill="#F59E0B" stroke="#fff" stroke-width="2"/>
@@ -958,10 +1142,22 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                             ${formatDPU(reportData.glidePath.monthlyTargets[2]?.targetDPU || 0)}
                         </text>
                         
-                        <!-- Enhanced Risk zone -->
+                        <!-- Risk zone -->
                         <rect x="100" y="155" width="1200" height="60" fill="#EF4444" opacity="0.15" rx="5"/>
-                        <text x="700" y="185" font-size="16" fill="#EF4444" text-anchor="middle" font-weight="bold">CRITICAL PERFORMANCE ZONE (>10 DPU)</text>
+                        <text x="700" y="185" class="chart-legend" text-anchor="middle" font-weight="bold">CRITICAL PERFORMANCE ZONE (>10 DPU)</text>
+                        
+                        <!-- Legend -->
+                        <g transform="translate(100, 50)">
+                            <rect x="0" y="0" width="12" height="12" class="chart-bar"/>
+                            <text x="20" y="10" class="chart-legend" font-size="12">Total DPU</text>
+                            <line x1="100" y1="6" x2="120" y2="6" class="chart-line" stroke-width="2"/>
+                            <text x="130" y="10" class="chart-legend" font-size="12">Target Trajectory</text>
+                            <line x1="250" y1="6" x2="270" y2="6" class="chart-target-line" stroke-width="2"/>
+                            <text x="280" y="10" class="chart-legend" font-size="12">Year-End Target</text>
+                        </g>
                     </svg>
+                    </div>
+                </div>
                     
                     <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
                         <div style="font-size: 12px; color: #666;">
