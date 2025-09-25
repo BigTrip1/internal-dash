@@ -10,8 +10,8 @@ export const calculateDPU = (inspected: number, faults: number): number => {
 export const calculateTotals = (stages: InspectionStage[]) => {
   const totalInspections = stages.reduce((sum, stage) => sum + stage.inspected, 0);
   const totalFaults = stages.reduce((sum, stage) => sum + stage.faults, 0);
-  // CORRECT: Calculate overall DPU as total faults / total inspections
-  const totalDpu = totalInspections > 0 ? totalFaults / totalInspections : 0;
+  // CORRECT: Total DPU is sum of all stage DPUs for that month
+  const totalDpu = stages.reduce((sum, stage) => sum + stage.dpu, 0);
   
   return {
     totalInspections,
