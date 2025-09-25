@@ -641,7 +641,7 @@ const AdminTable: React.FC = () => {
                            document.body.removeChild(loadingMsg);
 
                            if (result.success) {
-                             alert(`✅ Success! Restored ${result.details.monthsRestored} months of data.\n\nDate range: ${result.details.dateRange}\nTotal stages: ${result.details.totalStages}`);
+                             alert(`✅ Success! Restored ${result.details.monthsRestored} months of data.\n\nDate range: ${result.details.dateRange}\nTotal stages: ${result.details.totalStages}\nFormat: ${result.details.formatDetected || 'Standard'}`);
                              window.location.reload();
                            } else {
                              alert(`❌ Error: ${result.error}`);

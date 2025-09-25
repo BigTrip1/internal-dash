@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     let backupData = body;
 
-    // Handle both old format (array) and new format (object with metadata)
+    // Handle different backup formats
     if (backupData.data && Array.isArray(backupData.data)) {
       console.log(`📊 Processing enhanced backup with metadata`);
       console.log(`📊 Backup info: ${backupData.metadata?.totalMonths} months, ${backupData.metadata?.totalStages} stages`);
@@ -23,6 +23,12 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Check if this is a MongoDB export format (with _id and $oid)
+    const isMongoDBExport = backupData.length > 0 && backupData[0]._id && backupData[0]._id.$oid;
+    if (isMongoDBExport) {
+      console.log(`📊 Detected MongoDB export format - cleaning data structure`);
+    }
+
     console.log(`📊 Processing ${backupData.length} months of backup data`);
 
     // Clear existing data
@@ -31,13 +37,20 @@ export async function POST(request: NextRequest) {
 
     // Process and restore the backup data
     const processedData = backupData.map((monthData: any, index: number) => {
+      // Clean MongoDB export format if needed
+      let cleanMonthData = { ...monthData };
+      if (isMongoDBExport) {
+        // Remove MongoDB _id field and keep the rest
+        delete cleanMonthData._id;
+      }
+
       // Use the stages directly from backup if available, otherwise reconstruct
       let stages = [];
       
-      if (monthData.stages && Array.isArray(monthData.stages)) {
+      if (cleanMonthData.stages && Array.isArray(cleanMonthData.stages)) {
         // Direct restoration from backup format
-        stages = monthData.stages.map((stage: any) => ({
-          id: stage.id || `${stage.name.toLowerCase()}-${monthData.date}`,
+        stages = cleanMonthData.stages.map((stage: any) => ({
+          id: stage.id || `${stage.name.toLowerCase()}-${cleanMonthData.date}`,
           name: stage.name,
           inspected: stage.inspected || 0,
           faults: stage.faults || 0,
@@ -52,7 +65,7 @@ export async function POST(request: NextRequest) {
         ];
 
         stages = stageNames.map(stageName => ({
-          id: `${stageName.toLowerCase()}-${monthData.date}`,
+          id: `${stageName.toLowerCase()}-${cleanMonthData.date}`,
           name: stageName,
           inspected: 0,
           faults: 0,
@@ -66,11 +79,11 @@ export async function POST(request: NextRequest) {
       const totalDpu = stages.reduce((sum, stage) => sum + stage.dpu, 0);
 
       return {
-        id: monthData.id || `month-${monthData.date}`,
-        date: monthData.date,
-        totalInspections: monthData.totalInspections || totalInspections,
-        totalFaults: monthData.totalFaults || totalFaults,
-        totalDpu: monthData.totalDpu || Math.round(totalDpu * 100) / 100,
+        id: cleanMonthData.id || `month-${cleanMonthData.date}`,
+        date: cleanMonthData.date,
+        totalInspections: cleanMonthData.totalInspections || totalInspections,
+        totalFaults: cleanMonthData.totalFaults || totalFaults,
+        totalDpu: cleanMonthData.totalDpu || Math.round(totalDpu * 100) / 100,
         stages
       };
     });
@@ -89,7 +102,8 @@ export async function POST(request: NextRequest) {
         totalStages: processedData[0]?.stages?.length || 0,
         dateRange: processedData.length > 0 ? 
           `${processedData[0].date} to ${processedData[processedData.length - 1].date}` : 
-          'No data'
+          'No data',
+        formatDetected: isMongoDBExport ? 'MongoDB Export Format' : 'Standard Backup Format'
       }
     });
 
