@@ -288,7 +288,7 @@ const AdminTable: React.FC = () => {
     }
   };
 
-  const handleDownloadData = () => {
+  const handleDownloadJSON = () => {
     const timestamp = new Date().toISOString().split('T')[0];
     
     // Create comprehensive data export for AI analysis
@@ -416,6 +416,86 @@ const AdminTable: React.FC = () => {
     URL.revokeObjectURL(csvUrl);
   };
 
+  const handleDownloadCSV = () => {
+    const timestamp = new Date().toISOString().split('T')[0];
+    
+    // Create CSV data in the same format as your screenshots
+    const csvRows = [];
+    
+    // Add metadata section
+    csvRows.push('METADATA');
+    csvRows.push('Export Date,' + new Date().toISOString());
+    csvRows.push('Total Months,' + data.length);
+    csvRows.push('Total Stages,' + stageNames.length);
+    csvRows.push('Stages,' + stageNames.join(';'));
+    csvRows.push('');
+
+    // Add summary section
+    csvRows.push('SUMMARY');
+    csvRows.push('Metric,Value');
+    csvRows.push('Total Inspections,' + data.reduce((sum, month) => sum + month.totalInspections, 0));
+    csvRows.push('Total Faults,' + data.reduce((sum, month) => sum + month.totalFaults, 0));
+    csvRows.push('Average DPU,' + (data.reduce((sum, month) => sum + month.totalDpu, 0) / data.length).toFixed(2));
+    csvRows.push('Date Range,' + (data.length > 0 ? `${data[0].date} to ${data[data.length - 1].date}` : 'No data'));
+    csvRows.push('');
+
+    // Add monthly data section
+    csvRows.push('MONTHLY DATA');
+    csvRows.push('Month,Total Inspections,Total Faults,Total DPU');
+    data.forEach(month => {
+      csvRows.push(`${month.date},${month.totalInspections},${month.totalFaults},${month.totalDpu}`);
+    });
+    csvRows.push('');
+
+    // Add detailed stage data section
+    csvRows.push('DETAILED STAGE DATA');
+    const stageHeaders = ['Month'];
+    stageNames.forEach(stageName => {
+      stageHeaders.push(`${stageName} Inspected`);
+      stageHeaders.push(`${stageName} Faults`);
+      stageHeaders.push(`${stageName} DPU`);
+    });
+    csvRows.push(stageHeaders.join(','));
+
+    data.forEach(month => {
+      const row = [month.date];
+      stageNames.forEach(stageName => {
+        const stage = month.stages.find(s => s.name === stageName);
+        row.push(stage?.inspected || 0);
+        row.push(stage?.faults || 0);
+        row.push(stage?.dpu || 0);
+      });
+      csvRows.push(row.join(','));
+    });
+    csvRows.push('');
+
+    // Add stage analysis section
+    csvRows.push('STAGE ANALYSIS');
+    csvRows.push('Stage Name,Total Inspected,Total Faults,Average DPU,Months with Data');
+    stageNames.forEach(stageName => {
+      const stageData = data.flatMap(month => 
+        month.stages.filter(stage => stage.name === stageName)
+      );
+      const totalInspected = stageData.reduce((sum, stage) => sum + stage.inspected, 0);
+      const totalFaults = stageData.reduce((sum, stage) => sum + stage.faults, 0);
+      const avgDPU = stageData.length > 0 ? stageData.reduce((sum, stage) => sum + stage.dpu, 0) / stageData.length : 0;
+      const monthsWithData = stageData.length;
+      
+      csvRows.push(`${stageName},${totalInspected},${totalFaults},${avgDPU.toFixed(2)},${monthsWithData}`);
+    });
+
+    const csvContent = csvRows.join('\n');
+    const csvBlob = new Blob([csvContent], { type: 'text/csv' });
+    const csvUrl = URL.createObjectURL(csvBlob);
+    const csvLink = document.createElement('a');
+    csvLink.href = csvUrl;
+    csvLink.download = `jcb-inspection-data-${timestamp}.csv`;
+    document.body.appendChild(csvLink);
+    csvLink.click();
+    document.body.removeChild(csvLink);
+    URL.revokeObjectURL(csvUrl);
+  };
+
   const getStageId = (stageName: string): string => {
     return stageName.toLowerCase().replace(/[^a-z0-9]/g, '');
   };
@@ -447,11 +527,18 @@ const AdminTable: React.FC = () => {
             <span>{isLocked ? 'Locked' : 'Unlocked'}</span>
           </button>
           <button
-            onClick={handleDownloadData}
+            onClick={handleDownloadJSON}
             className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
           >
             <Download className="w-4 h-4" />
-            <span>Download Backup</span>
+            <span>Download JSON</span>
+          </button>
+          <button
+            onClick={handleDownloadCSV}
+            className="px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700 transition-colors duration-200 flex items-center space-x-2"
+          >
+            <Download className="w-4 h-4" />
+            <span>Download CSV</span>
           </button>
                    <a
                      href="/seed"
@@ -519,14 +606,18 @@ const AdminTable: React.FC = () => {
                            const text = await file.text();
                            const backupData = JSON.parse(text);
                            
-                           if (!Array.isArray(backupData)) {
+                           // Handle both old format (array) and new format (object with metadata)
+                           let actualData = backupData;
+                           if (backupData.data && Array.isArray(backupData.data)) {
+                             actualData = backupData.data;
+                           } else if (!Array.isArray(backupData)) {
                              alert('❌ Invalid backup file format. Please select a valid backup file.');
                              return;
                            }
 
                            if (!confirm(
                              `⚠️ WARNING: This will REPLACE ALL existing data with the backup data!\n\n` +
-                             `Backup contains ${backupData.length} months of data.\n\n` +
+                             `Backup contains ${actualData.length} months of data.\n\n` +
                              `This action cannot be undone. Are you sure you want to continue?`
                            )) return;
 
@@ -543,7 +634,7 @@ const AdminTable: React.FC = () => {
                            const response = await fetch('/api/restore-data', {
                              method: 'POST',
                              headers: { 'Content-Type': 'application/json' },
-                             body: JSON.stringify({ backupData })
+                             body: JSON.stringify({ backupData: actualData })
                            });
 
                            const result = await response.json();
@@ -564,7 +655,67 @@ const AdminTable: React.FC = () => {
                      className="px-4 py-2 bg-orange-600 text-white font-bold rounded-lg shadow-lg hover:bg-orange-700 transition-colors duration-200 flex items-center space-x-2"
                    >
                      <Download className="w-4 h-4" />
-                     <span>Restore Backup</span>
+                     <span>Restore JSON</span>
+                   </button>
+                   <button
+                     onClick={() => {
+                       const input = document.createElement('input');
+                       input.type = 'file';
+                       input.accept = '.csv';
+                       input.onchange = async (e) => {
+                         const file = (e.target as HTMLInputElement).files?.[0];
+                         if (!file) return;
+
+                         try {
+                           const csvContent = await file.text();
+                           
+                           // Basic CSV validation
+                           if (!csvContent.includes(',') || csvContent.split('\n').length < 2) {
+                             alert('❌ Invalid CSV file format. Please select a valid CSV file.');
+                             return;
+                           }
+
+                           if (!confirm(
+                             `⚠️ WARNING: This will REPLACE ALL existing data with the CSV data!\n\n` +
+                             `CSV file: ${file.name}\n` +
+                             `This action cannot be undone. Are you sure you want to continue?`
+                           )) return;
+
+                           // Show loading
+                           const loadingMsg = document.createElement('div');
+                           loadingMsg.innerHTML = '🔄 Restoring CSV data...';
+                           loadingMsg.style.cssText = `
+                             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                             background: #1a1a1a; color: white; padding: 20px; border-radius: 8px;
+                             z-index: 1000; border: 2px solid #FCB026;
+                           `;
+                           document.body.appendChild(loadingMsg);
+
+                           const response = await fetch('/api/restore-csv', {
+                             method: 'POST',
+                             headers: { 'Content-Type': 'application/json' },
+                             body: JSON.stringify({ csvContent })
+                           });
+
+                           const result = await response.json();
+                           document.body.removeChild(loadingMsg);
+
+                           if (result.success) {
+                             alert(`✅ Success! Restored ${result.details.monthsRestored} months of CSV data.\n\nDate range: ${result.details.dateRange}\nTotal stages: ${result.details.totalStages}\nCSV rows: ${result.details.csvRows}`);
+                             window.location.reload();
+                           } else {
+                             alert(`❌ Error: ${result.error}`);
+                           }
+                         } catch (error) {
+                           alert('❌ Failed to restore CSV: ' + error);
+                         }
+                       };
+                       input.click();
+                     }}
+                     className="px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200 flex items-center space-x-2"
+                   >
+                     <Download className="w-4 h-4" />
+                     <span>Restore CSV</span>
                    </button>
           <button
             onClick={() => {
