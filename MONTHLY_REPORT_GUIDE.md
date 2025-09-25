@@ -6,18 +6,20 @@
 **Purpose**: Calculate monthly DPU reduction targets to achieve 8.2 by year-end
 
 **Key Features**:
-- **Current Status**: 12.87 DPU (Sep-25 data)
+- **Baseline Status**: 20.17 DPU (Jan-25 starting point)
 - **Target**: 8.2 DPU by December 2025
-- **Required Reduction**: 1.17 DPU per month
-- **Risk Assessment**: "At Risk" - requires enhanced quality measures
-- **Daily Tracking**: 0.039 DPU reduction needed per day
+- **Required Reduction**: 1.088 DPU per month
+- **Risk Assessment**: "On Track" - linear trajectory established
+- **Daily Tracking**: 0.036 DPU reduction needed per day
 
 **Glide Path Targets**:
 ```
-Oct-25: 11.70 DPU
-Nov-25: 10.53 DPU  
-Dec-25: 9.36 DPU
-Jan-26: 8.20 DPU (TARGET ACHIEVED)
+Jan-25: 20.17 DPU (Baseline)    Jul-25: 13.65 DPU
+Feb-25: 19.08 DPU               Aug-25: 12.57 DPU
+Mar-25: 17.99 DPU               Sep-25: 11.48 DPU
+Apr-25: 16.91 DPU               Oct-25: 10.40 DPU
+May-25: 15.82 DPU               Nov-25: 9.31 DPU
+Jun-25: 14.74 DPU               Dec-25: 8.20 DPU ✅
 ```
 
 ### ✅ **2. Monthly Report Generator** (`/src/utils/reportGenerator.ts`)
