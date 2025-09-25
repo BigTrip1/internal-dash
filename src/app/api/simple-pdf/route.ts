@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Generate report data and HTML
     const reportData = generateMonthlyReport(data);
-    const htmlContent = generateReportHTML(reportData);
+    const htmlContent = generateReportHTML(reportData, data);
 
     console.log('✅ HTML content generated successfully');
 

@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Generate report data and HTML
     const reportData = generateMonthlyReport(data);
-    const htmlContent = generateReportHTML(reportData);
+    const htmlContent = generateReportHTML(reportData, data);
 
     // Launch Puppeteer
     console.log('🚀 Launching browser...');

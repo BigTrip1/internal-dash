@@ -133,7 +133,7 @@ export const generateMonthlyReport = (data: InspectionData[]): MonthlyReportData
   };
 };
 
-export const generateReportHTML = (reportData: MonthlyReportData): string => {
+export const generateReportHTML = (reportData: MonthlyReportData, data?: InspectionData[]): string => {
   const monthlyProgress = getMonthlyProgress(
     reportData.currentMonthDPU,
     reportData.lastMonthDPU,
@@ -1117,7 +1117,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                         <text x="1320" y="220" class="chart-legend" font-weight="bold">YEAR-END TARGET: 8.2 DPU</text>
                         
                         <!-- Historical DPU bars (last 6 months) -->
-                        ${data.slice(-6).map((month, index) => {
+                        ${data && data.length > 0 ? data.slice(-6).map((month, index) => {
                           const x = 150 + (index * 100);
                           const height = (month.totalDpu / 20) * 295;
                           const y = 295 - height;
@@ -1130,7 +1130,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                               ${month.date}
                             </text>
                           `;
-                        }).join('')}
+                        }).join('') : ''}
                         
                         <!-- Current DPU bar (highlighted) -->
                         <rect x="220" y="${295 - (reportData.currentMonthDPU / 20) * 295}" width="60" height="${(reportData.currentMonthDPU / 20) * 295}" class="chart-bar" opacity="1" stroke="#ffffff" stroke-width="2"/>
@@ -1139,6 +1139,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                         </text>
                         
                         <!-- Build Volume line (right axis) -->
+                        ${data && data.length > 0 ? `
                         <path d="M ${150 + (data.length - 6) * 100} ${295 - (data.slice(-6)[0]?.totalInspections / 2000) * 295}
                                  ${data.slice(-6).map((month, index) => {
                                    const x = 150 + (index * 100);
@@ -1158,6 +1159,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                             </text>
                           `;
                         }).join('')}
+                        ` : ''}
                         
                         <!-- DPU Trend line (projected) -->
                         <path d="M 250 ${295 - (reportData.currentMonthDPU / 20) * 295} 

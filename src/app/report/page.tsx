@@ -16,7 +16,7 @@ const ReportPage: React.FC = () => {
     if (data.length > 0) {
       try {
         const reportData = generateMonthlyReport(data);
-        const html = generateReportHTML(reportData);
+        const html = generateReportHTML(reportData, data);
         setReportHTML(html);
       } catch (error) {
         console.error('Error generating report:', error);
@@ -30,7 +30,7 @@ const ReportPage: React.FC = () => {
   useEffect(() => {
     if (data.length > 0) {
       const reportData = generateMonthlyReport(data);
-      const html = generateReportHTML(reportData);
+      const html = generateReportHTML(reportData, data);
       // Apply theme class to the HTML
       const themedHTML = html.replace(
         '<body>',

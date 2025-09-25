@@ -14,8 +14,7 @@ const MonthlyReportGenerator: React.FC = () => {
     try {
       // Generate report data
       const reportData = generateMonthlyReport(data);
-      const html = generateReportHTML(reportData);
-      setReportHTML(html);
+      const html = generateReportHTML(reportData, data);
       
       // Create and download HTML file
       const blob = new Blob([html], { type: 'text/html' });
