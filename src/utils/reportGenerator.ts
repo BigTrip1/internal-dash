@@ -149,10 +149,11 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             background-color: #f5f5f5;
         }
         .report-container {
-            max-width: 210mm;
-            margin: 0 auto;
+            width: 100%;
+            max-width: none;
+            margin: 0;
             background: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            min-height: 100vh;
         }
         .header {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
@@ -223,7 +224,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             opacity: 0.8;
         }
         .section {
-            padding: 25px 30px;
+            padding: 30px 50px;
             border-bottom: 1px solid #e0e0e0;
         }
         .section:last-child {
@@ -244,9 +245,9 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-bottom: 30px;
         }
         .kpi-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
@@ -363,9 +364,9 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .stage-performance {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
         }
         .stage-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -660,7 +661,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 
                 <!-- Glide Path Chart -->
                 <div style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-                    <svg width="100%" height="200" viewBox="0 0 800 200" style="background: white; border-radius: 6px;">
+                    <svg width="100%" height="250" viewBox="0 0 1200 250" style="background: white; border-radius: 6px;">
                         <!-- Grid lines -->
                         <defs>
                             <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
@@ -677,33 +678,33 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                         <text x="30" y="185" font-size="12" fill="#666" text-anchor="middle">5</text>
                         
                         <!-- Target line at 8.2 -->
-                        <line x1="50" y1="145" x2="750" y2="145" stroke="#10B981" stroke-width="3" stroke-dasharray="5,5"/>
-                        <text x="760" y="149" font-size="12" fill="#10B981" font-weight="bold">TARGET</text>
+                        <line x1="80" y1="195" x2="1120" y2="195" stroke="#10B981" stroke-width="3" stroke-dasharray="5,5"/>
+                        <text x="1130" y="199" font-size="12" fill="#10B981" font-weight="bold">TARGET</text>
                         
                         <!-- Current DPU point -->
-                        <circle cx="150" cy="${200 - (reportData.currentMonthDPU / 20) * 200}" r="6" fill="#EF4444"/>
-                        <text x="150" y="${200 - (reportData.currentMonthDPU / 20) * 200 - 15}" font-size="12" fill="#EF4444" text-anchor="middle" font-weight="bold">
+                        <circle cx="200" cy="${225 - (reportData.currentMonthDPU / 20) * 225}" r="8" fill="#EF4444"/>
+                        <text x="200" y="${225 - (reportData.currentMonthDPU / 20) * 225 - 20}" font-size="14" fill="#EF4444" text-anchor="middle" font-weight="bold">
                             Current: ${formatDPU(reportData.currentMonthDPU)}
                         </text>
                         
                         <!-- Glide path line -->
-                        <path d="M 150 ${200 - (reportData.currentMonthDPU / 20) * 200} 
-                                 L 300 ${200 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 200}
-                                 L 450 ${200 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 200}
-                                 L 600 ${200 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 200}
-                                 L 750 145" 
-                              stroke="#FCB026" stroke-width="4" fill="none"/>
+                        <path d="M 200 ${225 - (reportData.currentMonthDPU / 20) * 225} 
+                                 L 400 ${225 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 225}
+                                 L 600 ${225 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 225}
+                                 L 800 ${225 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 225}
+                                 L 1000 195" 
+                              stroke="#FCB026" stroke-width="5" fill="none"/>
                         
                         <!-- Month labels -->
-                        <text x="150" y="195" font-size="11" fill="#666" text-anchor="middle">Current</text>
-                        <text x="300" y="195" font-size="11" fill="#666" text-anchor="middle">${reportData.glidePath.monthlyTargets[0]?.month || 'Oct'}</text>
-                        <text x="450" y="195" font-size="11" fill="#666" text-anchor="middle">${reportData.glidePath.monthlyTargets[1]?.month || 'Nov'}</text>
-                        <text x="600" y="195" font-size="11" fill="#666" text-anchor="middle">${reportData.glidePath.monthlyTargets[2]?.month || 'Dec'}</text>
-                        <text x="750" y="195" font-size="11" fill="#666" text-anchor="middle">Target</text>
+                        <text x="200" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">Current</text>
+                        <text x="400" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[0]?.month || 'Oct'}</text>
+                        <text x="600" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[1]?.month || 'Nov'}</text>
+                        <text x="800" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[2]?.month || 'Dec'}</text>
+                        <text x="1000" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">Target</text>
                         
                         <!-- Risk zone -->
-                        <rect x="50" y="105" width="700" height="40" fill="#EF4444" opacity="0.1"/>
-                        <text x="400" y="125" font-size="12" fill="#EF4444" text-anchor="middle" font-weight="bold">CRITICAL ZONE (>10 DPU)</text>
+                        <rect x="80" y="105" width="1040" height="40" fill="#EF4444" opacity="0.1"/>
+                        <text x="600" y="125" font-size="14" fill="#EF4444" text-anchor="middle" font-weight="bold">CRITICAL ZONE (>10 DPU)</text>
                     </svg>
                     
                     <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
@@ -719,8 +720,8 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     </div>
                 </div>
                 
-                <h4 style="margin-bottom: 15px;">Monthly Glide Path Targets:</h4>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px;">
+                <h4 style="margin-bottom: 20px;">Monthly Glide Path Targets:</h4>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px;">
                     ${reportData.glidePath.monthlyTargets.slice(0, 4).map((target, index) => `
                         <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${target.isAchievable ? '#10B981' : '#EF4444'}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                             <div style="font-weight: bold; color: #1a1a1a; font-size: 14px; margin-bottom: 8px;">${target.month}</div>
@@ -740,7 +741,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         <div class="section">
             <div class="section-title">Strategic Context & Industry Position</div>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-bottom: 30px;">
                 <!-- Performance Status -->
                 <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
                     <h4 style="margin: 0 0 15px 0; color: #1a1a1a; display: flex; align-items: center;">
@@ -832,7 +833,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             <div style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin: 20px 0;">
                 <h4 style="margin: 0 0 20px 0; color: #1a1a1a; text-align: center;">🌡️ STAGE PERFORMANCE HEAT MAP</h4>
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-bottom: 25px;">
                     ${reportData.stagePerformance.slice(0, 6).map((stage, index) => {
                         const performanceLevel = stage.dpu > 5 ? 'critical' : stage.dpu > 2 ? 'warning' : 'good';
                         const bgColor = performanceLevel === 'critical' ? '#fef2f2' : performanceLevel === 'warning' ? '#fffbeb' : '#f0fdf4';
