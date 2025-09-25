@@ -7,11 +7,52 @@ import { formatNumber, formatDPU } from '@/utils/dataUtils';
 import { getCurrentGlidePath } from '@/utils/glidePath';
 
 const PrintOptimizedReport: React.FC = () => {
-  const { data } = useData();
+  const { data, error } = useData();
+  
+  // Handle no data case
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">No Data Available</h2>
+          <p className="text-gray-600 mb-4">
+            {error ? 'Database connection failed. Using offline mode.' : 'No inspection data found.'}
+          </p>
+          <p className="text-sm text-gray-500 mb-4">
+            Please ensure MongoDB is running and data is seeded, or return to the dashboard.
+          </p>
+          <div className="space-x-4">
+            <a href="/" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              Return to Dashboard
+            </a>
+            <a href="/seed" className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+              Seed Database
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   // Generate report data
-  const reportData = generateMonthlyReport(data);
-  const glidePath = getCurrentGlidePath(reportData.currentMonthDPU);
+  let reportData, glidePath;
+  try {
+    reportData = generateMonthlyReport(data);
+    glidePath = getCurrentGlidePath(reportData.currentMonthDPU);
+  } catch (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="text-center p-8 bg-white rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold text-red-600 mb-4">Report Generation Error</h2>
+          <p className="text-gray-600 mb-4">Failed to generate report data.</p>
+          <p className="text-sm text-gray-500 mb-4">Error: {error instanceof Error ? error.message : 'Unknown error'}</p>
+          <a href="/admin" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Return to Admin Panel
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   const handlePrint = () => {
     window.print();
