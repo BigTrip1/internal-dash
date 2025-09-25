@@ -511,9 +511,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
             font-weight: 500;
         }
         .light-theme .chart-container {
-            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-            border: 1px solid #E5E7EB;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%) !important;
+            border: 2px solid #E5E7EB !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+            border-radius: 12px !important;
         }
         .dark-theme .stage-performance-container {
             background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
@@ -548,7 +549,9 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
         }
         .dark-theme .chart-container {
             background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%) !important;
-            border: 3px solid #FCB026 !important;
+            border: 2px solid #333333 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+            border-radius: 12px !important;
         }
         .dark-theme .chart-svg {
             background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
@@ -1144,129 +1147,74 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
                           TARGET: 8.2 DPU
                         </text>
                         
-                        <!-- Clean Professional DPU Trend Line -->
+                        <!-- Enhanced Professional Chart Styling -->
                         <defs>
-                          <linearGradient id="dpuAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#FCB026;stop-opacity:0.15" />
-                            <stop offset="100%" style="stop-color:#FCB026;stop-opacity:0.02" />
-                          </linearGradient>
-                          <linearGradient id="buildVolumeAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.15" />
-                            <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:0.02" />
-                          </linearGradient>
                           <filter id="subtleShadow">
                             <feDropShadow dx="1" dy="1" stdDeviation="2" flood-opacity="0.2"/>
                           </filter>
                         </defs>
                         
-                        <!-- DPU Trend Area Fill (Subtle) -->
-                        <path d="M ${150 + (data.length - 6) * 100} ${295 - (data.slice(-6)[0]?.totalDpu / 20) * 295}
-                                 ${data.slice(-6).map((month, index) => {
-                                   const x = 150 + (index * 100);
-                                   const y = 295 - (month.totalDpu / 20) * 295;
-                                   return `L ${x} ${y}`;
-                                 }).join(' ')} L ${150 + (data.length - 1) * 100} 295 L 150 295 Z" 
-                              fill="url(#dpuAreaGradient)" stroke="none"/>
+                        <!-- Enhanced Grid Lines for Better Readability -->
+                        <g opacity="0.3">
+                          <line x1="100" y1="50" x2="1300" y2="50" stroke="#9CA3AF" stroke-width="1"/>
+                          <line x1="100" y1="100" x2="1300" y2="100" stroke="#9CA3AF" stroke-width="1"/>
+                          <line x1="100" y1="150" x2="1300" y2="150" stroke="#9CA3AF" stroke-width="1"/>
+                          <line x1="100" y1="200" x2="1300" y2="200" stroke="#9CA3AF" stroke-width="1"/>
+                          <line x1="100" y1="250" x2="1300" y2="250" stroke="#9CA3AF" stroke-width="1"/>
+                        </g>
                         
-                        <!-- Clean DPU Trend Line -->
-                        <path d="M ${150 + (data.length - 6) * 100} ${295 - (data.slice(-6)[0]?.totalDpu / 20) * 295}
-                                 ${data.slice(-6).map((month, index) => {
-                                   const x = 150 + (index * 100);
-                                   const y = 295 - (month.totalDpu / 20) * 295;
-                                   return `L ${x} ${y}`;
-                                 }).join(' ')}" 
-                              fill="none" stroke="#FCB026" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        
-                        <!-- Professional DPU Data Points -->
-                        ${data.slice(-6).map((month, index) => {
-                          const x = 150 + (index * 100);
-                          const y = 295 - (month.totalDpu / 20) * 295;
-                          const isCurrent = month.date === reportData.monthEnding;
-                          return `
-                            <circle cx="${x}" cy="${y}" r="${isCurrent ? '6' : '4'}" 
-                                    fill="${isCurrent ? '#FCB026' : '#F59E0B'}" 
-                                    stroke="#ffffff" stroke-width="${isCurrent ? '2' : '1.5'}" 
-                                    filter="url(#subtleShadow)"/>
-                            <text x="${x}" y="${y - 15}" class="chart-legend" text-anchor="middle" font-weight="600" font-size="10">
-                              ${formatDPU(month.totalDpu)}
-                            </text>
-                            <text x="${x}" y="310" class="chart-axis-text" text-anchor="middle" font-size="10" font-weight="${isCurrent ? 'bold' : 'normal'}">
-                              ${isCurrent ? 'CURRENT' : month.date}
-                            </text>
-                          `;
-                        }).join('')}
-                        
-                        <!-- Clean Build Volume Visualization -->
-                        <path d="M ${150 + (data.length - 6) * 100} ${295 - (data.slice(-6)[0]?.totalInspections / 2000) * 295}
-                                 ${data.slice(-6).map((month, index) => {
-                                   const x = 150 + (index * 100);
-                                   const y = 295 - (month.totalInspections / 2000) * 295;
-                                   return `L ${x} ${y}`;
-                                 }).join(' ')} L ${150 + (data.length - 1) * 100} 295 L 150 295 Z" 
-                              fill="url(#buildVolumeAreaGradient)" stroke="none"/>
-                        
-                        <path d="M ${150 + (data.length - 6) * 100} ${295 - (data.slice(-6)[0]?.totalInspections / 2000) * 295}
-                                 ${data.slice(-6).map((month, index) => {
-                                   const x = 150 + (index * 100);
-                                   const y = 295 - (month.totalInspections / 2000) * 295;
-                                   return `L ${x} ${y}`;
-                                 }).join(' ')}" 
-                              fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
-                        
-                        <!-- Professional Build Volume Data Points -->
-                        ${data.slice(-6).map((month, index) => {
-                          const x = 150 + (index * 100);
-                          const y = 295 - (month.totalInspections / 2000) * 295;
-                          const isCurrent = month.date === reportData.monthEnding;
-                          return `
-                            <circle cx="${x}" cy="${y}" r="${isCurrent ? '5' : '3.5'}" 
-                                    fill="#3B82F6" 
-                                    stroke="#ffffff" stroke-width="${isCurrent ? '1.5' : '1'}" 
-                                    filter="url(#subtleShadow)" opacity="0.9"/>
-                            <text x="${x}" y="${y - 20}" class="chart-legend" text-anchor="middle" font-size="8" fill="#3B82F6" font-weight="600">
-                              ${month.totalInspections > 0 ? month.totalInspections : ''}
-                            </text>
-                          `;
-                        }).join('')}
-                        
-                        <!-- Professional Target Trajectory -->
+                        <!-- Enhanced Target Trajectory with Data Labels -->
                         <path d="M 250 ${295 - (reportData.currentMonthDPU / 20) * 295} 
                                  L 500 ${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}
                                  L 750 ${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295}
                                  L 1000 ${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295}
                                  L 1200 215" 
-                              fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" 
-                              stroke-dasharray="6,3" opacity="0.8"/>
+                              fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" 
+                              stroke-dasharray="8,4" opacity="0.9"/>
                         
-                        <!-- Professional Target Milestone Points -->
-                        <circle cx="500" cy="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}" r="5" 
+                        <!-- Enhanced Target Milestone Points with Data Labels -->
+                        <circle cx="500" cy="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}" r="6" 
                                 fill="#10B981" stroke="#ffffff" stroke-width="2" filter="url(#subtleShadow)"/>
-                        <circle cx="750" cy="${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295}" r="5" 
+                        <text x="500" y="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295 - 15}" 
+                              class="chart-legend" text-anchor="middle" font-size="9" font-weight="600" fill="#10B981">
+                          ${formatDPU(reportData.glidePath.monthlyTargets[0]?.targetDPU || 0)}
+                        </text>
+                        
+                        <circle cx="750" cy="${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295}" r="6" 
                                 fill="#10B981" stroke="#ffffff" stroke-width="2" filter="url(#subtleShadow)"/>
-                        <circle cx="1000" cy="${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295}" r="5" 
+                        <text x="750" y="${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295 - 15}" 
+                              class="chart-legend" text-anchor="middle" font-size="9" font-weight="600" fill="#10B981">
+                          ${formatDPU(reportData.glidePath.monthlyTargets[1]?.targetDPU || 0)}
+                        </text>
+                        
+                        <circle cx="1000" cy="${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295}" r="6" 
                                 fill="#10B981" stroke="#ffffff" stroke-width="2" filter="url(#subtleShadow)"/>
-                        
-                        <!-- Target Achievement Point -->
-                        <circle cx="1200" cy="215" r="8" fill="#10B981" stroke="#ffffff" stroke-width="2.5" filter="url(#subtleShadow)"/>
-                        <text x="1200" y="219" class="chart-legend" text-anchor="middle" font-size="10" font-weight="bold" fill="#ffffff">✓</text>
-                        
-                        <!-- Month labels -->
-                        <text x="250" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">CURRENT</text>
-                        <text x="500" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[0]?.month || 'OCT-25'}</text>
-                        <text x="750" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[1]?.month || 'NOV-25'}</text>
-                        <text x="1000" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[2]?.month || 'DEC-25'}</text>
-                        <text x="1200" y="310" font-size="14" fill="#10B981" text-anchor="middle" font-weight="bold">TARGET ACHIEVED</text>
-                        
-                        <!-- Target values -->
-                        <text x="500" y="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295 - 15}" font-size="12" fill="#F59E0B" text-anchor="middle" font-weight="bold">
-                            ${formatDPU(reportData.glidePath.monthlyTargets[0]?.targetDPU || 0)}
+                        <text x="1000" y="${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295 - 15}" 
+                              class="chart-legend" text-anchor="middle" font-size="9" font-weight="600" fill="#10B981">
+                          ${formatDPU(reportData.glidePath.monthlyTargets[2]?.targetDPU || 0)}
                         </text>
-                        <text x="750" y="${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295 - 15}" font-size="12" fill="#F59E0B" text-anchor="middle" font-weight="bold">
-                            ${formatDPU(reportData.glidePath.monthlyTargets[1]?.targetDPU || 0)}
+                        
+                        <!-- Enhanced Target Achievement Point -->
+                        <circle cx="1200" cy="215" r="10" fill="#10B981" stroke="#ffffff" stroke-width="3" filter="url(#subtleShadow)"/>
+                        <text x="1200" y="220" class="chart-legend" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffffff">✓</text>
+                        <text x="1200" y="235" class="chart-legend" text-anchor="middle" font-size="9" font-weight="600" fill="#10B981">
+                          ${formatDPU(8.2)}
                         </text>
-                        <text x="1000" y="${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295 - 15}" font-size="12" fill="#F59E0B" text-anchor="middle" font-weight="bold">
-                            ${formatDPU(reportData.glidePath.monthlyTargets[2]?.targetDPU || 0)}
-                        </text>
+                        
+                        <!-- Full Month Labels (Jan-Dec) -->
+                        <text x="100" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">Jan</text>
+                        <text x="200" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">Feb</text>
+                        <text x="300" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">Mar</text>
+                        <text x="400" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">Apr</text>
+                        <text x="500" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">May</text>
+                        <text x="600" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">Jun</text>
+                        <text x="700" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">Jul</text>
+                        <text x="800" y="330" font-size="11" fill="#6B7280" text-anchor="middle" font-weight="500">Aug</text>
+                        <text x="900" y="330" font-size="11" fill="#10B981" text-anchor="middle" font-weight="600">Sep</text>
+                        <text x="1000" y="330" font-size="11" fill="#10B981" text-anchor="middle" font-weight="600">Oct</text>
+                        <text x="1100" y="330" font-size="11" fill="#10B981" text-anchor="middle" font-weight="600">Nov</text>
+                        <text x="1200" y="330" font-size="11" fill="#10B981" text-anchor="middle" font-weight="600">Dec</text>
+                        
                         
                         <!-- Clean Critical Performance Zone -->
                         <rect x="100" y="155" width="1200" height="60" fill="#EF4444" opacity="0.08" rx="6"/>
@@ -1279,27 +1227,23 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
                           CRITICAL (>10 DPU)
                         </text>
                         
-                        <!-- Professional Legend -->
+                        <!-- Enhanced Professional Legend -->
                         <g transform="translate(100, 25)">
                             <!-- Legend Background -->
-                            <rect x="-5" y="-5" width="480" height="30" rx="15" 
-                                  fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" stroke-width="1" opacity="0.9"/>
-                            
-                            <!-- DPU Trend -->
-                            <circle cx="15" cy="10" r="3" fill="#FCB026" filter="url(#subtleShadow)"/>
-                            <text x="25" y="13" class="chart-legend" font-size="10" font-weight="500">DPU Trend</text>
-                            
-                            <!-- Build Volume -->
-                            <circle cx="110" cy="10" r="3" fill="#3B82F6" filter="url(#subtleShadow)"/>
-                            <text x="120" y="13" class="chart-legend" font-size="10" font-weight="500">Build Volume</text>
+                            <rect x="-5" y="-5" width="380" height="30" rx="15" 
+                                  fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.15)" stroke-width="1" opacity="0.95"/>
                             
                             <!-- Target Trajectory -->
-                            <line x1="210" y1="10" x2="225" y2="10" stroke="#10B981" stroke-width="2" stroke-dasharray="3,2"/>
-                            <text x="235" y="13" class="chart-legend" font-size="10" font-weight="500">Target Trajectory</text>
+                            <line x1="15" y1="10" x2="30" y2="10" stroke="#10B981" stroke-width="3" stroke-dasharray="4,2"/>
+                            <text x="40" y="13" class="chart-legend" font-size="11" font-weight="600">Target Trajectory</text>
                             
                             <!-- Year-End Target -->
-                            <line x1="330" y1="10" x2="345" y2="10" stroke="#10B981" stroke-width="2" stroke-dasharray="4,2"/>
-                            <text x="355" y="13" class="chart-legend" font-size="10" font-weight="500">Year-End Target</text>
+                            <line x1="180" y1="10" x2="195" y2="10" stroke="#10B981" stroke-width="2" stroke-dasharray="6,3"/>
+                            <text x="205" y="13" class="chart-legend" font-size="11" font-weight="600">Year-End Target (8.2 DPU)</text>
+                            
+                            <!-- Critical Zone -->
+                            <rect x="350" y="6" width="15" height="8" fill="#EF4444" opacity="0.8" rx="2"/>
+                            <text x="375" y="13" class="chart-legend" font-size="11" font-weight="600">Critical Zone (>10 DPU)</text>
                         </g>
                     </svg>
                     </div>
