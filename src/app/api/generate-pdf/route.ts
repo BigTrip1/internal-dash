@@ -10,7 +10,15 @@ async function getInspectionData() {
     if (!response.ok) {
       throw new Error('Failed to fetch inspection data');
     }
-    return await response.json();
+    const result = await response.json();
+    
+    // API returns { success: true, data: [...] }, we need just the data array
+    if (result.success && Array.isArray(result.data)) {
+      return result.data;
+    } else {
+      console.error('Invalid data format from API:', result);
+      return [];
+    }
   } catch (error) {
     console.error('Error fetching data:', error);
     // Return fallback data structure

@@ -34,9 +34,27 @@ export interface MonthlyReportData {
 }
 
 export const generateMonthlyReport = (data: InspectionData[]): MonthlyReportData => {
+  // Validate input data
+  if (!Array.isArray(data)) {
+    console.error('generateMonthlyReport: data is not an array:', typeof data, data);
+    throw new Error('Invalid data format: expected array of InspectionData');
+  }
+  
+  if (data.length === 0) {
+    console.error('generateMonthlyReport: data array is empty');
+    throw new Error('No inspection data available for report generation');
+  }
+  
+  console.log(`generateMonthlyReport: Processing ${data.length} months of data`);
+  
   // Get current data (using September as latest complete month)
-  const latestMonth = data.find(month => month.date === 'Sep-25') || data[data.length - 1];
-  const previousMonth = data.find(month => month.date === 'Aug-25') || data[data.length - 2];
+  const latestMonth = data.find(month => month && month.date === 'Sep-25') || data[data.length - 1];
+  const previousMonth = data.find(month => month && month.date === 'Aug-25') || data[data.length - 2];
+  
+  if (!latestMonth) {
+    console.error('generateMonthlyReport: No valid latest month found');
+    throw new Error('No valid inspection data found for report generation');
+  }
   
   // Calculate current month DPU
   const currentMonthDPU = latestMonth.totalDpu;
