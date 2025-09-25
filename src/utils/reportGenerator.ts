@@ -1093,30 +1093,79 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                         </defs>
                         <rect width="100%" height="100%" fill="url(#grid)" class="chart-grid" />
                         
-                        <!-- Y-axis labels -->
+                        <!-- Left Y-axis labels (DPU) -->
                         <text x="40" y="35" class="chart-axis-text" text-anchor="middle" font-weight="bold">20</text>
                         <text x="40" y="95" class="chart-axis-text" text-anchor="middle" font-weight="bold">15</text>
                         <text x="40" y="155" class="chart-axis-text" text-anchor="middle" font-weight="bold">10</text>
                         <text x="40" y="215" class="chart-axis-text" text-anchor="middle" font-weight="bold" fill="#10B981">8.2</text>
                         <text x="40" y="275" class="chart-axis-text" text-anchor="middle" font-weight="bold">5</text>
+                        <text x="40" y="295" class="chart-axis-text" text-anchor="middle" font-size="10" font-weight="bold">0</text>
+                        
+                        <!-- Right Y-axis labels (Build Volume) -->
+                        <text x="1360" y="35" class="chart-axis-text" text-anchor="middle" font-weight="bold" fill="#3B82F6">2000</text>
+                        <text x="1360" y="95" class="chart-axis-text" text-anchor="middle" font-weight="bold" fill="#3B82F6">1500</text>
+                        <text x="1360" y="155" class="chart-axis-text" text-anchor="middle" font-weight="bold" fill="#3B82F6">1000</text>
+                        <text x="1360" y="215" class="chart-axis-text" text-anchor="middle" font-weight="bold" fill="#3B82F6">500</text>
+                        <text x="1360" y="275" class="chart-axis-text" text-anchor="middle" font-weight="bold" fill="#3B82F6">0</text>
+                        
+                        <!-- Axis titles -->
+                        <text x="40" y="15" class="chart-axis-text" text-anchor="middle" font-weight="bold" font-size="12">Total DPU</text>
+                        <text x="1360" y="15" class="chart-axis-text" text-anchor="middle" font-weight="bold" font-size="12" fill="#3B82F6">Build Volume</text>
                         
                         <!-- Target line at 8.2 -->
                         <line x1="100" y1="215" x2="1300" y2="215" class="chart-target-line"/>
                         <text x="1320" y="220" class="chart-legend" font-weight="bold">YEAR-END TARGET: 8.2 DPU</text>
                         
-                        <!-- Current DPU bar -->
-                        <rect x="220" y="${295 - (reportData.currentMonthDPU / 20) * 295}" width="60" height="${(reportData.currentMonthDPU / 20) * 295}" class="chart-bar"/>
-                        <text x="250" y="${295 - (reportData.currentMonthDPU / 20) * 295 - 25}" class="chart-legend" text-anchor="middle" font-weight="bold">
-                            ${formatDPU(reportData.currentMonthDPU)}
+                        <!-- Historical DPU bars (last 6 months) -->
+                        ${data.slice(-6).map((month, index) => {
+                          const x = 150 + (index * 100);
+                          const height = (month.totalDpu / 20) * 295;
+                          const y = 295 - height;
+                          return `
+                            <rect x="${x}" y="${y}" width="40" height="${height}" class="chart-bar" opacity="0.7"/>
+                            <text x="${x + 20}" y="${y - 10}" class="chart-legend" text-anchor="middle" font-size="10">
+                              ${formatDPU(month.totalDpu)}
+                            </text>
+                            <text x="${x + 20}" y="310" class="chart-axis-text" text-anchor="middle" font-size="10">
+                              ${month.date}
+                            </text>
+                          `;
+                        }).join('')}
+                        
+                        <!-- Current DPU bar (highlighted) -->
+                        <rect x="220" y="${295 - (reportData.currentMonthDPU / 20) * 295}" width="60" height="${(reportData.currentMonthDPU / 20) * 295}" class="chart-bar" opacity="1" stroke="#ffffff" stroke-width="2"/>
+                        <text x="250" y="${295 - (reportData.currentMonthDPU / 20) * 295 - 25}" class="chart-legend" text-anchor="middle" font-weight="bold" font-size="14">
+                            CURRENT: ${formatDPU(reportData.currentMonthDPU)}
                         </text>
                         
-                        <!-- DPU Trend line -->
+                        <!-- Build Volume line (right axis) -->
+                        <path d="M ${150 + (data.length - 6) * 100} ${295 - (data.slice(-6)[0]?.totalInspections / 2000) * 295}
+                                 ${data.slice(-6).map((month, index) => {
+                                   const x = 150 + (index * 100);
+                                   const y = 295 - (month.totalInspections / 2000) * 295;
+                                   return `L ${x} ${y}`;
+                                 }).join(' ')}" 
+                              class="chart-line" fill="none" stroke-linecap="round" stroke="#3B82F6"/>
+                        
+                        <!-- Build Volume markers -->
+                        ${data.slice(-6).map((month, index) => {
+                          const x = 150 + (index * 100);
+                          const y = 295 - (month.totalInspections / 2000) * 295;
+                          return `
+                            <circle cx="${x}" cy="${y}" r="4" fill="#3B82F6" stroke="#ffffff" stroke-width="2"/>
+                            <text x="${x}" y="${y - 15}" class="chart-legend" text-anchor="middle" font-size="10" fill="#3B82F6">
+                              ${month.totalInspections}
+                            </text>
+                          `;
+                        }).join('')}
+                        
+                        <!-- DPU Trend line (projected) -->
                         <path d="M 250 ${295 - (reportData.currentMonthDPU / 20) * 295} 
                                  L 500 ${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}
                                  L 750 ${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295}
                                  L 1000 ${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295}
                                  L 1200 215" 
-                              class="chart-line" fill="none" stroke-linecap="round"/>
+                              class="chart-line" fill="none" stroke-linecap="round" stroke="#FCB026" stroke-dasharray="5,5"/>
                         
                         <!-- Target milestone points -->
                         <circle cx="500" cy="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}" r="8" fill="#F59E0B" stroke="#fff" stroke-width="2"/>
@@ -1150,10 +1199,12 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                         <g transform="translate(100, 50)">
                             <rect x="0" y="0" width="12" height="12" class="chart-bar"/>
                             <text x="20" y="10" class="chart-legend" font-size="12">Total DPU</text>
-                            <line x1="100" y1="6" x2="120" y2="6" class="chart-line" stroke-width="2"/>
-                            <text x="130" y="10" class="chart-legend" font-size="12">Target Trajectory</text>
-                            <line x1="250" y1="6" x2="270" y2="6" class="chart-target-line" stroke-width="2"/>
-                            <text x="280" y="10" class="chart-legend" font-size="12">Year-End Target</text>
+                            <line x1="100" y1="6" x2="120" y2="6" class="chart-line" stroke="#3B82F6" stroke-width="2"/>
+                            <text x="130" y="10" class="chart-legend" font-size="12">Build Volume</text>
+                            <line x1="220" y1="6" x2="240" y2="6" class="chart-line" stroke="#FCB026" stroke-width="2" stroke-dasharray="5,5"/>
+                            <text x="250" y="10" class="chart-legend" font-size="12">Target Trajectory</text>
+                            <line x1="350" y1="6" x2="370" y2="6" class="chart-target-line" stroke-width="2"/>
+                            <text x="380" y="10" class="chart-legend" font-size="12">Year-End Target</text>
                         </g>
                     </svg>
                     </div>
@@ -1185,6 +1236,40 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                             </div>
                         </div>
                     `).join('')}
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Stage Performance Analysis -->
+        <div class="section">
+            <div class="section-title">Stage Performance Analysis</div>
+            
+            <div class="stage-performance-container" style="margin: 20px 0;">
+                <h4 style="margin-bottom: 20px; color: #1a1a1a;">Top 10 Highest DPU Stages (Current Month)</h4>
+                
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
+                    ${reportData.stagePerformance.slice(0, 10).map(stage => `
+                        <div class="stage-card" style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); padding: 15px; border-radius: 8px; text-align: center; border: 2px solid ${stage.dpu > 2 ? '#EF4444' : stage.dpu > 1 ? '#F59E0B' : '#10B981'}; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                            <div style="font-weight: bold; color: #1a1a1a; font-size: 12px; margin-bottom: 8px;">${stage.name}</div>
+                            <div style="font-size: 20px; font-weight: bold; color: ${stage.dpu > 2 ? '#EF4444' : stage.dpu > 1 ? '#F59E0B' : '#10B981'}; margin-bottom: 5px;">
+                                ${formatDPU(stage.dpu)}
+                            </div>
+                            <div style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ${stage.status === 'Improved' ? '✓ Improved' : stage.status === 'Deteriorated' ? '⚠ Deteriorated' : '→ Stable'}
+                                ${stage.change !== 0 ? ` (${stage.change > 0 ? '+' : ''}${formatDPU(stage.change)})` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-left: 4px solid #0ea5e9; border-radius: 8px;">
+                    <h5 style="margin: 0 0 10px 0; color: #0369a1;">📊 Stage Performance Summary</h5>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; font-size: 12px;">
+                        <div><strong>Improved Stages:</strong> ${reportData.stagePerformance.filter(s => s.status === 'Improved').length}</div>
+                        <div><strong>Stable Stages:</strong> ${reportData.stagePerformance.filter(s => s.status === 'Stable').length}</div>
+                        <div><strong>Deteriorated Stages:</strong> ${reportData.stagePerformance.filter(s => s.status === 'Deteriorated').length}</div>
+                        <div><strong>Highest DPU:</strong> ${reportData.stagePerformance[0]?.name} (${formatDPU(reportData.stagePerformance[0]?.dpu || 0)})</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1349,6 +1434,57 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                             <div style="font-size: 24px; font-weight: bold; color: #EF4444;">${reportData.stagePerformance.filter(s => s.dpu > 5).length}</div>
                             <div style="font-size: 12px; color: #6B7280; text-transform: uppercase;">Requires Attention</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Impact Analysis -->
+        <div class="section">
+            <div class="section-title">Financial Impact Analysis</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+                <div class="kpi-card" style="background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%); border: 2px solid #EF4444; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div class="kpi-icon">💰</div>
+                    <div class="kpi-status status-critical">Critical</div>
+                    <div class="kpi-value" style="color: #EF4444;">£${(reportData.totalFaults * 150).toLocaleString()}</div>
+                    <div class="kpi-subtitle">
+                        <span class="trend-neutral">Quality Cost Impact</span>
+                    </div>
+                    <div class="kpi-detail">Estimated cost per fault: £150</div>
+                </div>
+                
+                <div class="kpi-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div class="kpi-icon">🎯</div>
+                    <div class="kpi-status status-excellent">Opportunity</div>
+                    <div class="kpi-value" style="color: #10B981;">£${((reportData.currentMonthDPU - 8.2) * reportData.buildVolume * 150).toLocaleString()}</div>
+                    <div class="kpi-subtitle">
+                        <span class="trend-up">Target Savings Potential</span>
+                    </div>
+                    <div class="kpi-detail">Annual savings if target achieved</div>
+                </div>
+                
+                <div class="kpi-card" style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 2px solid #F59E0B; border-radius: 10px; padding: 20px; text-align: center;">
+                    <div class="kpi-icon">📈</div>
+                    <div class="kpi-status status-needs-attention">ROI</div>
+                    <div class="kpi-value" style="color: #F59E0B;">${Math.round(((reportData.currentMonthDPU - 8.2) * reportData.buildVolume * 150) / 50000 * 100)}%</div>
+                    <div class="kpi-subtitle">
+                        <span class="trend-up">Quality Investment ROI</span>
+                    </div>
+                    <div class="kpi-detail">Based on £50K quality improvement budget</div>
+                </div>
+            </div>
+            
+            <div style="padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 10px; border-left: 4px solid #64748b;">
+                <h5 style="margin: 0 0 15px 0; color: #475569;">💡 Financial Impact Insights</h5>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; font-size: 14px;">
+                    <div>
+                        <strong style="color: #EF4444;">Current Monthly Cost:</strong><br>
+                        Quality issues costing approximately £${(reportData.totalFaults * 150).toLocaleString()} per month
+                    </div>
+                    <div>
+                        <strong style="color: #10B981;">Improvement Opportunity:</strong><br>
+                        Achieving 8.2 DPU target could save £${((reportData.currentMonthDPU - 8.2) * reportData.buildVolume * 150 * 12).toLocaleString()} annually
                     </div>
                 </div>
             </div>
