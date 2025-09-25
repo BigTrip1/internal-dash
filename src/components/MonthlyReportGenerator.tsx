@@ -10,28 +10,39 @@ const MonthlyReportGenerator: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
   const [reportHTML, setReportHTML] = useState<string>('');
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'success' | 'error'>('idle');
 
   const handleGenerateReport = async () => {
     setIsGenerating(true);
     try {
-      // Generate report data
-      const reportData = generateMonthlyReport(data);
-      const html = generateReportHTML(reportData);
-      setReportHTML(html);
+      // Call the PDF generation API
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`PDF generation failed: ${response.statusText}`);
+      }
+
+      // Get the PDF blob
+      const pdfBlob = await response.blob();
       
-      // Create and download HTML file
-      const blob = new Blob([html], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
+      // Create download link for A4 PDF
+      const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `JCB-Monthly-Quality-Report-${reportData.monthEnding}.html`;
+      link.download = `LOADALL-Quality-Report-A4-${new Date().toISOString().split('T')[0]}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
     } catch (error) {
-      console.error('Error generating report:', error);
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
     } finally {
       setIsGenerating(false);
     }
@@ -47,6 +58,8 @@ const MonthlyReportGenerator: React.FC = () => {
   };
 
   const handlePrintReport = async () => {
+    setDownloadStatus('downloading');
+    
     try {
       // Call the PDF generation API
       const response = await fetch('/api/generate-pdf', {
@@ -67,15 +80,66 @@ const MonthlyReportGenerator: React.FC = () => {
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `LOADALL-Quality-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = `LOADALL-Quality-Report-A4-${new Date().toISOString().split('T')[0]}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
+      setDownloadStatus('success');
+      
+      // Reset status after 3 seconds
+      setTimeout(() => setDownloadStatus('idle'), 3000);
+
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      setDownloadStatus('error');
+      
+      // Reset status after 5 seconds
+      setTimeout(() => setDownloadStatus('idle'), 5000);
+    }
+  };
+
+  const handlePrintA3Report = async () => {
+    setDownloadStatus('downloading');
+    
+    try {
+      // Call the A3 PDF generation API
+      const response = await fetch('/api/generate-pdf-a3', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`A3 PDF generation failed: ${response.statusText}`);
+      }
+
+      // Get the PDF blob
+      const pdfBlob = await response.blob();
+      
+      // Create download link
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `LOADALL-Quality-Report-A3-Landscape-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setDownloadStatus('success');
+      
+      // Reset status after 3 seconds
+      setTimeout(() => setDownloadStatus('idle'), 3000);
+
+    } catch (error) {
+      console.error('Error generating A3 PDF:', error);
+      setDownloadStatus('error');
+      
+      // Reset status after 5 seconds
+      setTimeout(() => setDownloadStatus('idle'), 5000);
     }
   };
 
@@ -88,10 +152,73 @@ const MonthlyReportGenerator: React.FC = () => {
             <div className="flex space-x-2">
               <button
                 onClick={handlePrintReport}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
+                disabled={downloadStatus === 'downloading'}
+                className={`px-3 py-2 text-white rounded transition-colors duration-200 flex items-center space-x-2 ${
+                  downloadStatus === 'downloading' 
+                    ? 'bg-orange-600 cursor-not-allowed' 
+                    : downloadStatus === 'success' 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : downloadStatus === 'error' 
+                    ? 'bg-red-600 hover:bg-red-700' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
               >
-                <FileText className="w-4 h-4" />
-                <span>Download PDF</span>
+                {downloadStatus === 'downloading' ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : downloadStatus === 'success' ? (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Downloaded!</span>
+                  </>
+                ) : downloadStatus === 'error' ? (
+                  <>
+                    <FileText className="w-4 h-4" />
+                    <span>Failed - Retry</span>
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-4 h-4" />
+                    <span>A4 PDF</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handlePrintA3Report}
+                disabled={downloadStatus === 'downloading'}
+                className={`px-3 py-2 text-white rounded transition-colors duration-200 flex items-center space-x-2 ${
+                  downloadStatus === 'downloading' 
+                    ? 'bg-orange-600 cursor-not-allowed' 
+                    : downloadStatus === 'success' 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : downloadStatus === 'error' 
+                    ? 'bg-red-600 hover:bg-red-700' 
+                    : 'bg-purple-600 hover:bg-purple-700'
+                }`}
+              >
+                {downloadStatus === 'downloading' ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : downloadStatus === 'success' ? (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Downloaded!</span>
+                  </>
+                ) : downloadStatus === 'error' ? (
+                  <>
+                    <FileText className="w-4 h-4" />
+                    <span>Failed - Retry</span>
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-4 h-4" />
+                    <span>A3 Landscape</span>
+                  </>
+                )}
               </button>
               <button
                 onClick={() => setPreviewMode(false)}

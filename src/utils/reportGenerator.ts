@@ -159,28 +159,37 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOADALL Internal Quality Performance Report</title>
     <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        @media print {
+            body { margin: 0; padding: 0; background: white; }
+            .page-break { page-break-before: always; }
+            .avoid-break { page-break-inside: avoid; }
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+            line-height: 1.4;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0;
+            background-color: white;
+            font-size: 12px;
         }
         .report-container {
-            max-width: 210mm;
-            margin: 0 auto;
+            max-width: 100%;
+            margin: 0;
             background: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
         .header {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
             color: black;
-            padding: 50px 30px;
+            padding: 20px 15px;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 140px;
+            min-height: 70px;
         }
         .header::before {
             content: '';
@@ -220,19 +229,20 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             flex: 1;
         }
         .header h1 {
-            margin: 0 0 8px 0;
-            font-size: 36px;
+            margin: 0;
+            font-size: 20px;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            line-height: 1.1;
         }
         .header .subtitle {
             margin: 0 0 15px 0;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1.2px;
+            letter-spacing: 1px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         .header .meta-info {
@@ -241,24 +251,25 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             opacity: 0.8;
         }
         .section {
-            padding: 25px 30px;
+            padding: 15px 20px;
             border-bottom: 1px solid #e0e0e0;
+            page-break-inside: avoid;
         }
         .section:last-child {
             border-bottom: none;
         }
         .section-title {
-            font-size: 22px;
+            font-size: 16px;
             font-weight: bold;
             color: #1a1a1a;
-            margin-bottom: 20px;
-            padding: 12px 20px;
+            margin-bottom: 15px;
+            padding: 8px 15px;
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
-            border-radius: 8px;
+            border-radius: 6px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-left: 6px solid #000;
+            border-left: 4px solid #000;
         }
         .kpi-grid {
             display: grid;
@@ -486,21 +497,20 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         <div class="header">
             <div class="header-content">
                 <div class="jcb-logo">
-                    <img src="/jcb-logo.png" alt="JCB Logo" style="width: 80px; height: 80px; object-fit: contain;" />
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAJYCAYAAACadoJwAAABOGlDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAACiRlZG9SgNBFIW/WUXFQiOIWFhsJQqKWbVwyySKCIIxWiTpsj+sErK7zI4/eQhLuy1s7H0CK0vBQvEJfAPFKoXMrrBFwOBp5pszl3Nn7oBRruxW94wS9EIlG/tVs9lqm5MvTDBGpo6bxJV6/VBzGIU+Q/p+R+j1dV1nDZ//qWk3lgoYAJuen7ggykD3SsUKRArMO92MHzTL00YNxBMwE+T8ptnJ+UOzbLbaIL50fZCxMZXl5LykWfnXui+1KO7L8+BMmZZt22bFixzfPOknyu8l5kHoRjKOZEf5HpDfL9NcXqgntmLZ9s7qP989Uvofcvo8zuYrFp4Lr5B7IS9/URhbo/dFRroIR/cwPii87Ru4W4PZ28JbtqC0AY/pD8DGT/28T+DjAAAAIGNIUk0AAHolAACAgwAA+f8AAIDoAABSCAABFVgAADqXAAAXb9daH5AAAEagSURBVHja7d0FmFV1/gfgoUsaQbpjYBAQXXXt7sZYdRV17VwLu9ZYA8Uu7FxduxMDWzHXXFv/xtqKsQrf//M7F1yQAYeBmbnxfp7nfdyVwZm5955zz+eeX5RFRBkAAEBt8CAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAAAAAKCAAAIACAgAAoIAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAeBAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAQAEBAAAUEAAAAAUEAABQQAAAADwIAACAAgIAABSf/wddnsElMGDdwgAAAABJRU5ErkJggg==" alt="JCB Logo" style="width: 50px; height: 50px; object-fit: contain;" />
                 </div>
                 <div class="header-text">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                        <h1 style="margin: 0;">JCB Digital Factory</h1>
-                        <div style="background: #FF0000; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                        <h1 style="margin: 0;">LOADALL INTERNAL QUALITY PERFORMANCE REPORT</h1>
+                        <div style="background: #FF0000; color: white; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold;">
                             CONFIDENTIAL
                         </div>
                     </div>
-                    <div class="subtitle">LOADALL INTERNAL QUALITY PERFORMANCE REPORT</div>
                     <div class="meta-info">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span>Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | 
                             Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</span>
-                            <span style="font-size: 12px; opacity: 0.7;">Distribution: Quality Management, Production Management, Senior Leadership</span>
+                            <span style="font-size: 10px; opacity: 0.7;">Created By: Adam Lawton - Senior Production Analyst</span>
                         </div>
                     </div>
                 </div>
@@ -629,7 +639,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         </div>
 
         <!-- Performance Analysis -->
-        <div class="section">
+        <div class="section page-break">
             <div class="section-title">Performance Analysis & Glide Path</div>
             
             <table class="glide-path-table">
@@ -755,7 +765,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         </div>
 
         <!-- Strategic Context -->
-        <div class="section">
+        <div class="section page-break">
             <div class="section-title">Strategic Context & Industry Position</div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
