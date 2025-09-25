@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '@/context/DataContext';
 import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGenerator';
-import { ArrowLeft, Download, FileText } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
 
 const ReportPage: React.FC = () => {
   const { data } = useData();
   const [reportHTML, setReportHTML] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -85,6 +86,18 @@ const ReportPage: React.FC = () => {
             
             <div className="flex items-center space-x-3">
               <button
+                onClick={() => setIsDarkTheme(!isDarkTheme)}
+                className={`flex items-center space-x-2 px-4 py-2 font-bold rounded-lg shadow-lg transition-colors duration-200 ${
+                  isDarkTheme 
+                    ? 'bg-yellow-600 text-black hover:bg-yellow-700' 
+                    : 'bg-gray-800 text-white hover:bg-gray-900'
+                }`}
+              >
+                {isDarkTheme ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                <span>{isDarkTheme ? 'Light' : 'Dark'}</span>
+              </button>
+              
+              <button
                 onClick={handleDownloadPDF}
                 className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200"
               >
@@ -105,8 +118,8 @@ const ReportPage: React.FC = () => {
       </div>
 
       {/* Full-Width Report Content */}
-      <div className="w-full">
-        <div className="max-w-none mx-auto bg-white shadow-2xl border-t-4 border-yellow-500">
+      <div className={`w-full transition-colors duration-300 ${isDarkTheme ? 'bg-gray-900' : 'bg-gray-100'}`}>
+        <div className={`max-w-none mx-auto shadow-2xl border-t-4 border-yellow-500 ${isDarkTheme ? 'bg-gray-800' : 'bg-white'}`}>
           {reportHTML ? (
             <iframe
               srcDoc={reportHTML}

@@ -202,16 +202,10 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             gap: 40px;
         }
         .jcb-logo {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
-            border: 4px solid #000;
-            transform: rotate(-2deg);
-            transition: transform 0.3s ease;
-        }
-        .jcb-logo:hover {
-            transform: rotate(0deg);
+            background: transparent;
+            padding: 0;
+            border: none;
+            box-shadow: none;
         }
         .header-main {
             text-align: center;
@@ -222,16 +216,13 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .main-title {
             margin: 0;
-            font-size: 42px;
-            font-weight: 900;
+            font-size: 36px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-            line-height: 1.1;
-            background: linear-gradient(45deg, #000 0%, #333 50%, #000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            letter-spacing: 2px;
+            line-height: 1.2;
+            color: #000;
+            font-family: 'Arial', 'Helvetica', sans-serif;
         }
         .subtitle {
             margin: 8px 0 0 0;
@@ -253,32 +244,50 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             border: 2px solid #000;
         }
         .distribution {
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 600;
             color: #000;
-            opacity: 0.9;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+            margin-top: 5px;
         }
         .section {
-            padding: 30px 50px;
+            padding: 25px 50px;
             border-bottom: 1px solid #e0e0e0;
+            page-break-inside: avoid;
         }
         .section:last-child {
             border-bottom: none;
         }
+        
+        /* One-page layout optimization */
+        @media screen {
+            .section {
+                margin-bottom: 15px;
+            }
+        }
+        
+        @media print {
+            .report-container {
+                page-break-inside: avoid;
+            }
+            .section {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+        }
         .section-title {
-            font-size: 22px;
-            font-weight: bold;
+            font-size: 28px;
+            font-weight: 800;
             color: #1a1a1a;
-            margin-bottom: 20px;
-            padding: 12px 20px;
+            margin-bottom: 25px;
+            padding: 15px 25px;
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
-            border-radius: 8px;
+            border-radius: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-left: 6px solid #000;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            border-left: 8px solid #000;
         }
         .kpi-grid {
             display: grid;
@@ -333,19 +342,19 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             transition: stroke-dasharray 0.3s ease;
         }
         .kpi-value {
-            font-size: 42px;
-            font-weight: bold;
+            font-size: 48px;
+            font-weight: 900;
             color: #1a1a1a;
-            margin: 10px 0;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            margin: 12px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         .kpi-label {
-            font-size: 13px;
+            font-size: 15px;
             color: #495057;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            font-weight: 700;
-            margin-top: 10px;
+            letter-spacing: 1px;
+            font-weight: 800;
+            margin-top: 12px;
         }
         .kpi-trend {
             display: flex;
@@ -507,19 +516,18 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             <div class="header-content">
                 <!-- Left: JCB Logo -->
                 <div class="jcb-logo">
-                    <img src="/jcb-logo.png" alt="JCB Logo" style="width: 90px; height: 90px; object-fit: contain;" />
+                    <img src="/jcb-logo.png" alt="JCB Logo" style="width: 120px; height: 120px; object-fit: contain;" />
                 </div>
                 
                 <!-- Center: Main Title -->
                 <div class="header-main">
                     <h1 class="main-title">LOADALL INTERNAL QUALITY<br>PERFORMANCE REPORT</h1>
                     <div class="subtitle">Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</div>
-                    <div class="distribution">Distribution: TOP LEVEL MANAGEMENT</div>
+                    <div class="distribution">Created By: Adam Lawton - Senior Production Analyst</div>
                 </div>
                 
-                <!-- Right: Confidential -->
+                <!-- Right: Empty space for balance -->
                 <div class="header-right">
-                    <div class="confidential">CONFIDENTIAL</div>
                 </div>
             </div>
         </div>
@@ -691,11 +699,11 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </table>
 
             <div style="margin: 25px 0;">
-                <h4 style="margin-bottom: 20px;">DPU Trajectory to 8.2 Target:</h4>
+                <h4 style="margin-bottom: 25px; font-size: 20px; font-weight: 700; color: #1a1a1a;">🎯 DPU TRAJECTORY TO 8.2 YEAR-END TARGET</h4>
                 
-                <!-- Glide Path Chart -->
-                <div style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-                    <svg width="100%" height="250" viewBox="0 0 1200 250" style="background: white; border-radius: 6px;">
+                <!-- Enhanced Glide Path Chart -->
+                <div style="background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%); border: 3px solid #FCB026; border-radius: 15px; padding: 30px; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
+                    <svg width="100%" height="320" viewBox="0 0 1400 320" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 10px; border: 1px solid #e0e0e0;">
                         <!-- Grid lines -->
                         <defs>
                             <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
@@ -705,40 +713,57 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                         <rect width="100%" height="100%" fill="url(#grid)" />
                         
                         <!-- Y-axis labels -->
-                        <text x="30" y="25" font-size="12" fill="#666" text-anchor="middle">20</text>
-                        <text x="30" y="65" font-size="12" fill="#666" text-anchor="middle">15</text>
-                        <text x="30" y="105" font-size="12" fill="#666" text-anchor="middle">10</text>
-                        <text x="30" y="145" font-size="12" fill="#666" text-anchor="middle">8.2</text>
-                        <text x="30" y="185" font-size="12" fill="#666" text-anchor="middle">5</text>
+                        <text x="40" y="35" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">20</text>
+                        <text x="40" y="95" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">15</text>
+                        <text x="40" y="155" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">10</text>
+                        <text x="40" y="215" font-size="16" fill="#10B981" text-anchor="middle" font-weight="bold">8.2</text>
+                        <text x="40" y="275" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">5</text>
                         
-                        <!-- Target line at 8.2 -->
-                        <line x1="80" y1="195" x2="1120" y2="195" stroke="#10B981" stroke-width="3" stroke-dasharray="5,5"/>
-                        <text x="1130" y="199" font-size="12" fill="#10B981" font-weight="bold">TARGET</text>
+                        <!-- Enhanced Target line at 8.2 -->
+                        <line x1="100" y1="215" x2="1300" y2="215" stroke="#10B981" stroke-width="5" stroke-dasharray="10,5"/>
+                        <text x="1320" y="220" font-size="16" fill="#10B981" font-weight="bold">YEAR-END TARGET: 8.2 DPU</text>
                         
                         <!-- Current DPU point -->
-                        <circle cx="200" cy="${225 - (reportData.currentMonthDPU / 20) * 225}" r="8" fill="#EF4444"/>
-                        <text x="200" y="${225 - (reportData.currentMonthDPU / 20) * 225 - 20}" font-size="14" fill="#EF4444" text-anchor="middle" font-weight="bold">
-                            Current: ${formatDPU(reportData.currentMonthDPU)}
+                        <circle cx="250" cy="${295 - (reportData.currentMonthDPU / 20) * 295}" r="12" fill="#EF4444" stroke="#fff" stroke-width="3"/>
+                        <text x="250" y="${295 - (reportData.currentMonthDPU / 20) * 295 - 25}" font-size="16" fill="#EF4444" text-anchor="middle" font-weight="bold">
+                            CURRENT: ${formatDPU(reportData.currentMonthDPU)} DPU
                         </text>
                         
-                        <!-- Glide path line -->
-                        <path d="M 200 ${225 - (reportData.currentMonthDPU / 20) * 225} 
-                                 L 400 ${225 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 225}
-                                 L 600 ${225 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 225}
-                                 L 800 ${225 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 225}
-                                 L 1000 195" 
-                              stroke="#FCB026" stroke-width="5" fill="none"/>
+                        <!-- Enhanced Glide path line -->
+                        <path d="M 250 ${295 - (reportData.currentMonthDPU / 20) * 295} 
+                                 L 500 ${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}
+                                 L 750 ${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295}
+                                 L 1000 ${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295}
+                                 L 1200 215" 
+                              stroke="#FCB026" stroke-width="6" fill="none" stroke-linecap="round"/>
+                        
+                        <!-- Target milestone points -->
+                        <circle cx="500" cy="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295}" r="8" fill="#F59E0B" stroke="#fff" stroke-width="2"/>
+                        <circle cx="750" cy="${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295}" r="8" fill="#F59E0B" stroke="#fff" stroke-width="2"/>
+                        <circle cx="1000" cy="${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295}" r="8" fill="#F59E0B" stroke="#fff" stroke-width="2"/>
+                        <circle cx="1200" cy="215" r="10" fill="#10B981" stroke="#fff" stroke-width="3"/>
                         
                         <!-- Month labels -->
-                        <text x="200" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">Current</text>
-                        <text x="400" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[0]?.month || 'Oct'}</text>
-                        <text x="600" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[1]?.month || 'Nov'}</text>
-                        <text x="800" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[2]?.month || 'Dec'}</text>
-                        <text x="1000" y="240" font-size="12" fill="#666" text-anchor="middle" font-weight="bold">Target</text>
+                        <text x="250" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">CURRENT</text>
+                        <text x="500" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[0]?.month || 'OCT-25'}</text>
+                        <text x="750" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[1]?.month || 'NOV-25'}</text>
+                        <text x="1000" y="310" font-size="14" fill="#333" text-anchor="middle" font-weight="bold">${reportData.glidePath.monthlyTargets[2]?.month || 'DEC-25'}</text>
+                        <text x="1200" y="310" font-size="14" fill="#10B981" text-anchor="middle" font-weight="bold">TARGET ACHIEVED</text>
                         
-                        <!-- Risk zone -->
-                        <rect x="80" y="105" width="1040" height="40" fill="#EF4444" opacity="0.1"/>
-                        <text x="600" y="125" font-size="14" fill="#EF4444" text-anchor="middle" font-weight="bold">CRITICAL ZONE (>10 DPU)</text>
+                        <!-- Target values -->
+                        <text x="500" y="${295 - (reportData.glidePath.monthlyTargets[0]?.targetDPU / 20) * 295 - 15}" font-size="12" fill="#F59E0B" text-anchor="middle" font-weight="bold">
+                            ${formatDPU(reportData.glidePath.monthlyTargets[0]?.targetDPU || 0)}
+                        </text>
+                        <text x="750" y="${295 - (reportData.glidePath.monthlyTargets[1]?.targetDPU / 20) * 295 - 15}" font-size="12" fill="#F59E0B" text-anchor="middle" font-weight="bold">
+                            ${formatDPU(reportData.glidePath.monthlyTargets[1]?.targetDPU || 0)}
+                        </text>
+                        <text x="1000" y="${295 - (reportData.glidePath.monthlyTargets[2]?.targetDPU / 20) * 295 - 15}" font-size="12" fill="#F59E0B" text-anchor="middle" font-weight="bold">
+                            ${formatDPU(reportData.glidePath.monthlyTargets[2]?.targetDPU || 0)}
+                        </text>
+                        
+                        <!-- Enhanced Risk zone -->
+                        <rect x="100" y="155" width="1200" height="60" fill="#EF4444" opacity="0.15" rx="5"/>
+                        <text x="700" y="185" font-size="16" fill="#EF4444" text-anchor="middle" font-weight="bold">CRITICAL PERFORMANCE ZONE (>10 DPU)</text>
                     </svg>
                     
                     <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
