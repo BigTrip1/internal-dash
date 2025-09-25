@@ -483,6 +483,29 @@ const AdminTable: React.FC = () => {
                      <Plus className="w-4 h-4" />
                      <span>Add Missing Stages</span>
                    </button>
+                   <button
+                     onClick={async () => {
+                       if (!confirm('This will recalculate all totals using the correct formula (Total DPU = Sum of all stage DPUs). Continue?')) return;
+                       
+                       try {
+                         const response = await fetch('/api/recalculate-totals', { method: 'POST' });
+                         const result = await response.json();
+                         
+                         if (result.success) {
+                           alert(`✅ Success! Recalculated totals for ${result.details.monthsUpdated} months using correct DPU formula.`);
+                           window.location.reload(); // Refresh to show updated data
+                         } else {
+                           alert(`❌ Error: ${result.error}`);
+                         }
+                       } catch (error) {
+                         alert('❌ Failed to recalculate totals: ' + error);
+                       }
+                     }}
+                     className="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-lg hover:bg-purple-700 transition-colors duration-200 flex items-center space-x-2"
+                   >
+                     <Download className="w-4 h-4" />
+                     <span>Fix DPU Totals</span>
+                   </button>
           <button
             onClick={() => {
               if (isLocked) {

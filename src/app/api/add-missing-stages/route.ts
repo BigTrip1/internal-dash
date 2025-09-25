@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
         // Recalculate totals
         const totalInspections = updatedStages.reduce((sum, stage) => sum + stage.inspected, 0);
         const totalFaults = updatedStages.reduce((sum, stage) => sum + stage.faults, 0);
-        const totalDpu = totalInspections > 0 ? Math.round((totalFaults / totalInspections) * 100) / 100 : 0;
+        // CORRECT: Total DPU is sum of all stage DPUs for that month
+        const totalDpu = updatedStages.reduce((sum, stage) => sum + stage.dpu, 0);
 
         // Update the document
         await collection.updateOne(

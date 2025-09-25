@@ -98,7 +98,8 @@ const generateSeedData = () => {
     // Calculate totals
     const totalInspections = stages.reduce((sum, stage) => sum + stage.inspected, 0);
     const totalFaults = stages.reduce((sum, stage) => sum + stage.faults, 0);
-    const totalDpu = totalInspections > 0 ? Number((totalFaults / totalInspections).toFixed(2)) : 0;
+    // CORRECT: Total DPU is sum of all stage DPUs for that month
+    const totalDpu = stages.reduce((sum, stage) => sum + stage.dpu, 0);
 
     return {
       id: `month-${month}`,
