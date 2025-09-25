@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
-import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGeneratorNew';
+import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGenerator';
 
 // Get inspection data from API
 async function getInspectionData() {
@@ -10,15 +10,7 @@ async function getInspectionData() {
     if (!response.ok) {
       throw new Error('Failed to fetch inspection data');
     }
-    const result = await response.json();
-    
-    // API returns { success: true, data: [...] }, we need just the data array
-    if (result.success && Array.isArray(result.data)) {
-      return result.data;
-    } else {
-      console.error('Invalid data format from API:', result);
-      return [];
-    }
+    return await response.json();
   } catch (error) {
     console.error('Error fetching data:', error);
     // Return fallback data structure
@@ -55,34 +47,34 @@ export async function POST(request: NextRequest) {
       ]
     });
 
-    // Generate optimized A4 PDF
-    console.log('📄 Generating optimized A4 PDF...');
     const page = await browser.newPage();
-    
-    // Set optimal viewport for A4
-    await page.setViewport({ width: 794, height: 1123 });
-    
-    // Set content with faster loading
+
+    // Set viewport for consistent rendering
+    await page.setViewport({ width: 1200, height: 800 });
+
+    // Set content and wait for fonts/images to load
     await page.setContent(htmlContent, {
-      waitUntil: ['domcontentloaded']
+      waitUntil: ['networkidle0', 'domcontentloaded']
     });
 
-    // Generate PDF with optimized settings
+    // Generate PDF with professional settings
+    console.log('📄 Generating PDF...');
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: {
-        top: '8mm',
-        bottom: '8mm', 
-        left: '8mm',
-        right: '8mm'
+        top: '0.5in',
+        bottom: '0.5in',
+        left: '0.5in',
+        right: '0.5in'
       },
       preferCSSPageSize: true,
       displayHeaderFooter: false
     });
 
-    console.log('✅ Professional PDF generated successfully');
+    console.log('✅ PDF generated successfully');
 
+    // Return PDF as response
     return new NextResponse(pdfBuffer, {
       status: 200,
       headers: {

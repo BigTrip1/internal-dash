@@ -34,27 +34,9 @@ export interface MonthlyReportData {
 }
 
 export const generateMonthlyReport = (data: InspectionData[]): MonthlyReportData => {
-  // Validate input data
-  if (!Array.isArray(data)) {
-    console.error('generateMonthlyReport: data is not an array:', typeof data, data);
-    throw new Error('Invalid data format: expected array of InspectionData');
-  }
-  
-  if (data.length === 0) {
-    console.error('generateMonthlyReport: data array is empty');
-    throw new Error('No inspection data available for report generation');
-  }
-  
-  console.log(`generateMonthlyReport: Processing ${data.length} months of data`);
-  
   // Get current data (using September as latest complete month)
-  const latestMonth = data.find(month => month && month.date === 'Sep-25') || data[data.length - 1];
-  const previousMonth = data.find(month => month && month.date === 'Aug-25') || data[data.length - 2];
-  
-  if (!latestMonth) {
-    console.error('generateMonthlyReport: No valid latest month found');
-    throw new Error('No valid inspection data found for report generation');
-  }
+  const latestMonth = data.find(month => month.date === 'Sep-25') || data[data.length - 1];
+  const previousMonth = data.find(month => month.date === 'Aug-25') || data[data.length - 2];
   
   // Calculate current month DPU
   const currentMonthDPU = latestMonth.totalDpu;
@@ -159,39 +141,28 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LOADALL Internal Quality Performance Report</title>
     <style>
-        @page {
-            size: A4;
-            margin: 12mm;
-        }
-        @media print {
-            body { margin: 0; padding: 0; background: white; }
-            .page-break { page-break-before: always; }
-            .avoid-break { page-break-inside: avoid; }
-        }
         body {
-            font-family: 'Arial', 'Helvetica', sans-serif;
-            line-height: 1.3;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             margin: 0;
-            padding: 0;
-            background-color: white;
-            font-size: 11px;
-            color: #333;
+            padding: 20px;
+            background-color: #f5f5f5;
         }
         .report-container {
-            max-width: 100%;
-            margin: 0;
+            max-width: 210mm;
+            margin: 0 auto;
             background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
         .header {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
             color: black;
-            padding: 15px 20px;
+            padding: 50px 30px;
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            min-height: 50px;
-            border-bottom: 3px solid #000;
+            justify-content: center;
+            min-height: 140px;
         }
         .header::before {
             content: '';
@@ -231,19 +202,19 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             flex: 1;
         }
         .header h1 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 900;
+            margin: 0 0 8px 0;
+            font-size: 36px;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            line-height: 1.1;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         .header .subtitle {
             margin: 0 0 15px 0;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         .header .meta-info {
@@ -252,82 +223,44 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             opacity: 0.8;
         }
         .section {
-            padding: 8px 12px;
+            padding: 25px 30px;
             border-bottom: 1px solid #e0e0e0;
-            page-break-inside: avoid;
         }
         .section:last-child {
             border-bottom: none;
         }
         .section-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #000;
-            margin-bottom: 6px;
-            padding: 4px 8px;
-            background: #FCB026;
-            border-radius: 3px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
+            border-radius: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 6px solid #000;
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin-bottom: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
         }
         .kpi-card {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 6px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 3px solid #FCB026;
+            border-radius: 15px;
+            padding: 30px 25px;
             text-align: center;
             position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            min-height: 65px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transition: transform 0.2s ease;
+            min-height: 180px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-        }
-        .executive-summary-box {
-            background: #fff8e1;
-            border: 1px solid #FCB026;
-            border-radius: 4px;
-            margin: 8px 0;
-            overflow: hidden;
-        }
-        .executive-summary-header {
-            background: #FCB026;
-            color: #000;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        .executive-summary-content {
-            padding: 6px 8px;
-            font-size: 9px;
-            line-height: 1.2;
-        }
-        .upcoming-updates-box {
-            background: #ffebee;
-            border: 2px solid #f44336;
-            border-radius: 4px;
-            margin: 8px 0;
-            overflow: hidden;
-        }
-        .upcoming-updates-header {
-            background: #FCB026;
-            color: #000;
-            padding: 4px 8px;
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        .upcoming-updates-content {
-            padding: 6px 8px;
-            font-size: 9px;
-            line-height: 1.3;
+            justify-content: space-between;
         }
         .kpi-card::before {
             content: '';
@@ -401,15 +334,14 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .glide-path-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
-            border-radius: 4px;
+            margin: 20px 0;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            font-size: 11px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .glide-path-table th,
         .glide-path-table td {
-            padding: 6px 8px;
+            padding: 15px 12px;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
         }
@@ -431,19 +363,18 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .stage-performance {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            margin: 8px 0;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
         }
         .stage-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 1px solid #FCB026;
-            border-radius: 6px;
-            padding: 8px 6px;
+            border: 2px solid #FCB026;
+            border-radius: 10px;
+            padding: 18px 15px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
             position: relative;
-            font-size: 10px;
         }
         .stage-card::before {
             content: '';
@@ -535,18 +466,25 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
     <div class="report-container">
         <!-- Header -->
         <div class="header">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div style="width: 40px; height: 40px; background: #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: #FCB026;">JCB</div>
-                <div>
-                    <h1 style="margin: 0; font-size: 18px; font-weight: 900;">LOADALL INTERNAL QUALITY PERFORMANCE REPORT</h1>
-                    <div style="font-size: 10px; margin-top: 2px;">Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</div>
+            <div class="header-content">
+                <div class="jcb-logo">
+                    <img src="/jcb-logo.png" alt="JCB Logo" style="width: 80px; height: 80px; object-fit: contain;" />
                 </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: #FF0000; color: white; padding: 4px 8px; border-radius: 3px; font-size: 9px; font-weight: bold;">CONFIDENTIAL</div>
-                <div style="font-size: 9px; text-align: right;">
-                    <div>Created By: Adam Lawton</div>
-                    <div>Senior Production Analyst</div>
+                <div class="header-text">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <h1 style="margin: 0;">JCB Digital Factory</h1>
+                        <div style="background: #FF0000; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: bold;">
+                            CONFIDENTIAL
+                        </div>
+                    </div>
+                    <div class="subtitle">LOADALL INTERNAL QUALITY PERFORMANCE REPORT</div>
+                    <div class="meta-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | 
+                            Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</span>
+                            <span style="font-size: 12px; opacity: 0.7;">Distribution: Quality Management, Production Management, Senior Leadership</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -633,31 +571,9 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 </div>
             </div>
 
-            <!-- Executive Performance Summary -->
-            <div class="executive-summary-box">
-                <div class="executive-summary-header">📊 Executive Performance Summary</div>
-                <div class="executive-summary-content">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>Current Status:</strong><br>
-                            <span style="color: ${reportData.glidePath.riskAssessment === 'On Track' ? '#10B981' : '#EF4444'}; font-weight: bold;">
-                                ${reportData.glidePath.riskAssessment}
-                            </span> - Current DPU of ${formatDPU(reportData.currentMonthDPU)} is ${reportData.currentMonthDPU > reportData.glidePath.targetDPU ? formatDPU(reportData.currentMonthDPU - reportData.glidePath.targetDPU) + ' above' : formatDPU(reportData.glidePath.targetDPU - reportData.currentMonthDPU) + ' below'} target trajectory
-                        </div>
-                        <div style="text-align: right;">
-                            <strong>Improvement Required:</strong><br>
-                            ${formatDPU(reportData.glidePath.requiredMonthlyReduction)} DPU reduction needed monthly to achieve 8.2 target by year-end. This represents a 36% improvement requirement.
-                        </div>
-                    </div>
-                    <div style="background: #FCB026; color: #000; padding: 3px 6px; border-radius: 2px; font-size: 8px; font-weight: bold; text-align: center; margin-top: 4px;">
-                        ENHANCED MONITORING: Performance requires accelerated improvement measures
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin: 8px 0;">
-                <strong style="font-size: 10px;">Overall Status:</strong> 
-                <span class="risk-badge risk-${reportData.glidePath.riskAssessment.toLowerCase().replace(' ', '-')}" style="font-size: 9px; padding: 2px 4px;">
+            <div style="margin: 20px 0;">
+                <strong>Overall Status:</strong> 
+                <span class="risk-badge risk-${reportData.glidePath.riskAssessment.toLowerCase().replace(' ', '-')}">
                     ${reportData.glidePath.riskAssessment}
                 </span>
             </div>
@@ -695,7 +611,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         </div>
 
         <!-- Performance Analysis -->
-        <div class="section page-break">
+        <div class="section">
             <div class="section-title">Performance Analysis & Glide Path</div>
             
             <table class="glide-path-table">
@@ -740,11 +656,11 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             </table>
 
             <div style="margin: 25px 0;">
-                <h4 style="margin-bottom: 8px; font-size: 12px;">DPU Trajectory to 8.2 Target:</h4>
+                <h4 style="margin-bottom: 20px;">DPU Trajectory to 8.2 Target:</h4>
                 
                 <!-- Glide Path Chart -->
-                <div style="background: #f8f9fa; border: 1px solid #FCB026; border-radius: 6px; padding: 10px; margin-bottom: 12px;">
-                    <svg width="100%" height="120" viewBox="0 0 800 120" style="background: white; border-radius: 4px;">
+                <div style="background: #f8f9fa; border: 2px solid #FCB026; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                    <svg width="100%" height="200" viewBox="0 0 800 200" style="background: white; border-radius: 6px;">
                         <!-- Grid lines -->
                         <defs>
                             <pattern id="grid" width="80" height="20" patternUnits="userSpaceOnUse">
@@ -821,7 +737,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         </div>
 
         <!-- Strategic Context -->
-        <div class="section page-break">
+        <div class="section">
             <div class="section-title">Strategic Context & Industry Position</div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
@@ -1268,29 +1184,6 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     `).join('')}
                 </tbody>
             </table>
-        </div>
-
-        <!-- Upcoming Updates Section -->
-        <div class="section page-break">
-            <div class="upcoming-updates-box">
-                <div class="upcoming-updates-header">🚀 Upcoming Updates</div>
-                <div class="upcoming-updates-content">
-                    <strong>Future Quality Intelligence Enhancements:</strong>
-                    <ul style="margin: 4px 0; padding-left: 12px; font-size: 8px;">
-                        <li><strong>Fault Intelligence:</strong> Transform fault data into actionable intelligence with pattern recognition</li>
-                        <li><strong>Predictive Analytics:</strong> Early warning system for quality degradation and hidden pattern discovery</li>
-                        <li><strong>Volume Impact Modeling:</strong> Predict DPU impact of production volume changes</li>
-                        <li><strong>Customer Experience Integration:</strong> Connect internal performance to external customer experience</li>
-                        <li><strong>Warranty Correlation:</strong> Correlate internal DPU with external warranty claims and predict costs</li>
-                        <li><strong>Financial Impact Analysis:</strong> Real-time financial impact of quality decisions</li>
-                        <li><strong>Proactive Intervention:</strong> Implement predictive quality intervention system</li>
-                        <li><strong>Enterprise Scaling:</strong> Multi-business unit platform for JCB-wide quality management</li>
-                    </ul>
-                    <div style="font-style: italic; font-size: 7px; margin-top: 4px; text-align: center;">
-                        <strong>Phase 1 Implementation:</strong> Live data integration and real-time quality monitoring (Q1 2026)
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Footer -->

@@ -225,15 +225,59 @@ const Dashboard: React.FC = () => {
     return monthIndex <= thisMonth && month.totalDpu > 0 && month.buildVolume > 0;
   });
 
-  // Get all 12 months from the original data (including future months with zero data)
-  const allMonthsData = monthlyTrendData; // This already includes all 12 months from your data
+  // Ensure we show all 12 months on chart - robust null checking
+  const allMonthsData = monthlyTrendData
+    .filter(month => month && month.date) // Filter out any undefined/null months
+    .map(month => {
+      // Safe substring with null checking
+      const monthStr = month.date?.substring(0, 3);
+      if (!monthStr) {
+        console.warn('Invalid month date:', month);
+        return null;
+      }
+      
+      const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(monthStr);
+      
+      if (monthIndex <= thisMonth && month.totalDpu > 0 && month.buildVolume > 0) {
+        // Historical months with actual data
+        return month;
+      } else {
+        // Future months - no actual data, just structure for trendline
+        return {
+          month: month.date,
+          totalDpu: null,
+          buildVolume: null,
+          totalFaults: null
+        };
+      }
+    })
+    .filter(month => month !== null); // Remove any null entries
 
-  // Separate actual data (Jan-Sep) from future data (Oct-Dec)
-  const actualData = allMonthsData.filter(month => month.totalDpu > 0 && month.buildVolume > 0);
-  const futureData = allMonthsData.filter(month => month.totalDpu === 0 || !month.totalDpu);
+  // If we don't have enough months, generate the missing ones
+  const expectedMonths = ['Jan-25', 'Feb-25', 'Mar-25', 'Apr-25', 'May-25', 'Jun-25', 'Jul-25', 'Aug-25', 'Sep-25', 'Oct-25', 'Nov-25', 'Dec-25'];
+  
+  const completeMonthsData = expectedMonths.map(expectedMonth => {
+    // Find existing data for this month
+    const existingMonth = allMonthsData.find(m => m.month === expectedMonth);
+    
+    if (existingMonth) {
+      return existingMonth;
+    } else {
+      // Generate placeholder for missing month
+      const monthIndex = expectedMonths.indexOf(expectedMonth);
+      const isHistorical = monthIndex <= thisMonth;
+      
+      return {
+        month: expectedMonth,
+        totalDpu: isHistorical ? 0 : null, // Historical months should have 0, future months null
+        buildVolume: isHistorical ? 0 : null,
+        totalFaults: isHistorical ? 0 : null
+      };
+    }
+  });
 
-  // Combine for complete 12-month view
-  const extendedChartData = allMonthsData;
+  // Use complete 12 months for chart
+  const extendedChartData = completeMonthsData;
 
   // Calculate correlation coefficient between DPU and Build Volume
   const calculateCorrelation = (data: any[]) => {
@@ -253,24 +297,45 @@ const Dashboard: React.FC = () => {
     return denominator === 0 ? 0 : numerator / denominator;
   };
 
-  // Use extended data (YTD + future months) for complete trajectory visualization
-  const chartData = extendedChartData;
+  // Use complete 12 months data for trajectory visualization
+  const chartData = completeMonthsData;
   const correlationCoefficient = calculateCorrelation(chartData);
 
   // Calculate DPU trendline data extending through future months to show complete trajectory to 8.2
   const calculateDPUTrendline = (data: any[]) => {
-    // Get the last month with actual data
-    const validData = data.filter(d => d.totalDpu > 0);
+    // Safety check for data
+    if (!data || data.length === 0) return [];
+    
+    // Get the last month with actual data - robust filtering
+    const validData = data.filter(d => d && d.totalDpu > 0 && d.month);
     if (validData.length < 1) return [];
 
     const currentDPU = validData[validData.length - 1]?.totalDpu || 12.87;
     const targetDPU = 8.2;
-    const currentMonthIndex = validData.length - 1; // Index of Sep-25 in the data
+    
+    // Find the index of the last valid month in the complete data array
+    const lastValidMonth = validData[validData.length - 1];
+    const currentMonthIndex = data.findIndex(d => d && d.month === lastValidMonth.month);
+    
+    if (currentMonthIndex === -1) return []; // Safety check
+    
     const totalMonthsInChart = data.length; // Includes future months
-    const monthsToTarget = totalMonthsInChart - currentMonthIndex - 1; // Oct, Nov, Dec
+    const monthsToTarget = Math.max(totalMonthsInChart - currentMonthIndex - 1, 1); // Ensure at least 1 month
     const monthlyReduction = (currentDPU - targetDPU) / monthsToTarget;
     
     return data.map((item, index) => {
+      // Safety check for item
+      if (!item || !item.month) {
+        return {
+          month: `Month-${index}`,
+          trendlineDPU: 0,
+          isAboveTarget: false,
+          actualDPU: null,
+          variance: 0,
+          isFuture: true
+        };
+      }
+      
       if (index <= currentMonthIndex) {
         // Historical months - compare actual vs what target should have been
         const targetForThisMonth = currentDPU - (monthlyReduction * (index - currentMonthIndex));
@@ -844,9 +909,9 @@ const Dashboard: React.FC = () => {
                          color = item.isAboveTarget ? '#EF4444' : '#10B981'; // Red/Green for historical performance
                        }
                        
-                        return (
-                          <stop key={`gradient-stop-${index}-${item.month}`} offset={`${position}%`} stopColor={color} />
-                        );
+                       return (
+                         <stop key={index} offset={`${position}%`} stopColor={color} />
+                       );
                      })}
                    </linearGradient>
                  </defs>
@@ -902,19 +967,32 @@ const Dashboard: React.FC = () => {
                      return [formatNumber(Number(value)), name];
                    }}
                    labelFormatter={(label, payload) => {
-                     if (payload && payload.length > 0) {
+                     if (payload && payload.length > 0 && payload[0]?.payload) {
                        const monthData = payload[0].payload;
-                       // Get actual admin table data
-                       const actualMonthRecord = data.find(m => m.date === monthData.month);
+                       
+                       // Safety check for month data
+                       if (!monthData || !monthData.month) {
+                         return label || 'Unknown Month';
+                       }
+                       
+                       // Get actual admin table data with safety checks
+                       const actualMonthRecord = data.find(m => m && m.date === monthData.month);
+                       
+                       if (!actualMonthRecord) {
+                         return `${label} - No Data Available`;
+                       }
                        
                        if (selectedStage === 'All Stages') {
-                         return `${label} - Total Faults: ${formatNumber(actualMonthRecord?.totalFaults || 0)} | Total Inspections: ${formatNumber(actualMonthRecord?.totalInspections || 0)}`;
+                         return `${label} - Total Faults: ${formatNumber(actualMonthRecord.totalFaults || 0)} | Total Inspections: ${formatNumber(actualMonthRecord.totalInspections || 0)}`;
                        } else {
-                         const stageData = actualMonthRecord?.stages.find(s => s.name === selectedStage);
-                         return `${label} - ${selectedStage} Faults: ${formatNumber(stageData?.faults || 0)} | ${selectedStage} Inspected: ${formatNumber(stageData?.inspected || 0)}`;
+                         const stageData = actualMonthRecord.stages?.find(s => s && s.name === selectedStage);
+                         if (!stageData) {
+                           return `${label} - ${selectedStage}: No Data`;
+                         }
+                         return `${label} - ${selectedStage} Faults: ${formatNumber(stageData.faults || 0)} | ${selectedStage} Inspected: ${formatNumber(stageData.inspected || 0)}`;
                        }
                      }
-                     return label;
+                     return label || 'Unknown';
                    }}
                  />
                  <Legend 
@@ -946,7 +1024,7 @@ const Dashboard: React.FC = () => {
                      const { cx, cy, payload, index } = props;
                      // Only show dots for months with actual data
                      if (!payload.buildVolume || payload.isFuture) return null;
-                     return <circle key={`build-volume-dot-${index}-${payload.month}`} cx={cx} cy={cy} fill="#3B82F6" strokeWidth={2} r={5} />;
+                     return <circle key={`build-volume-dot-${index}`} cx={cx} cy={cy} fill="#3B82F6" strokeWidth={2} r={5} />;
                    }}
                    connectNulls={false}
                    name={selectedStage === 'All Stages' ? 'Build Volume' : `${selectedStage} Inspected`}
@@ -969,8 +1047,6 @@ const Dashboard: React.FC = () => {
                    strokeDasharray="8 4"
                    dot={(props) => {
                      const { cx, cy, payload, index } = props;
-                     if (!payload) return null;
-                     
                      const isAboveTarget = payload.isAboveTarget;
                      const isFuture = payload.isFuture;
                      
@@ -978,7 +1054,7 @@ const Dashboard: React.FC = () => {
                        // Future months - show as target dots (blue with dashed outline)
                        return (
                          <circle 
-                           key={`future-dot-${index}-${payload.month}`}
+                           key={`future-dot-${index}`}
                            cx={cx} 
                            cy={cy} 
                            r={5} 
@@ -992,7 +1068,7 @@ const Dashboard: React.FC = () => {
                        // Historical months - color based on performance vs target
                        return (
                          <circle 
-                           key={`historical-dot-${index}-${payload.month}`}
+                           key={`historical-dot-${index}`}
                            cx={cx} 
                            cy={cy} 
                            r={4} 

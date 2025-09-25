@@ -144,18 +144,12 @@ export const getStagePerformanceSummary = (data: InspectionData[]) => {
 };
 
 // Format number for display
-export const formatNumber = (num: number | null | undefined): string => {
-  if (num === null || num === undefined || isNaN(num)) {
-    return '0';
-  }
+export const formatNumber = (num: number): string => {
   return num.toLocaleString();
 };
 
 // Format DPU for display
-export const formatDPU = (dpu: number | null | undefined): string => {
-  if (dpu === null || dpu === undefined || isNaN(dpu)) {
-    return '0.00';
-  }
+export const formatDPU = (dpu: number): string => {
   return dpu.toFixed(2);
 };
 

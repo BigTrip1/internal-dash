@@ -47,35 +47,48 @@ const MonthlyReportGenerator: React.FC = () => {
   };
 
   const handlePrintReport = async () => {
-    try {
-      // Call the PDF generation API
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`PDF generation failed: ${response.statusText}`);
-      }
-
-      // Get the PDF blob
-      const pdfBlob = await response.blob();
+    if (reportHTML) {
+      // Create a more comprehensive HTML with proper styling for PDF
+      const fullHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>JCB Monthly Quality Report</title>
+          <style>
+            @media print {
+              body { margin: 0; }
+              .report-container { box-shadow: none; }
+            }
+          </style>
+        </head>
+        <body>
+          ${reportHTML.match(/<div class="report-container">[\s\S]*<\/div>/)?.[0] || reportHTML}
+        </body>
+        </html>
+      `;
       
-      // Create download link
-      const url = URL.createObjectURL(pdfBlob);
+      // Create blob and download as HTML (user can save as PDF)
+      const blob = new Blob([fullHTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `LOADALL-Quality-Report-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = `JCB-Monthly-Quality-Report-${new Date().toISOString().split('T')[0]}.html`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      
+      // Also open print dialog for immediate PDF saving
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(fullHTML);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+          printWindow.print();
+        }, 500);
+      }
     }
   };
 
@@ -91,7 +104,7 @@ const MonthlyReportGenerator: React.FC = () => {
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
               >
                 <FileText className="w-4 h-4" />
-                <span>Download PDF</span>
+                <span>Download & Print PDF</span>
               </button>
               <button
                 onClick={() => setPreviewMode(false)}

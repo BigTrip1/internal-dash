@@ -61,9 +61,8 @@ NODE_ENV=development
 ## 📋 **Usage**
 
 ### **Dashboard Navigation**
-- **Dashboard**: Main performance overview with KPI cards and interactive charts
-- **Admin Panel**: Data management, report generation, and system configuration  
-- **Seed DB**: Database seeding and management tools
+- **Dashboard**: Main performance overview with KPI cards and charts
+- **Admin Panel**: Data management, report generation, and system configuration
 
 ### **Monthly Reporting Process**
 1. Navigate to **Admin Panel → Monthly Report Generator**
@@ -79,19 +78,17 @@ NODE_ENV=development
 ## 🎯 **Quality Targets**
 
 ### **Current Performance**
-- **Current DPU**: 20.17 (January 2025 baseline)
+- **Current DPU**: 12.87 (September 2025)
 - **Year-end Target**: 8.2 DPU by December 2025
-- **Required Monthly Reduction**: 1.088 DPU per month
-- **Risk Assessment**: "On Track" - Linear trajectory established
+- **Required Monthly Reduction**: 1.17 DPU per month
+- **Risk Assessment**: "At Risk" - Enhanced measures required
 
 ### **Glide Path Targets**
 ```
-Jan-25: 20.17 DPU (Baseline)    Jul-25: 13.65 DPU
-Feb-25: 19.08 DPU               Aug-25: 12.57 DPU
-Mar-25: 17.99 DPU               Sep-25: 11.48 DPU
-Apr-25: 16.91 DPU               Oct-25: 10.40 DPU
-May-25: 15.82 DPU               Nov-25: 9.31 DPU
-Jun-25: 14.74 DPU               Dec-25: 8.20 DPU ✅
+Oct-25: 11.70 DPU
+Nov-25: 10.53 DPU  
+Dec-25: 9.36 DPU
+Jan-26: 8.20 DPU ✅ TARGET ACHIEVED
 ```
 
 ## 🏭 **JCB Branding**
@@ -161,15 +158,11 @@ npm run type-check   # Run TypeScript checks
 
 ### **Database Setup**
 ```bash
-# Option 1: Web interface seeding
-# Navigate to: http://localhost:3000/seed
-# Click "Seed Database" button
-
-# Option 2: API endpoint
-curl -X POST http://localhost:3000/api/seed
+# Seed initial data
+node scripts/seed-database.js
 
 # Check MongoDB connection
-node check-mongodb.js
+node scripts/check-mongodb.js
 ```
 
 ## 📧 **Monthly Report Distribution**
@@ -183,9 +176,9 @@ Dear Management Team,
 Please find attached the monthly quality performance report for the month ending [DATE].
 
 KEY HIGHLIGHTS:
-• Current DPU: 11.48 (Target: 11.48) - ON TRACK
-• Critical Focus: Maintaining trajectory to 8.2 DPU target
-• Achievement: Consistent monthly DPU reduction
+• Current DPU: 12.87 (Target: 11.70) - AT RISK
+• Critical Focus: CFC stage performance
+• Achievement: UV3 stage improvement
 
 IMMEDIATE ACTIONS:
 1. Quality Management: Enhanced CFC protocols
