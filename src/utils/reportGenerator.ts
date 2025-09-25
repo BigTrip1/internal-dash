@@ -169,12 +169,36 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             background: #000000;
             color: #ffffff;
         }
+        
+        /* SIMPLE DARK MODE - NO WHITE ANYWHERE */
+        .dark-theme * {
+            background: transparent !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .report-container {
+            background: #000000 !important;
+        }
+        
+        .dark-theme .header {
+            background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%) !important;
+            color: #000000 !important;
+        }
+        
+        .dark-theme .section-title {
+            background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%) !important;
+            color: #000000 !important;
+        }
+        
+        .dark-theme .section-title * {
+            color: #000000 !important;
+        }
+        
+        .dark-theme .header * {
+            color: #000000 !important;
+        }
         .dark-theme .section {
             border-bottom-color: #333333;
-        }
-        .dark-theme .section-title {
-            background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
-            color: #000;
         }
         .dark-theme .kpi-card {
             background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
