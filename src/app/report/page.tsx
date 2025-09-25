@@ -51,15 +51,31 @@ const ReportPage: React.FC = () => {
       // Wait a moment for the UI to update
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Use html2canvas to capture the full page
+      // Use html2canvas with more compatible options
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(document.body, {
         height: window.innerHeight,
         width: window.innerWidth,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: null,
-        scale: 1
+        backgroundColor: '#000000', // Set explicit background
+        scale: 1,
+        ignoreElements: (element) => {
+          // Skip elements that might cause parsing issues
+          return element.classList.contains('print-hidden') || 
+                 element.tagName === 'SCRIPT' || 
+                 element.tagName === 'STYLE';
+        },
+        onclone: (clonedDoc) => {
+          // Clean up any problematic CSS in the cloned document
+          const style = clonedDoc.createElement('style');
+          style.textContent = `
+            * {
+              color-scheme: light !important;
+            }
+          `;
+          clonedDoc.head.appendChild(style);
+        }
       });
 
       // Restore header controls
@@ -77,7 +93,7 @@ const ReportPage: React.FC = () => {
 
     } catch (error) {
       console.error('Error taking screenshot:', error);
-      alert('Failed to take screenshot. Please try again or use browser screenshot tools.');
+      alert('Screenshot failed due to CSS compatibility. Please use browser screenshot tools (Ctrl+Shift+S or Cmd+Shift+S) or the Print feature.');
     }
   };
 
@@ -132,9 +148,9 @@ const ReportPage: React.FC = () => {
           box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         `;
         
-        const saveButton = document.createElement('button');
-        saveButton.textContent = 'Save Report Image';
-        saveButton.style.cssText = `
+        const screenshotButton = document.createElement('button');
+        screenshotButton.textContent = 'Take Screenshot';
+        screenshotButton.style.cssText = `
           background: #FCB026;
           color: #000;
           border: none;
@@ -143,14 +159,34 @@ const ReportPage: React.FC = () => {
           cursor: pointer;
           font-weight: bold;
           width: 100%;
+          margin-bottom: 4px;
         `;
         
-        saveButton.onclick = () => {
+        screenshotButton.onclick = () => {
           handleTakeScreenshot();
           document.body.removeChild(menu);
         };
         
-        menu.appendChild(saveButton);
+        const printButton = document.createElement('button');
+        printButton.textContent = 'Print/Save as PDF';
+        printButton.style.cssText = `
+          background: #3B82F6;
+          color: #fff;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-weight: bold;
+          width: 100%;
+        `;
+        
+        printButton.onclick = () => {
+          window.print();
+          document.body.removeChild(menu);
+        };
+        
+        menu.appendChild(screenshotButton);
+        menu.appendChild(printButton);
         document.body.appendChild(menu);
         
         // Remove menu on click outside
@@ -217,6 +253,30 @@ const ReportPage: React.FC = () => {
                  >
                    <Camera className="w-4 h-4" />
                    <span>Screenshot</span>
+                 </button>
+                 
+                 <button
+                   onClick={() => {
+                     // Hide header for clean capture
+                     const headerControls = document.querySelector('.print\\:hidden');
+                     if (headerControls) {
+                       (headerControls as HTMLElement).style.display = 'none';
+                     }
+                     
+                     // Use browser's print to PDF feature
+                     window.print();
+                     
+                     // Restore header after print dialog
+                     setTimeout(() => {
+                       if (headerControls) {
+                         (headerControls as HTMLElement).style.display = '';
+                       }
+                     }, 1000);
+                   }}
+                   className="flex items-center space-x-2 px-4 py-2 bg-orange-600 text-white font-bold rounded-lg shadow-lg hover:bg-orange-700 transition-colors duration-200"
+                 >
+                   <FileText className="w-4 h-4" />
+                   <span>Print/PDF</span>
                  </button>
                  
                  <button
