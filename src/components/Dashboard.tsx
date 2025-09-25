@@ -73,30 +73,30 @@ const Dashboard: React.FC = () => {
   // Calculate Fault Rate per 1000 Units
   const faultRatePer1000 = ytdBuildVolume > 0 ? ((ytdTotalFaults / ytdBuildVolume) * 1000).toFixed(1) : '0.0';
 
-  // Prepare chart data based on selected stage
+  // Prepare chart data based on selected stage - PULL FROM ADMIN TABLE DATA
   const monthlyTrendData = data.map(month => {
     if (selectedStage === 'All Stages') {
-      // Use overall data (existing behavior)
+      // Use ADMIN TABLE TOTALS data (this matches your table exactly)
       const signStage = month.stages.find(stage => stage.name === 'SIGN');
       const buildVolume = signStage ? signStage.inspected : 0;
       
       return {
         month: month.date,
-        totalDpu: month.totalDpu,
-        totalFaults: month.totalFaults,
-        buildVolume: buildVolume
+        totalDpu: month.totalDpu, // This should be 20.17, 17.56, 14.17, etc. from admin table TOTALS
+        totalFaults: month.totalFaults, // This should be 28460, 26647, etc. from admin table TOTALS
+        buildVolume: buildVolume // This should be 1434, 1499, etc. from SIGN INSPECTED
       };
     } else {
-      // Use stage-specific data
+      // Use stage-specific data from admin table
       const selectedStageData = month.stages.find(stage => stage.name === selectedStage);
       const stageDpu = selectedStageData ? selectedStageData.dpu : 0;
       const stageInspected = selectedStageData ? selectedStageData.inspected : 0;
       
       return {
         month: month.date,
-        totalDpu: stageDpu,
-        totalFaults: selectedStageData ? selectedStageData.faults : 0,
-        buildVolume: stageInspected
+        totalDpu: stageDpu, // This should match admin table stage DPU column
+        totalFaults: selectedStageData ? selectedStageData.faults : 0, // This should match admin table stage FAULTS column
+        buildVolume: stageInspected // This should match admin table stage INSPECTED column
       };
     }
   });
@@ -214,16 +214,8 @@ const Dashboard: React.FC = () => {
   const today = new Date();
   const thisMonth = today.getMonth(); // 0-11 (0 = January)
   
-  const ytdChartData = monthlyTrendData.filter(month => {
-    // Safety check for undefined date
-    if (!month || !month.date) {
-      console.log('Skipping month with missing date:', month);
-      return false;
-    }
-    
-    const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month.date.substring(0, 3));
-    return monthIndex <= thisMonth && month.totalDpu > 0 && month.buildVolume > 0;
-  });
+  // Remove the problematic filtering that's causing issues
+  const ytdChartData = monthlyTrendData;
 
   // Use the original monthly trend data directly (this works!)
   const extendedChartData = monthlyTrendData;
@@ -313,9 +305,8 @@ const Dashboard: React.FC = () => {
   }));
 
   // Debug: Log the data structure to understand what we're working with
-  console.log('chartData:', chartData);
-  console.log('chartDataWithTrendline:', chartDataWithTrendline);
-  console.log('Sample month data:', chartDataWithTrendline[0]);
+  console.log('First month from admin table:', data[0]);
+  console.log('Chart data sample:', chartDataWithTrendline[0]);
 
   // Enhanced tooltip recommendations
   const getRecommendation = (value: number, metric: string) => {
