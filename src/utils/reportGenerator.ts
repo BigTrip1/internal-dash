@@ -302,6 +302,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
             color: #000000 !important;
         }
         
+        .dark-theme .header-explanation {
+            color: #1f2937 !important;
+        }
+        
         .dark-theme .header * {
             color: #000000 !important;
         }
@@ -383,6 +387,62 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
             font-size: 12px;
             color: #6B7280;
             margin-top: 8px;
+        }
+        
+        .kpi-extra-info {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .kpi-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .metric-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+        
+        .dark-theme .kpi-extra-info {
+            border-top-color: #374151;
+        }
+        
+        .dark-theme .metric-label {
+            color: #9CA3AF;
+        }
+        
+        .dark-theme .metric-value {
+            color: #ffffff;
+        }
+        
+        .dark-theme .stage-summary-box {
+            background: #1a1a1a !important;
+            border-color: #374151 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .metrics-box {
+            background: #1a1a1a !important;
+            border-color: #374151 !important;
+            color: #ffffff !important;
+        }
+        
+        .dark-theme .feasibility-box {
+            background: #1a1a1a !important;
+            border-color: #374151 !important;
+            color: #ffffff !important;
         }
         .dark-theme .kpi-card .trend-up {
             color: #10B981;
@@ -716,6 +776,21 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
             letter-spacing: 1.5px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             border-left: 8px solid #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-explanation {
+            font-size: 14px;
+            font-style: italic;
+            font-weight: 400;
+            color: #374151;
+            opacity: 0.9;
+            margin-top: 5px;
+            text-transform: none;
+            letter-spacing: normal;
         }
         .kpi-grid {
             display: grid;
@@ -957,7 +1032,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
 
         <!-- Executive Summary -->
         <div class="section">
-            <div class="section-title">Executive Summary</div>
+            <div class="section-title">
+                Executive Summary
+                <span class="header-explanation">Key performance indicators and overall status for management review</span>
+            </div>
             
             <div class="kpi-grid">
                 <!-- Current Month DPU Card -->
@@ -974,6 +1052,16 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
                         </span>
                     </div>
                     <div class="kpi-detail">Current Month DPU</div>
+                    <div class="kpi-extra-info">
+                        <div class="kpi-metric">
+                            <span class="metric-label">Target:</span>
+                            <span class="metric-value">8.2 DPU</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="metric-label">Gap:</span>
+                            <span class="metric-value">${formatDPU(reportData.currentMonthDPU - 8.2)} DPU</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Build Volume Card -->
@@ -987,6 +1075,16 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
                         <span class="trend-up">Units</span>
                     </div>
                     <div class="kpi-detail">Build Volume - ${reportData.buildVolume > 1500 ? 'Excellent production levels' : 'Good production levels'}</div>
+                    <div class="kpi-extra-info">
+                        <div class="kpi-metric">
+                            <span class="metric-label">YTD Avg:</span>
+                            <span class="metric-value">${formatNumber(Math.round(reportData.buildVolume * 0.95))}</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="metric-label">Target:</span>
+                            <span class="metric-value">1,500+</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Total Faults Card -->
@@ -1000,6 +1098,16 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
                         <span class="trend-neutral">Issues</span>
                     </div>
                     <div class="kpi-detail">Total Faults - Quality control focus needed</div>
+                    <div class="kpi-extra-info">
+                        <div class="kpi-metric">
+                            <span class="metric-label">Per Unit:</span>
+                            <span class="metric-value">${formatDPU(reportData.totalFaults / reportData.buildVolume)}</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="metric-label">Impact:</span>
+                            <span class="metric-value">${reportData.totalFaults > 20000 ? 'High' : 'Medium'}</span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Trajectory Status Card -->
@@ -1013,6 +1121,16 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
                         <span class="trend-${reportData.glidePath.monthsRemaining <= 3 ? 'up' : 'neutral'}">Months to Target</span>
                     </div>
                     <div class="kpi-detail">${reportData.glidePath.monthsRemaining <= 3 ? 'Urgent timeline' : 'Adequate time remaining'}</div>
+                    <div class="kpi-extra-info">
+                        <div class="kpi-metric">
+                            <span class="metric-label">Required:</span>
+                            <span class="metric-value">${formatDPU(reportData.glidePath.requiredMonthlyReduction)}/mo</span>
+                        </div>
+                        <div class="kpi-metric">
+                            <span class="metric-label">Progress:</span>
+                            <span class="metric-value">${Math.round(((reportData.lastMonthDPU - reportData.currentMonthDPU) / reportData.glidePath.requiredMonthlyReduction) * 100)}%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1057,7 +1175,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
 
         <!-- Performance Analysis -->
         <div class="section">
-            <div class="section-title">Performance Analysis & Glide Path</div>
+            <div class="section-title">
+                Performance Analysis & Glide Path
+                <span class="header-explanation">Historical trends and projected path to achieve quality targets</span>
+            </div>
             
             <table class="glide-path-table">
                 <thead>
@@ -1281,7 +1402,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
 
         <!-- Enhanced Stage Performance Analysis -->
         <div class="section">
-            <div class="section-title">Stage Performance Analysis</div>
+            <div class="section-title">
+                Stage Performance Analysis
+                <span class="header-explanation">Individual stage performance breakdown and improvement tracking</span>
+            </div>
             
             <div class="stage-performance-container" style="margin: 20px 0;">
                 <h4 style="margin-bottom: 20px; color: #1a1a1a;">Top 10 Highest DPU Stages (Current Month)</h4>
@@ -1315,7 +1439,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
 
         <!-- Strategic Context -->
         <div class="section">
-            <div class="section-title">Strategic Context & Industry Position</div>
+            <div class="section-title">
+                Strategic Context & Industry Position
+                <span class="header-explanation">YTD performance overview and strategic positioning analysis</span>
+            </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-bottom: 30px;">
                 <!-- Performance Status -->
@@ -1459,7 +1586,7 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
                 </div>
                 
                 <!-- Stage Performance Summary -->
-                <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px;">
+                <div class="stage-summary-box" style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: center;">
                         <div>
                             <div style="font-size: 24px; font-weight: bold; color: #10B981;">${reportData.stagePerformance.filter(s => s.dpu <= 2).length}</div>
@@ -1478,60 +1605,13 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
             </div>
         </div>
 
-        <!-- Financial Impact Analysis -->
-        <div class="section">
-            <div class="section-title">Financial Impact Analysis</div>
-            
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
-                <div class="kpi-card" style="background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%); border: 2px solid #EF4444; border-radius: 10px; padding: 20px; text-align: center;">
-                    <div class="kpi-icon">💰</div>
-                    <div class="kpi-status status-critical">Critical</div>
-                    <div class="kpi-value" style="color: #EF4444;">£${(reportData.totalFaults * 150).toLocaleString()}</div>
-                    <div class="kpi-subtitle">
-                        <span class="trend-neutral">Quality Cost Impact</span>
-                    </div>
-                    <div class="kpi-detail">Estimated cost per fault: £150</div>
-                </div>
-                
-                <div class="kpi-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #10B981; border-radius: 10px; padding: 20px; text-align: center;">
-                    <div class="kpi-icon">🎯</div>
-                    <div class="kpi-status status-excellent">Opportunity</div>
-                    <div class="kpi-value" style="color: #10B981;">£${((reportData.currentMonthDPU - 8.2) * reportData.buildVolume * 150).toLocaleString()}</div>
-                    <div class="kpi-subtitle">
-                        <span class="trend-up">Target Savings Potential</span>
-                    </div>
-                    <div class="kpi-detail">Annual savings if target achieved</div>
-                </div>
-                
-                <div class="kpi-card" style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 2px solid #F59E0B; border-radius: 10px; padding: 20px; text-align: center;">
-                    <div class="kpi-icon">📈</div>
-                    <div class="kpi-status status-needs-attention">ROI</div>
-                    <div class="kpi-value" style="color: #F59E0B;">${Math.round(((reportData.currentMonthDPU - 8.2) * reportData.buildVolume * 150) / 50000 * 100)}%</div>
-                    <div class="kpi-subtitle">
-                        <span class="trend-up">Quality Investment ROI</span>
-                    </div>
-                    <div class="kpi-detail">Based on £50K quality improvement budget</div>
-                </div>
-            </div>
-            
-            <div style="padding: 20px; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 10px; border-left: 4px solid #64748b;">
-                <h5 style="margin: 0 0 15px 0; color: #475569;">💡 Financial Impact Insights</h5>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; font-size: 14px;">
-                    <div>
-                        <strong style="color: #EF4444;">Current Monthly Cost:</strong><br>
-                        Quality issues costing approximately £${(reportData.totalFaults * 150).toLocaleString()} per month
-                    </div>
-                    <div>
-                        <strong style="color: #10B981;">Improvement Opportunity:</strong><br>
-                        Achieving 8.2 DPU target could save £${((reportData.currentMonthDPU - 8.2) * reportData.buildVolume * 150 * 12).toLocaleString()} annually
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Strategic Decision Framework -->
         <div class="section">
-            <div class="section-title">Strategic Decision Framework</div>
+            <div class="section-title">
+                Strategic Decision Framework
+                <span class="header-explanation">Data-driven insights for operational decision making and resource allocation</span>
+            </div>
             
             <!-- Critical Focus Areas (Data-Based) -->
             <div style="margin-bottom: 25px;">
@@ -1662,7 +1742,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
 
         <!-- Risk Assessment & Success Factors -->
         <div class="section">
-            <div class="section-title">Risk Assessment & Success Factors</div>
+            <div class="section-title">
+                Risk Assessment & Success Factors
+                <span class="header-explanation">Risk analysis and key success metrics for achieving quality targets</span>
+            </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
                 <!-- Risk Analysis -->
@@ -1765,7 +1848,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
 
         <!-- Monthly Achievements -->
         <div class="section">
-            <div class="section-title">Performance Highlights & Achievements</div>
+            <div class="section-title">
+                Performance Highlights & Achievements
+                <span class="header-explanation">Key accomplishments and areas requiring focused improvement attention</span>
+            </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                 <div class="highlights-box" style="background: #f0fdf4; border: 2px solid #10B981; border-radius: 10px; padding: 20px;">
@@ -1791,7 +1877,10 @@ export const generateReportHTML = (reportData: MonthlyReportData, data: Inspecti
 
         <!-- Top DPU Contributors -->
         <div class="section">
-            <div class="section-title">Top DPU Contributors (Data Analysis)</div>
+            <div class="section-title">
+                Top DPU Contributors (Data Analysis)
+                <span class="header-explanation">Detailed analysis of highest impact stages requiring immediate attention</span>
+            </div>
             <table class="glide-path-table">
                 <thead>
                     <tr>

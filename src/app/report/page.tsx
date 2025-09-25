@@ -99,12 +99,16 @@ const ReportPage: React.FC = () => {
 
   const handleDownloadPDF = async () => {
     try {
+      // Get current theme from the document
+      const currentTheme = document.documentElement.classList.contains('dark-theme') ? 'dark-theme' : 'light-theme';
+      
       // Try the simple PDF method first
       const response = await fetch('/api/simple-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({ theme: currentTheme }),
       });
 
       if (!response.ok) {

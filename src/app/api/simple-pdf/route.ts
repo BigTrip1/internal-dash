@@ -6,6 +6,11 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🔄 Starting simple PDF generation...');
     
+    // Parse request body to get theme
+    const body = await request.json();
+    const theme = body.theme || 'light-theme';
+    console.log(`🎨 Using theme: ${theme}`);
+    
     // Get data directly from MongoDB
     const collection = await getCollection('Raw');
     const data = await collection.find({}).sort({ date: 1 }).toArray();
@@ -26,9 +31,15 @@ export async function POST(request: NextRequest) {
 
     // Generate report data and HTML
     const reportData = generateMonthlyReport(data);
-    const htmlContent = generateReportHTML(reportData, data);
+    let htmlContent = generateReportHTML(reportData, data);
+    
+    // Apply the requested theme
+    htmlContent = htmlContent.replace(
+      /<body[^>]*>/,
+      `<body class="${theme}">`
+    );
 
-    console.log('✅ HTML content generated successfully');
+    console.log('✅ HTML content generated successfully with theme:', theme);
 
     // Return HTML content for browser to handle
     return new NextResponse(htmlContent, {
