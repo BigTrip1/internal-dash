@@ -451,7 +451,7 @@ const AdminTable: React.FC = () => {
             className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
           >
             <Download className="w-4 h-4" />
-            <span>Download Data</span>
+            <span>Download Backup</span>
           </button>
                    <a
                      href="/seed"
@@ -505,6 +505,66 @@ const AdminTable: React.FC = () => {
                    >
                      <Download className="w-4 h-4" />
                      <span>Fix DPU Totals</span>
+                   </button>
+                   <button
+                     onClick={() => {
+                       const input = document.createElement('input');
+                       input.type = 'file';
+                       input.accept = '.json';
+                       input.onchange = async (e) => {
+                         const file = (e.target as HTMLInputElement).files?.[0];
+                         if (!file) return;
+
+                         try {
+                           const text = await file.text();
+                           const backupData = JSON.parse(text);
+                           
+                           if (!Array.isArray(backupData)) {
+                             alert('❌ Invalid backup file format. Please select a valid backup file.');
+                             return;
+                           }
+
+                           if (!confirm(
+                             `⚠️ WARNING: This will REPLACE ALL existing data with the backup data!\n\n` +
+                             `Backup contains ${backupData.length} months of data.\n\n` +
+                             `This action cannot be undone. Are you sure you want to continue?`
+                           )) return;
+
+                           // Show loading
+                           const loadingMsg = document.createElement('div');
+                           loadingMsg.innerHTML = '🔄 Restoring backup data...';
+                           loadingMsg.style.cssText = `
+                             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                             background: #1a1a1a; color: white; padding: 20px; border-radius: 8px;
+                             z-index: 1000; border: 2px solid #FCB026;
+                           `;
+                           document.body.appendChild(loadingMsg);
+
+                           const response = await fetch('/api/restore-data', {
+                             method: 'POST',
+                             headers: { 'Content-Type': 'application/json' },
+                             body: JSON.stringify({ backupData })
+                           });
+
+                           const result = await response.json();
+                           document.body.removeChild(loadingMsg);
+
+                           if (result.success) {
+                             alert(`✅ Success! Restored ${result.details.monthsRestored} months of data.\n\nDate range: ${result.details.dateRange}\nTotal stages: ${result.details.totalStages}`);
+                             window.location.reload();
+                           } else {
+                             alert(`❌ Error: ${result.error}`);
+                           }
+                         } catch (error) {
+                           alert('❌ Failed to restore backup: ' + error);
+                         }
+                       };
+                       input.click();
+                     }}
+                     className="px-4 py-2 bg-orange-600 text-white font-bold rounded-lg shadow-lg hover:bg-orange-700 transition-colors duration-200 flex items-center space-x-2"
+                   >
+                     <Download className="w-4 h-4" />
+                     <span>Restore Backup</span>
                    </button>
           <button
             onClick={() => {
