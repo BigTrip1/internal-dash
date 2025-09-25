@@ -152,7 +152,7 @@ const PrintOptimizedReport: React.FC = () => {
                 <div className="chart-line"></div>
                 <div className="chart-labels">
                   <span>Current: {formatDPU(reportData.currentMonthDPU)}</span>
-                  <span className="critical-zone">CRITICAL ZONE (>15 DPU)</span>
+                  <span className="critical-zone">CRITICAL ZONE (&gt;15 DPU)</span>
                   <span>Target: 8.20</span>
                 </div>
                 <div className="chart-status">
