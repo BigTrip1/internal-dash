@@ -273,21 +273,61 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 6px;
+            margin-bottom: 8px;
         }
         .kpi-card {
             background: white;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 8px;
+            border-radius: 4px;
+            padding: 6px;
             text-align: center;
             position: relative;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            min-height: 80px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            min-height: 65px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+        }
+        .executive-summary-box {
+            background: #fff8e1;
+            border: 1px solid #FCB026;
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        .executive-summary-header {
+            background: #FCB026;
+            color: #000;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .executive-summary-content {
+            padding: 6px 8px;
+            font-size: 9px;
+            line-height: 1.2;
+        }
+        .upcoming-updates-box {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 4px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        .upcoming-updates-header {
+            background: #FCB026;
+            color: #000;
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .upcoming-updates-content {
+            padding: 6px 8px;
+            font-size: 9px;
+            line-height: 1.3;
         }
         .kpi-card::before {
             content: '';
@@ -593,9 +633,31 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 </div>
             </div>
 
-            <div style="margin: 20px 0;">
-                <strong>Overall Status:</strong> 
-                <span class="risk-badge risk-${reportData.glidePath.riskAssessment.toLowerCase().replace(' ', '-')}">
+            <!-- Executive Performance Summary -->
+            <div class="executive-summary-box">
+                <div class="executive-summary-header">📊 Executive Performance Summary</div>
+                <div class="executive-summary-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>Current Status:</strong><br>
+                            <span style="color: ${reportData.glidePath.riskAssessment === 'On Track' ? '#10B981' : '#EF4444'}; font-weight: bold;">
+                                ${reportData.glidePath.riskAssessment}
+                            </span> - Current DPU of ${formatDPU(reportData.currentMonthDPU)} is ${reportData.currentMonthDPU > reportData.glidePath.targetDPU ? formatDPU(reportData.currentMonthDPU - reportData.glidePath.targetDPU) + ' above' : formatDPU(reportData.glidePath.targetDPU - reportData.currentMonthDPU) + ' below'} target trajectory
+                        </div>
+                        <div style="text-align: right;">
+                            <strong>Improvement Required:</strong><br>
+                            ${formatDPU(reportData.glidePath.requiredMonthlyReduction)} DPU reduction needed monthly to achieve 8.2 target by year-end. This represents a 36% improvement requirement.
+                        </div>
+                    </div>
+                    <div style="background: #FCB026; color: #000; padding: 3px 6px; border-radius: 2px; font-size: 8px; font-weight: bold; text-align: center; margin-top: 4px;">
+                        ENHANCED MONITORING: Performance requires accelerated improvement measures
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 8px 0;">
+                <strong style="font-size: 10px;">Overall Status:</strong> 
+                <span class="risk-badge risk-${reportData.glidePath.riskAssessment.toLowerCase().replace(' ', '-')}" style="font-size: 9px; padding: 2px 4px;">
                     ${reportData.glidePath.riskAssessment}
                 </span>
             </div>
@@ -1206,6 +1268,29 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     `).join('')}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Upcoming Updates Section -->
+        <div class="section page-break">
+            <div class="upcoming-updates-box">
+                <div class="upcoming-updates-header">🚀 Upcoming Updates</div>
+                <div class="upcoming-updates-content">
+                    <strong>Future Quality Intelligence Enhancements:</strong>
+                    <ul style="margin: 4px 0; padding-left: 12px; font-size: 8px;">
+                        <li><strong>Fault Intelligence:</strong> Transform fault data into actionable intelligence with pattern recognition</li>
+                        <li><strong>Predictive Analytics:</strong> Early warning system for quality degradation and hidden pattern discovery</li>
+                        <li><strong>Volume Impact Modeling:</strong> Predict DPU impact of production volume changes</li>
+                        <li><strong>Customer Experience Integration:</strong> Connect internal performance to external customer experience</li>
+                        <li><strong>Warranty Correlation:</strong> Correlate internal DPU with external warranty claims and predict costs</li>
+                        <li><strong>Financial Impact Analysis:</strong> Real-time financial impact of quality decisions</li>
+                        <li><strong>Proactive Intervention:</strong> Implement predictive quality intervention system</li>
+                        <li><strong>Enterprise Scaling:</strong> Multi-business unit platform for JCB-wide quality management</li>
+                    </ul>
+                    <div style="font-style: italic; font-size: 7px; margin-top: 4px; text-align: center;">
+                        <strong>Phase 1 Implementation:</strong> Live data integration and real-time quality monitoring (Q1 2026)
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Footer -->
