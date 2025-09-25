@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateMonthlyReport, generateReportHTML } from '@/utils/reportGenerator';
-import clientPromise from '@/lib/mongodb';
+import { getCollection } from '@/lib/mongodb';
 
 export async function POST(request: NextRequest) {
   try {
     console.log('🔄 Starting simple PDF generation...');
     
     // Get data directly from MongoDB
-    const client = await clientPromise;
-    const db = client.db('dpu_master');
-    const collection = db.collection('Raw');
-    
+    const collection = await getCollection('Raw');
     const data = await collection.find({}).sort({ date: 1 }).toArray();
     console.log(`📊 Retrieved ${data.length} months of data from MongoDB`);
 
