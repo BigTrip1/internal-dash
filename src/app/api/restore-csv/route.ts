@@ -4,11 +4,47 @@ import { getCollection } from '@/lib/mongodb';
 // Parse CSV content into structured data
 function parseCSV(csvContent: string) {
   const lines = csvContent.split('\n').filter(line => line.trim());
-  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+  
+  // Find the DETAILED STAGE DATA section
+  let dataStartIndex = -1;
+  let headers: string[] = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes('DETAILED STAGE DATA')) {
+      // The headers should be on the next line
+      if (i + 1 < lines.length) {
+        dataStartIndex = i + 1;
+        headers = lines[dataStartIndex].split(',').map(h => h.trim().replace(/"/g, ''));
+        // Remove empty headers (from extra commas)
+        headers = headers.filter(h => h.length > 0);
+        break;
+      }
+    }
+  }
+  
+  if (dataStartIndex === -1) {
+    throw new Error('Could not find DETAILED STAGE DATA section in CSV');
+  }
+  
+  console.log(`📊 Found DETAILED STAGE DATA section starting at line ${dataStartIndex + 1}`);
+  console.log(`📊 Headers: ${headers.slice(0, 10).join(', ')}... (${headers.length} total)`);
   
   const data = [];
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+  // Start processing data from the line after headers
+  for (let i = dataStartIndex + 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Skip empty lines or section headers
+    if (!line || line === '' || line.includes('STAGE ANALYSIS') || line.includes('METADATA') || line.includes('SUMMARY')) {
+      break;
+    }
+    
+    const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+    // Remove empty values from the end (extra commas)
+    while (values.length > 0 && values[values.length - 1] === '') {
+      values.pop();
+    }
+    
     const row: any = {};
     
     headers.forEach((header, index) => {
@@ -22,7 +58,10 @@ function parseCSV(csvContent: string) {
       row[header] = value;
     });
     
-    data.push(row);
+    // Only add rows that have a month value
+    if (row['Month'] && row['Month'].length > 0) {
+      data.push(row);
+    }
   }
   
   return { headers, data };
@@ -50,7 +89,7 @@ function convertCSVToDatabaseFormat(csvData: any[]) {
     
     const monthData = monthsMap.get(month);
     
-    // Extract stage data from columns
+    // Extract stage data from columns (matching your CSV format)
     const stageNames = [
       'BOOMS', 'SIP1', 'SIP1A', 'SIP2', 'SIP3', 'SIP4', 'RR', 'UVI', 
       'SIP5', 'FTEST', 'LECREC', 'CT', 'UV2', 'CABWT', 'SIP6', 
@@ -108,11 +147,12 @@ export async function POST(request: NextRequest) {
     
     console.log(`📊 Found ${headers.length} columns and ${data.length} rows`);
     console.log(`📊 Headers: ${headers.slice(0, 5).join(', ')}...`);
+    console.log(`📊 Sample data rows: ${data.slice(0, 2).map(row => row.Month).join(', ')}`);
 
     if (data.length === 0) {
       return NextResponse.json({
         success: false,
-        error: 'No data found in CSV file'
+        error: 'No data found in CSV file. Make sure the CSV contains a DETAILED STAGE DATA section with monthly data.'
       }, { status: 400 });
     }
 
