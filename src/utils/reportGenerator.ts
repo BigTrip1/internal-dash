@@ -161,7 +161,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
     <style>
         @page {
             size: A4;
-            margin: 15mm;
+            margin: 12mm;
         }
         @media print {
             body { margin: 0; padding: 0; background: white; }
@@ -169,12 +169,13 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             .avoid-break { page-break-inside: avoid; }
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.4;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            line-height: 1.3;
             margin: 0;
             padding: 0;
             background-color: white;
-            font-size: 12px;
+            font-size: 11px;
+            color: #333;
         }
         .report-container {
             max-width: 100%;
@@ -184,12 +185,13 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         .header {
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
             color: black;
-            padding: 20px 15px;
+            padding: 15px 20px;
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 70px;
+            justify-content: space-between;
+            min-height: 50px;
+            border-bottom: 3px solid #000;
         }
         .header::before {
             content: '';
@@ -230,11 +232,10 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .header h1 {
             margin: 0;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.8px;
             line-height: 1.1;
         }
         .header .subtitle {
@@ -259,36 +260,34 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             border-bottom: none;
         }
         .section-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #1a1a1a;
-            margin-bottom: 8px;
-            padding: 6px 10px;
-            background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
-            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 6px;
+            padding: 4px 8px;
+            background: #FCB026;
+            border-radius: 3px;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border-left: 3px solid #000;
+            letter-spacing: 0.5px;
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-            margin-bottom: 18px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
         }
         .kpi-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border: 2px solid #FCB026;
-            border-radius: 8px;
-            padding: 12px 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px;
             text-align: center;
             position: relative;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-            min-height: 120px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            min-height: 80px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
         }
         .kpi-card::before {
             content: '';
@@ -392,9 +391,9 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .stage-performance {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 8px;
-            margin: 12px 0;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin: 8px 0;
         }
         .stage-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -496,24 +495,18 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
     <div class="report-container">
         <!-- Header -->
         <div class="header">
-            <div class="header-content">
-                <div class="jcb-logo">
-                    <div style="width: 45px; height: 45px; background: #FCB026; border: 2px solid #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; color: #000;">JCB</div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 40px; height: 40px; background: #000; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; color: #FCB026;">JCB</div>
+                <div>
+                    <h1 style="margin: 0; font-size: 18px; font-weight: 900;">LOADALL INTERNAL QUALITY PERFORMANCE REPORT</h1>
+                    <div style="font-size: 10px; margin-top: 2px;">Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</div>
                 </div>
-                <div class="header-text">
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                        <h1 style="margin: 0;">LOADALL INTERNAL QUALITY PERFORMANCE REPORT</h1>
-                        <div style="background: #FF0000; color: white; padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: bold;">
-                            CONFIDENTIAL
-                        </div>
-                    </div>
-                    <div class="meta-info">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>Month Ending: ${new Date(reportData.monthEnding).toLocaleDateString('en-GB')} | 
-                            Report Generated: ${new Date(reportData.reportDate).toLocaleDateString('en-GB')}</span>
-                            <span style="font-size: 10px; opacity: 0.7;">Created By: Adam Lawton - Senior Production Analyst</span>
-                        </div>
-                    </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: #FF0000; color: white; padding: 4px 8px; border-radius: 3px; font-size: 9px; font-weight: bold;">CONFIDENTIAL</div>
+                <div style="font-size: 9px; text-align: right;">
+                    <div>Created By: Adam Lawton</div>
+                    <div>Senior Production Analyst</div>
                 </div>
             </div>
         </div>
