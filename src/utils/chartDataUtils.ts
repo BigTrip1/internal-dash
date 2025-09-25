@@ -60,12 +60,11 @@ export const prepareChartData = (
     month.totalDpu !== null
   );
 
-  // Calculate target trajectory
-  const latestValidMonth = validData[validData.length - 1];
-  const currentDPU = latestValidMonth?.totalDpu || 12.87;
-  const targetDPU = 8.2;
-  const monthsRemaining = Math.max(12 - currentMonth - 1, 1); // Months from current to Dec
-  const monthlyReduction = (currentDPU - targetDPU) / monthsRemaining;
+  // Calculate target trajectory - Start at 20.17 DPU (Jan baseline) and end at 8.2 DPU (Dec target)
+  const startDPU = 20.17; // January baseline DPU
+  const targetDPU = 8.2;   // December target DPU
+  const totalMonths = 12;  // Full year trajectory
+  const monthlyReduction = (startDPU - targetDPU) / (totalMonths - 1); // Spread across 11 intervals (Jan to Dec)
 
   if (selectedStage === 'All Stages') {
     // Prepare data for all stages view
@@ -75,9 +74,8 @@ export const prepareChartData = (
       const isHistorical = index <= currentMonth;
       const isFuture = !isHistorical;
       
-      // Calculate target trajectory for this month
-      const monthsFromCurrent = index - currentMonth;
-      const targetTrajectory = currentDPU - (monthlyReduction * monthsFromCurrent);
+      // Calculate target trajectory for this month (linear progression from Jan 20.17 to Dec 8.2)
+      const targetTrajectory = startDPU - (monthlyReduction * index);
       const clampedTarget = Math.max(targetTrajectory, targetDPU);
       
       if (monthRecord && isHistorical) {
@@ -118,12 +116,12 @@ export const prepareChartData = (
       const isHistorical = index <= currentMonth;
       const isFuture = !isHistorical;
       
-      // Calculate target trajectory for this stage
-      const monthsFromCurrent = index - currentMonth;
+      // Calculate target trajectory for this stage (proportional to overall target)
       const stageCurrentDPU = latestValidMonth?.stages?.find(s => s.name === selectedStage)?.dpu || 0;
-      const stageTargetDPU = Math.max(stageCurrentDPU * 0.6, 0.5); // Target 40% reduction for stages
-      const stageMonthlyReduction = (stageCurrentDPU - stageTargetDPU) / monthsRemaining;
-      const targetTrajectory = stageCurrentDPU - (stageMonthlyReduction * monthsFromCurrent);
+      const stageStartDPU = stageCurrentDPU > 0 ? stageCurrentDPU : 2.0; // Fallback if no data
+      const stageTargetDPU = Math.max(stageStartDPU * 0.4, 0.5); // Target 60% reduction for stages
+      const stageMonthlyReduction = (stageStartDPU - stageTargetDPU) / (totalMonths - 1);
+      const targetTrajectory = stageStartDPU - (stageMonthlyReduction * index);
       const clampedTarget = Math.max(targetTrajectory, stageTargetDPU);
       
       if (monthRecord && isHistorical) {
@@ -231,24 +229,34 @@ export const formatTooltipContent = (
   }
 
   const trendStatus = isFuture ? 'Future Target' : isAboveTarget ? 'Off Track 🔴' : 'On Track 🟢';
-  const variance = Math.abs(Number(tooltipData.dpu) - targetTrajectory);
+  const safeDpuValue = tooltipData.dpu ? Number(tooltipData.dpu) : 0;
+  const variance = Math.abs(safeDpuValue - targetTrajectory);
 
   if (selectedStage === 'All Stages') {
+    const safeFaults = tooltipData.faults ? Number(tooltipData.faults).toLocaleString() : '0';
+    const safeInspected = tooltipData.inspected ? Number(tooltipData.inspected).toLocaleString() : '0';
+    const safeDpu = tooltipData.dpu ? Number(tooltipData.dpu).toFixed(2) : '0.00';
+    const safeBuildVolume = tooltipData.buildVolume ? Number(tooltipData.buildVolume).toLocaleString() : '0';
+    
     return {
-      header: `${monthName} - Total Faults: ${tooltipData.faults?.toLocaleString() || 0} | Total Inspections: ${tooltipData.inspected?.toLocaleString() || 0}`,
+      header: `${monthName} - Total Faults: ${safeFaults} | Total Inspections: ${safeInspected}`,
       lines: [
-        `${monthName} DPU: ${Number(tooltipData.dpu).toFixed(2)}`,
-        `Build Volume: ${tooltipData.buildVolume?.toLocaleString() || 0}`,
+        `${monthName} DPU: ${safeDpu}`,
+        `Build Volume: ${safeBuildVolume}`,
         `Target Trajectory: ${targetTrajectory.toFixed(2)}`,
         `Trend Deviation: ${variance.toFixed(2)} (${trendStatus})`
       ]
     };
   } else {
+    const safeFaults = tooltipData.faults ? Number(tooltipData.faults).toLocaleString() : '0';
+    const safeInspected = tooltipData.inspected ? Number(tooltipData.inspected).toLocaleString() : '0';
+    const safeDpu = tooltipData.dpu ? Number(tooltipData.dpu).toFixed(2) : '0.00';
+    
     return {
-      header: `${monthName} - ${selectedStage} Faults: ${tooltipData.faults?.toLocaleString() || 0} | ${selectedStage} Inspected: ${tooltipData.inspected?.toLocaleString() || 0}`,
+      header: `${monthName} - ${selectedStage} Faults: ${safeFaults} | ${selectedStage} Inspected: ${safeInspected}`,
       lines: [
-        `${selectedStage} DPU: ${Number(tooltipData.dpu).toFixed(2)}`,
-        `${selectedStage} Inspected: ${tooltipData.inspected?.toLocaleString() || 0}`,
+        `${selectedStage} DPU: ${safeDpu}`,
+        `${selectedStage} Inspected: ${safeInspected}`,
         `Target Trajectory: ${targetTrajectory.toFixed(2)}`,
         `Trend Deviation: ${variance.toFixed(2)} (${trendStatus})`
       ]
