@@ -251,7 +251,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             opacity: 0.8;
         }
         .section {
-            padding: 15px 20px;
+            padding: 8px 12px;
             border-bottom: 1px solid #e0e0e0;
             page-break-inside: avoid;
         }
@@ -259,34 +259,33 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             border-bottom: none;
         }
         .section-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #1a1a1a;
-            margin-bottom: 15px;
-            padding: 8px 15px;
+            margin-bottom: 8px;
+            padding: 6px 10px;
             background: linear-gradient(135deg, #FCB026 0%, #F59E0B 100%);
-            border-radius: 6px;
+            border-radius: 4px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            border-left: 4px solid #000;
+            letter-spacing: 0.3px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 3px solid #000;
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
         }
         .kpi-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-            border: 3px solid #FCB026;
-            border-radius: 15px;
-            padding: 30px 25px;
+            border: 2px solid #FCB026;
+            border-radius: 8px;
+            padding: 12px 10px;
             text-align: center;
             position: relative;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-            transition: transform 0.2s ease;
-            min-height: 180px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -392,18 +391,19 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         }
         .stage-performance {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin: 12px 0;
         }
         .stage-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 2px solid #FCB026;
-            border-radius: 10px;
-            padding: 18px 15px;
+            border: 1px solid #FCB026;
+            border-radius: 6px;
+            padding: 8px 6px;
             text-align: center;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             position: relative;
+            font-size: 10px;
         }
         .stage-card::before {
             content: '';
@@ -497,7 +497,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
         <div class="header">
             <div class="header-content">
                 <div class="jcb-logo">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAJYCAYAAACadoJwAAABOGlDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAACiRlZG9SgNBFIW/WUXFQiOIWFhsJQqKWbVwyySKCIIxWiTpsj+sErK7zI4/eQhLuy1s7H0CK0vBQvEJfAPFKoXMrrBFwOBp5pszl3Nn7oBRruxW94wS9EIlG/tVs9lqm5MvTDBGpo6bxJV6/VBzGIU+Q/p+R+j1dV1nDZ//qWk3lgoYAJuen7ggykD3SsUKRArMO92MHzTL00YNxBMwE+T8ptnJ+UOzbLbaIL50fZCxMZXl5LykWfnXui+1KO7L8+BMmZZt22bFixzfPOknyu8l5kHoRjKOZEf5HpDfL9NcXqgntmLZ9s7qP989Uvofcvo8zuYrFp4Lr5B7IS9/URhbo/dFRroIR/cwPii87Ru4W4PZ28JbtqC0AY/pD8DGT/28T+DjAAAAIGNIUk0AAHolAACAgwAA+f8AAIDoAABSCAABFVgAADqXAAAXb9daH5AAAEagSURBVHja7d0FmFV1/gfgoUsaQbpjYBAQXXXt7sZYdRV17VwLu9ZYA8Uu7FxduxMDWzHXXFv/xtqKsQrf//M7F1yQAYeBmbnxfp7nfdyVwZm5955zz+eeX5RFRBkAAEBt8CAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAAAAAKCAAAIACAgAAoIAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAeBAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAQAEBAAAUEAAAAAUEAABQQAAAADwIAACAAgIAABSf/wddnsElMGDdwgAAAABJRU5ErkJggg==" alt="JCB Logo" style="width: 50px; height: 50px; object-fit: contain;" />
+                    <img src="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAJYCAYAAACadoJwAAABOGlDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAACiRlZG9SgNBFIW/WUXFQiOIWFhsJQqKWbVwyySKCIIxWiTpsj+sErK7zI4/eQhLuy1s7H0CK0vBQvEJfAPFKoXMrrBFwOBp5pszl3Nn7oBRruxW94wS9EIlG/tVs9lqm5MvTDBGpo6bxJV6/VBzGIU+Q/p+R+j1dV1nDZ//qWk3lgoYAJuen7ggykD3SsUKRArMO92MHzTL00YNxBMwE+T8ptnJ+UOzbLbaIL50fZCxMZXl5LykWfnXui+1KO7L8+BMmZZt22bFixzfPOknyu8l5kHoRjKOZEf5HpDfL9NcXqgntmLZ9s7qP989Uvofcvo8zuYrFp4Lr5B7IS9/URhbo/dFRroIR/cwPii87Ru4W4PZ28JbtqC0AY/pD8DGT/28T+DjAAAAIGNIUk0AAHolAACAgwAA+f8AAIDoAABSCAABFVgAADqXAAAXb9daH5AAAEagSURBVHja7d0FmFV1/gfgoUsaQbpjYBAQXXXt7sZYdRV17VwLu9ZYA8Uu7FxduxMDWzHXXFv/xtqKsQrf//M7F1yQAYeBmbnxfp7nfdyVwZm5955zz+eeX5RFRBkAAEBt8CAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAAAAAKCAAAIACAgAAoIAAAAAKCAAAoIAAAAAoIAAAgAICAACggAAAAAoIAACggAAAACggAACAAgIAAKCAAAAACggAAKCAeBAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAUEAAAAAUEAAAQAEBAABQQAAAAAUEAABQQAAAABQQAABAAQEAAFBAAAAABQQAAFBAAAAAFBAAAEABAQAAUEAAAAAFBAAAQAEBAAAUEAAAAAUEAABQQAAAADwIAACAAgIAABSf/wddnsElMGDdwgAAAABJRU5ErkJggg==" alt="JCB Logo" style="width: 45px; height: 45px; object-fit: contain;" />
                 </div>
                 <div class="header-text">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
