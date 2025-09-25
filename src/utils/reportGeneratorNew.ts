@@ -510,7 +510,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
     </style>
 </head>
 <body>
-    <!-- PAGE 1: Executive Dashboard -->
+    <!-- PAGE 1: Complete Executive Dashboard -->
     <div class="page">
         <!-- Header -->
         <div class="header">
@@ -563,157 +563,195 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
             <div class="exec-header">📊 EXECUTIVE PERFORMANCE SUMMARY</div>
             <div class="exec-content">
                 <div>
-                    <strong>Current Status:</strong><br/>
-                    <span style="color: ${reportData.glidePath.riskAssessment === 'On Track' ? '#10B981' : '#EF4444'}; font-weight: bold;">
-                        ${reportData.glidePath.riskAssessment}
-                    </span> - Current DPU of ${formatDPU(reportData.currentMonthDPU)} is ${formatDPU(Math.abs(reportData.currentMonthDPU - reportData.glidePath.targetDPU))} above target trajectory
+                    <strong>Current Status:</strong> <span style="color: #EF4444; font-weight: bold;">${reportData.glidePath.riskAssessment}</span> - Current DPU of ${formatDPU(reportData.currentMonthDPU)} is ${formatDPU(Math.abs(reportData.currentMonthDPU - reportData.glidePath.targetDPU))} above target trajectory
                 </div>
                 <div>
-                    <strong>Improvement Required:</strong><br/>
-                    ${formatDPU(reportData.glidePath.requiredMonthlyReduction)} DPU reduction needed monthly to achieve 8.2 target by year-end. This represents a 36% improvement requirement.
+                    <strong>Improvement Required:</strong> ${formatDPU(reportData.glidePath.requiredMonthlyReduction)} DPU reduction needed monthly to achieve 8.2 target by year-end. This represents a 36% improvement requirement.
                 </div>
             </div>
-            <div class="enhanced-bar">
-                ENHANCED MONITORING: Performance requires accelerated improvement measures
-            </div>
+            <div class="enhanced-bar">ENHANCED MONITORING: Performance requires accelerated improvement measures</div>
         </div>
 
-        <!-- Performance Analysis -->
+        <!-- Performance Analysis Table -->
         <div class="section-title">PERFORMANCE ANALYSIS & GLIDE PATH</div>
         <table class="data-table">
             <thead>
-                <tr>
-                    <th>PERIOD</th>
-                    <th>CURRENT DPU</th>
-                    <th>TARGET DPU</th>
-                    <th>VARIANCE</th>
-                    <th>STATUS</th>
-                </tr>
+                <tr><th>PERIOD</th><th>CURRENT DPU</th><th>TARGET DPU</th><th>VARIANCE</th><th>STATUS</th></tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>This Month</td>
-                    <td>${formatDPU(reportData.currentMonthDPU)}</td>
-                    <td>${formatDPU(reportData.glidePath.targetDPU)}</td>
+                    <td>This Month</td><td>${formatDPU(reportData.currentMonthDPU)}</td><td>${formatDPU(reportData.glidePath.targetDPU)}</td>
                     <td style="color: #EF4444; font-weight: bold;">${formatDPU(Math.abs(reportData.currentMonthDPU - reportData.glidePath.targetDPU))}</td>
                     <td><span style="background: #EF4444; color: white; padding: 1px 3px; border-radius: 2px; font-size: 5px;">AT RISK</span></td>
                 </tr>
-                <tr>
-                    <td>3-Month Average</td>
-                    <td>${formatDPU(reportData.threeMonthAverage)}</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>Reference</td>
-                </tr>
-                <tr>
-                    <td>YTD Average</td>
-                    <td>${formatDPU(reportData.ytdAverage)}</td>
-                    <td>8.2</td>
-                    <td style="color: #EF4444; font-weight: bold;">${formatDPU(Math.abs(reportData.ytdAverage - 8.2))}</td>
-                    <td>Year-End Target</td>
-                </tr>
+                <tr><td>YTD Average</td><td>${formatDPU(reportData.ytdAverage)}</td><td>8.2</td><td style="color: #EF4444; font-weight: bold;">${formatDPU(Math.abs(reportData.ytdAverage - 8.2))}</td><td>Year-End Target</td></tr>
             </tbody>
         </table>
-
-        <!-- Chart -->
-        <div style="font-size: 7px; font-weight: bold; margin: 4px 0 2px 0;">DPU Trajectory to 8.2 Target:</div>
-        <div class="chart-container">
-            <div class="chart-line"></div>
-            <div class="chart-labels">
-                <span>Current: ${formatDPU(reportData.currentMonthDPU)}</span>
-                <span style="color: #EF4444; font-weight: bold;">CRITICAL ZONE (&gt;15 DPU)</span>
-                <span>Target: 8.20</span>
-            </div>
-            <div style="position: absolute; bottom: 4px; left: 8px; right: 8px; display: flex; justify-content: space-between; font-size: 5px;">
-                <span>Trajectory Status: <strong style="color: #EF4444;">At Risk</strong></span>
-                <span>Required Monthly Reduction: <strong>${formatDPU(reportData.glidePath.requiredMonthlyReduction)} DPU</strong></span>
-            </div>
-        </div>
 
         <!-- Monthly Targets -->
         <div style="font-size: 7px; font-weight: bold; margin: 4px 0 2px 0;">Monthly Glide Path Targets:</div>
         <div class="target-grid">
-            <div class="target-card">
-                <div class="target-month">Oct-25</div>
-                <div class="target-value">11.27</div>
-                <div class="target-status">✓ ACHIEVABLE</div>
-            </div>
-            <div class="target-card">
-                <div class="target-month">Nov-25</div>
-                <div class="target-value">9.73</div>
-                <div class="target-status">✓ ACHIEVABLE</div>
-            </div>
-            <div class="target-card">
-                <div class="target-month">Dec-25</div>
-                <div class="target-value">8.20</div>
-                <div class="target-status">✓ ACHIEVABLE</div>
-            </div>
+            <div class="target-card"><div class="target-month">Oct-25</div><div class="target-value">11.27</div><div class="target-status">✓ ACHIEVABLE</div></div>
+            <div class="target-card"><div class="target-month">Nov-25</div><div class="target-value">9.73</div><div class="target-status">✓ ACHIEVABLE</div></div>
+            <div class="target-card"><div class="target-month">Dec-25</div><div class="target-value">8.20</div><div class="target-status">✓ ACHIEVABLE</div></div>
+        </div>
+
+        <!-- Stage Performance Heat Map -->
+        <div class="section-title">🔥 STAGE PERFORMANCE HEAT MAP</div>
+        <div class="stage-grid">
+            ${reportData.stagePerformance.slice(0, 6).map(stage => `
+                <div class="stage-card ${stage.status.toLowerCase()}">
+                    <div class="stage-name">${stage.name}</div>
+                    <div class="stage-value">${formatDPU(stage.dpu)}</div>
+                    <div class="stage-change">${stage.change > 0 ? '+' : ''}${formatDPU(stage.change)} DPU</div>
+                    <div class="stage-status">${stage.status.toUpperCase()}</div>
+                </div>
+            `).join('')}
+        </div>
+
+        <!-- Performance Counts -->
+        <div class="count-grid">
+            <div class="count-card green"><div class="count-number">${reportData.stagePerformance.filter(s => s.status === 'Improved').length}</div><div class="count-label">PERFORMING WELL</div></div>
+            <div class="count-card orange"><div class="count-number">${reportData.stagePerformance.filter(s => s.status === 'Stable').length}</div><div class="count-label">MONITOR CLOSELY</div></div>
+            <div class="count-card red"><div class="count-number">${reportData.stagePerformance.filter(s => s.status === 'Deteriorated').length}</div><div class="count-label">REQUIRES ATTENTION</div></div>
         </div>
     </div>
 
-    <!-- PAGE 2: Strategic Context -->
+    <!-- PAGE 2: Strategic Analysis & Future Updates -->
     <div class="page page-break">
-        <div class="section-title">STRATEGIC CONTEXT & INDUSTRY POSITION</div>
-        
+        <!-- Strategic Context -->
+        <div class="section-title">STRATEGIC CONTEXT & PERFORMANCE ANALYSIS</div>
         <div class="two-col">
             <div class="col-box">
                 <div class="col-header blue">📊 Current Performance Status</div>
                 <div class="col-content">
-                    <div class="status-row">
-                        <span>Starting Position (Jan-25):</span>
-                        <span class="value-red">20.17 DPU</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Current Position (Sep-25):</span>
-                        <span class="value-red">12.80 DPU</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Target Position (Dec-25):</span>
-                        <span class="value-green">8.2 DPU</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Gap Remaining:</span>
-                        <span class="value-red">4.60 DPU</span>
-                    </div>
+                    <div class="status-row"><span>Starting Position (Jan-25):</span><span class="value-red">20.17 DPU</span></div>
+                    <div class="status-row"><span>Current Position (Sep-25):</span><span class="value-red">12.80 DPU</span></div>
+                    <div class="status-row"><span>Target Position (Dec-25):</span><span class="value-green">8.2 DPU</span></div>
+                    <div class="status-row"><span>Gap Remaining:</span><span class="value-red">4.60 DPU</span></div>
                 </div>
-                <div style="background: #FCB026; color: #000; padding: 2px 4px; font-size: 5px; font-weight: bold; text-align: center;">
-                    62% OF TARGET IMPROVEMENT ACHIEVED
-                </div>
+                <div style="background: #FCB026; color: #000; padding: 2px 4px; font-size: 5px; font-weight: bold; text-align: center;">62% OF TARGET IMPROVEMENT ACHIEVED</div>
             </div>
-
             <div class="col-box">
                 <div class="col-header orange">📈 Performance Trajectory</div>
                 <div class="col-content">
-                    <div class="status-row">
-                        <span>YTD Improvement:</span>
-                        <span class="value-green">37% ↓</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Months of Progress:</span>
-                        <span class="value-blue">9 months</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Average Monthly Reduction:</span>
-                        <span class="value-green">0.82</span>
-                    </div>
-                    <div class="status-row">
-                        <span>Required Acceleration:</span>
-                        <span class="value-red">187% faster</span>
-                    </div>
+                    <div class="status-row"><span>YTD Improvement:</span><span class="value-green">37% ↓</span></div>
+                    <div class="status-row"><span>Months of Progress:</span><span class="value-blue">9 months</span></div>
+                    <div class="status-row"><span>Required Acceleration:</span><span class="value-red">187% faster</span></div>
                 </div>
-                <div style="background: #FCB026; color: #000; padding: 2px 4px; font-size: 5px; font-weight: bold; text-align: center;">
-                    ENHANCED FOCUS: Maintain momentum with targeted improvements
+                <div style="background: #FCB026; color: #000; padding: 2px 4px; font-size: 5px; font-weight: bold; text-align: center;">ENHANCED FOCUS: Maintain momentum</div>
+            </div>
+        </div>
+
+        <!-- Critical Focus Areas -->
+        <div class="section-title">STRATEGIC DECISION FRAMEWORK</div>
+        <div style="border: 1px solid #f44336; border-radius: 3px; margin: 4px 0; overflow: hidden;">
+            <div style="background: #FCB026; color: #000; padding: 2px 6px; font-size: 7px; font-weight: bold;">🎯 CRITICAL FOCUS AREAS</div>
+            <table class="data-table" style="margin: 0;">
+                <thead><tr><th>🔴 HIGHEST DPU STAGES</th><th>📈 PERFORMANCE TRENDS</th></tr></thead>
+                <tbody>
+                    ${reportData.stagePerformance.slice(0, 3).map(stage => `
+                        <tr>
+                            <td><strong>${stage.name}:</strong> <span style="color: #EF4444; font-weight: bold;">${formatDPU(stage.dpu)} DPU</span></td>
+                            <td><span style="color: ${stage.status === 'Improved' ? '#10B981' : stage.status === 'Stable' ? '#F59E0B' : '#EF4444'};">${stage.status} Stage</span></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Performance Summary -->
+        <div style="border: 1px solid #FCB026; border-radius: 3px; margin: 4px 0; overflow: hidden;">
+            <div style="background: #FCB026; color: #000; padding: 2px 6px; font-size: 7px; font-weight: bold;">📊 PERFORMANCE SUMMARY</div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px;">
+                <div style="text-align: center;"><div style="font-size: 12px; font-weight: bold; color: #10B981;">37%</div><div style="font-size: 5px; font-weight: bold;">YTD IMPROVEMENT</div></div>
+                <div style="text-align: center;"><div style="font-size: 12px; font-weight: bold; color: #F59E0B;">1.53</div><div style="font-size: 5px; font-weight: bold;">MONTHLY REDUCTION NEEDED</div></div>
+                <div style="text-align: center;"><div style="font-size: 12px; font-weight: bold; color: #3B82F6;">3</div><div style="font-size: 5px; font-weight: bold;">MONTHS REMAINING</div></div>
+            </div>
+        </div>
+
+        <!-- Risk Assessment -->
+        <div class="section-title">RISK ASSESSMENT & SUCCESS FACTORS</div>
+        <div class="two-col">
+            <div style="background: #fef2f2; border: 1px solid #EF4444; border-radius: 3px; padding: 4px;">
+                <div style="font-size: 6px; font-weight: bold; color: #EF4444; margin-bottom: 2px;">⚠️ RISK ANALYSIS</div>
+                <div style="font-size: 5px;">Current Status: <strong>At Risk</strong> | Required Monthly Reduction: <strong>1.53</strong> | Months Remaining: <strong>3</strong> | Improvement Acceleration Needed: <strong>187%</strong></div>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid #10B981; border-radius: 3px; padding: 4px;">
+                <div style="font-size: 6px; font-weight: bold; color: #10B981; margin-bottom: 2px;">📊 DATA-DRIVEN INSIGHTS</div>
+                <div style="font-size: 5px;">Best Performing Stage: <strong>LECFBC (0.96)</strong> | Highest Risk Stage: <strong>SIP6 (2.39)</strong> | Stages Improving: <strong>6 of 19</strong> | Stages Requiring Attention: <strong>2 of 19</strong></div>
+            </div>
+        </div>
+
+        <!-- Mathematical Analysis -->
+        <div style="background: #fffbeb; border: 1px solid #F59E0B; border-radius: 3px; margin: 4px 0; padding: 4px;">
+            <div style="font-size: 6px; font-weight: bold; margin-bottom: 2px; text-align: center;">📊 MATHEMATICAL ANALYSIS</div>
+            <div class="two-col" style="gap: 4px;">
+                <div>
+                    <div style="font-size: 5px; font-weight: bold; color: #3B82F6;">📊 IMPROVEMENT METRICS</div>
+                    <div style="font-size: 5px;">Total Improvement Needed: <strong>4.60 DPU</strong> | Time Available: <strong>3 months</strong> | Required Rate: <strong>1.53/month</strong> | Historical Rate: <strong>0.82/month</strong></div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 5px; font-weight: bold; color: #F59E0B;">⚠️ TARGET FEASIBILITY</div>
+                    <div style="font-size: 16px; color: #F59E0B;">⚠️</div>
+                    <div style="font-size: 6px; font-weight: bold; color: #EF4444;">At Risk</div>
                 </div>
             </div>
         </div>
 
+        <!-- Performance Highlights -->
+        <div class="section-title">PERFORMANCE HIGHLIGHTS & TOP DPU CONTRIBUTORS</div>
+        <div class="two-col">
+            <div style="background: #f0fdf4; border: 1px solid #10B981; border-radius: 3px; padding: 4px;">
+                <div style="font-size: 6px; font-weight: bold; color: #10B981; margin-bottom: 2px;">✅ THIS MONTH'S SUCCESSES</div>
+                <ul style="margin: 1px 0; padding-left: 6px; font-size: 5px;">
+                    <li>Overall DPU improved by 0.52 from previous month</li>
+                    <li>Build volume targets exceeded while maintaining quality standards</li>
+                </ul>
+            </div>
+            <div style="background: #fff3e0; border: 1px solid #F59E0B; border-radius: 3px; padding: 4px;">
+                <div style="font-size: 6px; font-weight: bold; color: #F59E0B; margin-bottom: 2px;">📊 TOP DPU CONTRIBUTORS</div>
+                <div style="font-size: 5px;">
+                    ${reportData.stagePerformance.slice(0, 3).map(stage => `<strong>${stage.name}:</strong> ${formatDPU(stage.dpu)} DPU (${stage.status})<br/>`).join('')}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: Strategic Analysis & Future Updates -->
+    <div class="page page-break">
+        <!-- Strategic Context -->
+        <div class="section-title">STRATEGIC CONTEXT & INDUSTRY POSITION</div>
+        <div class="two-col">
+            <div class="col-box">
+                <div class="col-header blue">📊 Current Performance Status</div>
+                <div class="col-content">
+                    <div class="status-row"><span>Starting Position (Jan-25):</span><span class="value-red">20.17 DPU</span></div>
+                    <div class="status-row"><span>Current Position (Sep-25):</span><span class="value-red">12.80 DPU</span></div>
+                    <div class="status-row"><span>Target Position (Dec-25):</span><span class="value-green">8.2 DPU</span></div>
+                    <div class="status-row"><span>Gap Remaining:</span><span class="value-red">4.60 DPU</span></div>
+                </div>
+                <div style="background: #FCB026; color: #000; padding: 2px 4px; font-size: 5px; font-weight: bold; text-align: center;">62% OF TARGET IMPROVEMENT ACHIEVED</div>
+            </div>
+            <div class="col-box">
+                <div class="col-header orange">📈 Performance Trajectory</div>
+                <div class="col-content">
+                    <div class="status-row"><span>YTD Improvement:</span><span class="value-green">37% ↓</span></div>
+                    <div class="status-row"><span>Months of Progress:</span><span class="value-blue">9 months</span></div>
+                    <div class="status-row"><span>Average Monthly Reduction:</span><span class="value-green">0.82</span></div>
+                    <div class="status-row"><span>Required Acceleration:</span><span class="value-red">187% faster</span></div>
+                </div>
+                <div style="background: #FCB026; color: #000; padding: 2px 4px; font-size: 5px; font-weight: bold; text-align: center;">ENHANCED FOCUS: Maintain momentum with targeted improvements</div>
+            </div>
+        </div>
+
         <!-- Key Performance Insights -->
-        <div style="background: #f8f9fa; border: 1px solid #FCB026; border-radius: 3px; padding: 6px; margin: 6px 0;">
-            <div style="font-size: 7px; font-weight: bold; margin-bottom: 3px;">🎯 KEY PERFORMANCE INSIGHTS</div>
-            <div class="two-col" style="gap: 8px;">
+        <div style="background: #f8f9fa; border: 1px solid #FCB026; border-radius: 3px; padding: 4px; margin: 4px 0;">
+            <div style="font-size: 6px; font-weight: bold; margin-bottom: 2px;">🎯 KEY PERFORMANCE INSIGHTS</div>
+            <div class="two-col" style="gap: 4px;">
                 <div>
-                    <strong style="color: #10B981; font-size: 6px;">✅ POSITIVE TRENDS:</strong>
-                    <ul style="margin: 2px 0; padding-left: 8px; font-size: 6px;">
+                    <strong style="color: #10B981; font-size: 5px;">✅ POSITIVE TRENDS:</strong>
+                    <ul style="margin: 1px 0; padding-left: 6px; font-size: 5px;">
                         <li>Consistent month-over-month improvement trend</li>
                         <li>Build volume maintained above 1,500 units</li>
                         <li>Multiple stages showing stability</li>
@@ -721,8 +759,8 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     </ul>
                 </div>
                 <div>
-                    <strong style="color: #EF4444; font-size: 6px;">⚠️ AREAS OF CONCERN:</strong>
-                    <ul style="margin: 2px 0; padding-left: 8px; font-size: 6px;">
+                    <strong style="color: #EF4444; font-size: 5px;">⚠️ AREAS OF CONCERN:</strong>
+                    <ul style="margin: 1px 0; padding-left: 6px; font-size: 5px;">
                         <li>Improvement rate needs 187% acceleration</li>
                         <li>Critical stages require focused intervention</li>
                         <li>Target timeline creates delivery pressure</li>
@@ -731,12 +769,9 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- PAGE 3: Stage Performance -->
-    <div class="page page-break">
+        <!-- Stage Performance Grid -->
         <div class="section-title">🔥 STAGE PERFORMANCE HEAT MAP</div>
-        
         <div class="stage-grid">
             ${reportData.stagePerformance.slice(0, 6).map(stage => `
                 <div class="stage-card ${stage.status.toLowerCase()}">
@@ -744,205 +779,22 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     <div class="stage-value">${formatDPU(stage.dpu)}</div>
                     <div class="stage-change">${stage.change > 0 ? '+' : ''}${formatDPU(stage.change)} DPU</div>
                     <div class="stage-status">${stage.status.toUpperCase()}</div>
-                    <div style="font-size: 4px;">
-                        ${stage.status === 'Improved' ? 'PERFORMING WELL' : 
-                          stage.status === 'Stable' ? 'MONITOR CLOSELY' : 'REQUIRES ATTENTION'}
-                    </div>
                 </div>
             `).join('')}
         </div>
-        
-        <!-- Performance Counts -->
-        <div class="count-grid">
-            <div class="count-card green">
-                <div class="count-number">${reportData.stagePerformance.filter(s => s.status === 'Improved').length}</div>
-                <div class="count-label">PERFORMING WELL</div>
-            </div>
-            <div class="count-card orange">
-                <div class="count-number">${reportData.stagePerformance.filter(s => s.status === 'Stable').length}</div>
-                <div class="count-label">MONITOR CLOSELY</div>
-            </div>
-            <div class="count-card red">
-                <div class="count-number">${reportData.stagePerformance.filter(s => s.status === 'Deteriorated').length}</div>
-                <div class="count-label">REQUIRES ATTENTION</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAGE 4: Strategic Decision Framework -->
-    <div class="page page-break">
-        <div class="section-title">STRATEGIC DECISION FRAMEWORK</div>
-        
-        <!-- Critical Focus Areas -->
-        <div style="border: 1px solid #f44336; border-radius: 3px; margin: 4px 0; overflow: hidden;">
-            <div style="background: #FCB026; color: #000; padding: 2px 6px; font-size: 7px; font-weight: bold;">
-                🎯 CRITICAL FOCUS AREAS (Data-Based Analysis)
-            </div>
-            <table class="data-table" style="margin: 0;">
-                <thead>
-                    <tr>
-                        <th>🔴 HIGHEST DPU STAGES</th>
-                        <th>📈 PERFORMANCE TRENDS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${reportData.stagePerformance.slice(0, 3).map(stage => `
-                        <tr>
-                            <td><strong>${stage.name}:</strong> <span style="color: #EF4444; font-weight: bold;">${formatDPU(stage.dpu)} DPU</span></td>
-                            <td>
-                                <span style="color: ${stage.status === 'Improved' ? '#10B981' : stage.status === 'Stable' ? '#F59E0B' : '#EF4444'};">
-                                    ${stage.status} Stage:
-                                </span>
-                                <span style="font-weight: bold;">
-                                    ${stage.status === 'Improved' ? '0' : stage.status === 'Stable' ? '19' : '0'}
-                                </span>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Performance Summary -->
-        <div style="border: 1px solid #FCB026; border-radius: 3px; margin: 6px 0; overflow: hidden;">
-            <div style="background: #FCB026; color: #000; padding: 2px 6px; font-size: 7px; font-weight: bold;">
-                📊 PERFORMANCE SUMMARY
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px;">
-                <div style="text-align: center;">
-                    <div style="font-size: 14px; font-weight: bold; color: #10B981;">37%</div>
-                    <div style="font-size: 6px; font-weight: bold;">YTD IMPROVEMENT</div>
-                    <div style="font-size: 5px;">From 20.17 to 12.80 DPU</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 14px; font-weight: bold; color: #F59E0B;">1.53</div>
-                    <div style="font-size: 6px; font-weight: bold;">MONTHLY REDUCTION NEEDED</div>
-                    <div style="font-size: 5px;">To achieve 8.2 target</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 14px; font-weight: bold; color: #3B82F6;">3</div>
-                    <div style="font-size: 6px; font-weight: bold;">MONTHS REMAINING</div>
-                    <div style="font-size: 5px;">Until target deadline</div>
-                </div>
-            </div>
-        </div>
 
         <!-- Target Achievement Analysis -->
-        <div style="border: 1px solid #333; border-radius: 3px; margin: 6px 0; overflow: hidden;">
-            <div style="background: #f8f9fa; padding: 2px 6px; font-size: 7px; font-weight: bold; text-align: center;">
-                🎯 TARGET ACHIEVEMENT ANALYSIS
+        <div class="section-title">TARGET ACHIEVEMENT ANALYSIS</div>
+        <div class="two-col" style="gap: 2px;">
+            <div style="background: #f0fdf4; border: 1px solid #10B981; padding: 3px;">
+                <div style="font-size: 5px; font-weight: bold; color: #10B981; margin-bottom: 1px;">✅ CURRENT TRAJECTORY</div>
+                <div style="font-size: 5px;">Historical Rate: <strong>0.82/month</strong> | Required Rate: <strong>1.53/month</strong> | Acceleration Needed: <strong>187%</strong></div>
             </div>
-            <div class="two-col" style="gap: 2px;">
-                <div style="background: #f0fdf4; border: 1px solid #10B981; padding: 4px;">
-                    <div style="font-size: 6px; font-weight: bold; color: #10B981; margin-bottom: 2px;">✅ CURRENT TRAJECTORY</div>
-                    <div style="font-size: 6px;">
-                        <div>Historical Rate: <strong>0.82/month</strong></div>
-                        <div>Required Rate: <strong>1.53/month</strong></div>
-                        <div>Acceleration Needed: <strong>187%</strong></div>
-                    </div>
-                </div>
-                <div style="background: #fef2f2; border: 1px solid #EF4444; padding: 4px;">
-                    <div style="font-size: 6px; font-weight: bold; color: #EF4444; margin-bottom: 2px;">⚠️ RISK FACTORS</div>
-                    <div style="font-size: 6px;">
-                        <div>Status: <strong>At Risk</strong></div>
-                        <div>Gap to Target: <strong>4.60 DPU</strong></div>
-                        <div>Time Pressure: <strong>HIGH</strong></div>
-                    </div>
-                </div>
+            <div style="background: #fef2f2; border: 1px solid #EF4444; padding: 3px;">
+                <div style="font-size: 5px; font-weight: bold; color: #EF4444; margin-bottom: 1px;">⚠️ RISK FACTORS</div>
+                <div style="font-size: 5px;">Status: <strong>At Risk</strong> | Gap to Target: <strong>4.60 DPU</strong> | Time Pressure: <strong>HIGH</strong></div>
             </div>
         </div>
-    </div>
-
-    <!-- PAGE 5: Risk Assessment & Future Updates -->
-    <div class="page page-break">
-        <div class="section-title">RISK ASSESSMENT & SUCCESS FACTORS</div>
-        
-        <div class="two-col">
-            <div style="background: #fef2f2; border: 1px solid #EF4444; border-radius: 3px; padding: 6px;">
-                <div style="font-size: 7px; font-weight: bold; color: #EF4444; margin-bottom: 3px;">⚠️ RISK ANALYSIS</div>
-                <div style="font-size: 6px;">
-                    <div>Current Status: <strong>At Risk</strong></div>
-                    <div>Required Monthly Reduction: <strong>1.53</strong></div>
-                    <div>Months Remaining: <strong>3</strong></div>
-                    <div>Improvement Acceleration Needed: <strong>187%</strong></div>
-                </div>
-            </div>
-            <div style="background: #f0fdf4; border: 1px solid #10B981; border-radius: 3px; padding: 6px;">
-                <div style="font-size: 7px; font-weight: bold; color: #10B981; margin-bottom: 3px;">📊 DATA-DRIVEN INSIGHTS</div>
-                <div style="font-size: 6px;">
-                    <div>Best Performing Stage: <strong>LECFBC (0.96)</strong></div>
-                    <div>Highest Risk Stage: <strong>SIP6 (2.39)</strong></div>
-                    <div>Stages Improving: <strong>6 of 19</strong></div>
-                    <div>Stages Requiring Attention: <strong>2 of 19</strong></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mathematical Analysis -->
-        <div style="background: #fffbeb; border: 1px solid #F59E0B; border-radius: 3px; margin: 6px 0; padding: 6px;">
-            <div style="font-size: 7px; font-weight: bold; margin-bottom: 3px; text-align: center;">📊 MATHEMATICAL ANALYSIS</div>
-            <div class="two-col" style="gap: 4px;">
-                <div>
-                    <div style="font-size: 6px; font-weight: bold; color: #3B82F6; margin-bottom: 2px;">📊 IMPROVEMENT METRICS</div>
-                    <div style="font-size: 6px;">
-                        <div>Total Improvement Needed: <strong>4.60 DPU</strong></div>
-                        <div>Time Available: <strong>3 months</strong></div>
-                        <div>Required Rate: <strong>1.53/month</strong></div>
-                        <div>Historical Rate: <strong>0.82/month</strong></div>
-                    </div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 6px; font-weight: bold; color: #F59E0B; margin-bottom: 2px;">⚠️ TARGET FEASIBILITY</div>
-                    <div style="font-size: 20px; color: #F59E0B;">⚠️</div>
-                    <div style="font-size: 8px; font-weight: bold; color: #EF4444;">At Risk</div>
-                    <div style="font-size: 5px; color: #666;">Based on mathematical trajectory analysis</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Performance Highlights -->
-        <div class="section-title">PERFORMANCE HIGHLIGHTS & ACHIEVEMENTS</div>
-        <div class="two-col">
-            <div style="background: #f0fdf4; border: 1px solid #10B981; border-radius: 3px; padding: 6px;">
-                <div style="font-size: 7px; font-weight: bold; color: #10B981; margin-bottom: 3px;">✅ THIS MONTH'S SUCCESSES</div>
-                <ul style="margin: 2px 0; padding-left: 8px; font-size: 6px;">
-                    <li>Overall DPU improved by 0.52 from previous month</li>
-                    <li>Build volume targets exceeded while maintaining quality standards</li>
-                </ul>
-            </div>
-            <div style="background: #fff3e0; border: 1px solid #F59E0B; border-radius: 3px; padding: 6px;">
-                <div style="font-size: 7px; font-weight: bold; color: #F59E0B; margin-bottom: 3px;">📊 DATA OBSERVATIONS</div>
-                <ul style="margin: 2px 0; padding-left: 8px; font-size: 6px;">
-                    <li>Current improvement rate needs 187% acceleration to meet 8.2 target</li>
-                    <li>SIP6 shows 2.39 DPU - primary focus area</li>
-                    <li>Build volume of 1,736 units maintained during quality improvement</li>
-                    <li>6 stages showing month-over-month improvement</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Top DPU Contributors -->
-        <div class="section-title">TOP DPU CONTRIBUTORS (DATA ANALYSIS)</div>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>STAGE</th>
-                    <th>PERFORMANCE STATUS</th>
-                    <th>DPU VALUE</th>
-                    <th>TREND ANALYSIS</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${reportData.stagePerformance.slice(0, 3).map(stage => `
-                    <tr>
-                        <td><strong>${stage.name}</strong></td>
-                        <td>DPU: ${formatDPU(stage.dpu)} (${stage.status.toLowerCase()})</td>
-                        <td style="color: #EF4444; font-weight: bold;">${formatDPU(stage.dpu)}</td>
-                        <td>Requires analysis - ${stage.status.toLowerCase()} performance</td>
-                    </tr>
-                `).join('')}
-            </tbody>
-        </table>
 
         <!-- Upcoming Updates -->
         <div class="upcoming-updates">
@@ -959,7 +811,7 @@ export const generateReportHTML = (reportData: MonthlyReportData): string => {
                     <li><strong>Proactive Intervention:</strong> Implement predictive quality intervention system</li>
                     <li><strong>Enterprise Platform:</strong> Multi-business unit quality intelligence platform</li>
                 </ul>
-                <div style="font-style: italic; text-align: center; margin-top: 4px; font-size: 6px; color: #666;">
+                <div style="font-style: italic; text-align: center; margin-top: 2px; font-size: 5px; color: #666;">
                     <strong>Phase 1 Implementation:</strong> Live data integration and real-time quality monitoring (Q1 2026)
                 </div>
             </div>
