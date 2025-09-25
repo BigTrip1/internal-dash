@@ -225,15 +225,8 @@ const Dashboard: React.FC = () => {
     return monthIndex <= thisMonth && month.totalDpu > 0 && month.buildVolume > 0;
   });
 
-  // Get all 12 months from the original data (including future months with zero data)
-  const allMonthsData = monthlyTrendData; // This already includes all 12 months from your data
-
-  // Separate actual data (Jan-Sep) from future data (Oct-Dec)
-  const actualData = allMonthsData.filter(month => month.totalDpu > 0 && month.buildVolume > 0);
-  const futureData = allMonthsData.filter(month => month.totalDpu === 0 || !month.totalDpu);
-
-  // Combine for complete 12-month view
-  const extendedChartData = allMonthsData;
+  // Use the original monthly trend data directly (this works!)
+  const extendedChartData = monthlyTrendData;
 
   // Calculate correlation coefficient between DPU and Build Volume
   const calculateCorrelation = (data: any[]) => {
@@ -310,13 +303,9 @@ const Dashboard: React.FC = () => {
 
   const dpuTrendlineData = calculateDPUTrendline(chartData);
 
-  // Merge trendline data with chart data
+  // Merge trendline data with chart data - keep original data intact
   const chartDataWithTrendline = chartData.map((item, index) => ({
     ...item,
-    // Ensure totalDpu is undefined (not null) for future months so bars don't render
-    totalDpu: (item.totalDpu === null || item.totalDpu === 0) ? undefined : item.totalDpu,
-    // Ensure buildVolume is undefined (not null) for future months so line doesn't render
-    buildVolume: (item.buildVolume === null || item.buildVolume === 0) ? undefined : item.buildVolume,
     trendlineDPU: dpuTrendlineData[index]?.trendlineDPU || 0,
     isAboveTarget: dpuTrendlineData[index]?.isAboveTarget || false,
     targetVariance: dpuTrendlineData[index]?.variance || 0,
@@ -845,24 +834,6 @@ const Dashboard: React.FC = () => {
               </div>
              <ResponsiveContainer width="100%" height={420}>
                <ComposedChart data={chartDataWithTrendline}>
-                 <defs>
-                   <linearGradient id="trendlineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                     {chartDataWithTrendline.map((item, index) => {
-                       const position = (index / (chartDataWithTrendline.length - 1)) * 100;
-                       let color;
-                       
-                       if (item.isFuture) {
-                         color = '#3B82F6'; // Blue for future target trajectory
-                       } else {
-                         color = item.isAboveTarget ? '#EF4444' : '#10B981'; // Red/Green for historical performance
-                       }
-                       
-                        return (
-                          <stop key={`gradient-stop-${index}-${item.month}`} offset={`${position}%`} stopColor={color} />
-                        );
-                     })}
-                   </linearGradient>
-                 </defs>
                  <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
                  <XAxis 
                    dataKey="month" 
@@ -933,7 +904,7 @@ const Dashboard: React.FC = () => {
                  <Legend 
                    wrapperStyle={{ paddingTop: '20px' }}
                  />
-                 {/* DPU as Bars - Only show for months with actual data */}
+                 {/* DPU as Bars */}
                  <Bar 
                    yAxisId="dpu"
                    dataKey="totalDpu" 
@@ -945,22 +916,17 @@ const Dashboard: React.FC = () => {
                      fill: '#000000', 
                      fontSize: 11,
                      fontWeight: 'bold',
-                     formatter: (value) => (value && value > 0) ? formatDPU(value) : ''
+                     formatter: (value) => value > 0 ? formatDPU(value) : ''
                    }}
                  />
-                 {/* Build Volume Line - Only show for months with actual data */}
+                 {/* Build Volume Line */}
                  <Line 
                    yAxisId="volume"
                    type="monotone" 
                    dataKey="buildVolume" 
                    stroke="#3B82F6" 
                    strokeWidth={4}
-                   dot={(props) => {
-                     const { cx, cy, payload, index } = props;
-                     // Only show dots for months with actual data
-                     if (!payload.buildVolume || payload.isFuture) return null;
-                     return <circle key={`build-volume-dot-${index}-${payload.month}`} cx={cx} cy={cy} fill="#3B82F6" strokeWidth={2} r={5} />;
-                   }}
+                   dot={{ fill: '#3B82F6', strokeWidth: 2, r: 5 }}
                    connectNulls={false}
                    name={selectedStage === 'All Stages' ? 'Build Volume' : `${selectedStage} Inspected`}
                    label={{ 
@@ -969,53 +935,18 @@ const Dashboard: React.FC = () => {
                      fontSize: 10,
                      fontWeight: 'bold',
                      offset: 25,
-                     formatter: (value) => value ? formatNumber(value) : ''
+                     formatter: (value) => value > 0 ? formatNumber(value) : ''
                    }}
                  />
-                 {/* Dynamic DPU Trendline - Changes color based on performance vs target */}
+                 {/* DPU Trendline - Simple version that works */}
                  <Line 
                    yAxisId="dpu"
                    type="monotone" 
                    dataKey="trendlineDPU" 
-                   stroke="url(#trendlineGradient)"
+                   stroke="#10B981"
                    strokeWidth={3}
                    strokeDasharray="8 4"
-                   dot={(props) => {
-                     const { cx, cy, payload, index } = props;
-                     if (!payload) return null;
-                     
-                     const isAboveTarget = payload.isAboveTarget;
-                     const isFuture = payload.isFuture;
-                     
-                     if (isFuture) {
-                       // Future months - show as target dots (blue with dashed outline)
-                       return (
-                         <circle 
-                           key={`future-dot-${index}-${payload.month}`}
-                           cx={cx} 
-                           cy={cy} 
-                           r={5} 
-                           fill="#3B82F6"
-                           stroke="#FFFFFF"
-                           strokeWidth={2}
-                           strokeDasharray="3,3"
-                         />
-                       );
-                     } else {
-                       // Historical months - color based on performance vs target
-                       return (
-                         <circle 
-                           key={`historical-dot-${index}-${payload.month}`}
-                           cx={cx} 
-                           cy={cy} 
-                           r={4} 
-                           fill={isAboveTarget ? '#EF4444' : '#10B981'}
-                           stroke={isAboveTarget ? '#EF4444' : '#10B981'}
-                           strokeWidth={2}
-                         />
-                       );
-                     }
-                   }}
+                   dot={false}
                    name="Target Trajectory"
                  />
                </ComposedChart>
