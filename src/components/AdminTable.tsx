@@ -4,16 +4,17 @@ import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
 import { InspectionStage } from '@/types';
 import { formatNumber, formatDPU } from '@/utils/dataUtils';
-import { Plus, Trash2, Save, X, Download } from 'lucide-react';
+import { Plus, Trash2, Save, X, Download, Lock, Unlock } from 'lucide-react';
 import MonthlyReportGenerator from './MonthlyReportGenerator';
 
 interface EditableCellProps {
   value: number;
   onChange: (value: number) => void;
   type: 'inspected' | 'faults';
+  isLocked?: boolean;
 }
 
-const EditableCell: React.FC<EditableCellProps> = ({ value, onChange, type }) => {
+const EditableCell: React.FC<EditableCellProps> = ({ value, onChange, type, isLocked = false }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value.toString());
 
@@ -53,10 +54,21 @@ const EditableCell: React.FC<EditableCellProps> = ({ value, onChange, type }) =>
 
   return (
     <div
-      className="px-2 py-1 text-sm cursor-pointer hover:bg-orange-600 hover:text-white rounded transition-colors"
-      onClick={() => setIsEditing(true)}
+      className={`px-2 py-1 text-sm rounded transition-colors ${
+        isLocked 
+          ? 'cursor-not-allowed opacity-70 bg-gray-800' 
+          : 'cursor-pointer hover:bg-orange-600 hover:text-white'
+      }`}
+      onClick={() => {
+        if (isLocked) {
+          alert('Table is locked. Please unlock to edit data.');
+        } else {
+          setIsEditing(true);
+        }
+      }}
     >
       {formatNumber(value)}
+      {isLocked && <Lock className="w-3 h-3 inline ml-1 opacity-50" />}
     </div>
   );
 };
@@ -132,10 +144,61 @@ const AdminTable: React.FC = () => {
   const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [editingStage, setEditingStage] = useState<string | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
+  
+  // Lock system state
+  const [isLocked, setIsLocked] = useState(true); // Default to locked for safety
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  
+  // Admin credentials
+  const ADMIN_USERNAME = 'Admin';
+  const ADMIN_PASSWORD = '12Quality34???';
 
   const stageNames = getStageNames();
 
+  // Lock system functions
+  const handleLockToggle = () => {
+    if (isLocked) {
+      // Trying to unlock - show password modal
+      setShowPasswordModal(true);
+      setUsername('');
+      setPassword('');
+      setPasswordError('');
+    } else {
+      // Locking - no password needed
+      setIsLocked(true);
+    }
+  };
+
+  const handlePasswordSubmit = () => {
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      setIsLocked(false);
+      setShowPasswordModal(false);
+      setUsername('');
+      setPassword('');
+      setPasswordError('');
+    } else {
+      setPasswordError('Incorrect username or password. Please try again.');
+      setUsername('');
+      setPassword('');
+    }
+  };
+
+  const handlePasswordCancel = () => {
+    setShowPasswordModal(false);
+    setUsername('');
+    setPassword('');
+    setPasswordError('');
+  };
+
+  // Modified functions to check lock status
   const handleCellUpdate = async (monthId: string, stageId: string, type: 'inspected' | 'faults', value: number) => {
+    if (isLocked) {
+      alert('Table is locked. Please unlock to make changes.');
+      return;
+    }
     try {
       setLocalError(null);
       if (type === 'inspected') {
@@ -150,6 +213,10 @@ const AdminTable: React.FC = () => {
   };
 
   const handleAddStage = async (stageName: string) => {
+    if (isLocked) {
+      alert('Table is locked. Please unlock to add stages.');
+      return false;
+    }
     try {
       setLocalError(null);
       return await addStage(stageName);
@@ -161,6 +228,10 @@ const AdminTable: React.FC = () => {
   };
 
   const handleRemoveStage = async (stageId: string) => {
+    if (isLocked) {
+      alert('Table is locked. Please unlock to remove stages.');
+      return;
+    }
     if (confirm('Are you sure you want to remove this stage? This action cannot be undone.')) {
       try {
         setLocalError(null);
@@ -320,6 +391,17 @@ const AdminTable: React.FC = () => {
             </div>
           )}
           <button
+            onClick={handleLockToggle}
+            className={`px-4 py-2 font-bold rounded-lg shadow-lg transition-colors duration-200 flex items-center space-x-2 ${
+              isLocked 
+                ? 'bg-red-600 text-white hover:bg-red-700' 
+                : 'bg-green-600 text-white hover:bg-green-700'
+            }`}
+          >
+            {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+            <span>{isLocked ? 'Locked' : 'Unlocked'}</span>
+          </button>
+          <button
             onClick={handleDownloadData}
             className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2"
           >
@@ -334,9 +416,15 @@ const AdminTable: React.FC = () => {
             <span>Seed Database</span>
           </a>
           <button
-            onClick={() => setIsAddStageModalOpen(true)}
-            className="jcb-button"
-            disabled={loading}
+            onClick={() => {
+              if (isLocked) {
+                alert('Table is locked. Please unlock to add stages.');
+              } else {
+                setIsAddStageModalOpen(true);
+              }
+            }}
+            className={`jcb-button ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={loading || isLocked}
           >
             <Plus className="w-4 h-4" />
             Add Stage
@@ -357,10 +445,22 @@ const AdminTable: React.FC = () => {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500"></div>
         
         <div className="relative p-4">
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center justify-between">
+          <div className="flex items-center">
             <div className="w-2 h-6 bg-gradient-to-b from-yellow-400 to-yellow-600 rounded-full mr-3"></div>
             Inspection Data Management
-          </h3>
+          </div>
+          <div className={`flex items-center space-x-2 px-3 py-1 rounded-lg ${
+            isLocked 
+              ? 'bg-red-900/50 border border-red-600/50' 
+              : 'bg-green-900/50 border border-green-600/50'
+          }`}>
+            {isLocked ? <Lock className="w-4 h-4 text-red-400" /> : <Unlock className="w-4 h-4 text-green-400" />}
+            <span className={`text-sm font-medium ${isLocked ? 'text-red-400' : 'text-green-400'}`}>
+              {isLocked ? 'LOCKED' : 'UNLOCKED'}
+            </span>
+          </div>
+        </h3>
           <div className="overflow-x-auto">
           <table className="jcb-table min-w-full">
             <thead>
@@ -374,8 +474,13 @@ const AdminTable: React.FC = () => {
                                <span className="flex-1 text-yellow-400 font-bold text-sm">{stageName}</span>
                                <button
                                  onClick={() => handleRemoveStage(getStageId(stageName))}
-                                 className="ml-2 p-1 text-red-400 hover:text-red-300 hover:bg-red-900/50 rounded transition-colors duration-200"
-                                 title="Remove stage"
+                                 className={`ml-2 p-1 rounded transition-colors duration-200 ${
+                                   isLocked 
+                                     ? 'text-gray-600 cursor-not-allowed opacity-50' 
+                                     : 'text-red-400 hover:text-red-300 hover:bg-red-900/50'
+                                 }`}
+                                 title={isLocked ? "Table is locked" : "Remove stage"}
+                                 disabled={isLocked}
                                >
                                  <Trash2 className="w-3 h-3" />
                                </button>
@@ -418,6 +523,7 @@ const AdminTable: React.FC = () => {
                               value={stageData.inspected}
                               onChange={(value) => handleCellUpdate(month.id, stageData.id, 'inspected', value)}
                               type="inspected"
+                              isLocked={isLocked}
                             />
                           </div>
                           <div>
@@ -425,6 +531,7 @@ const AdminTable: React.FC = () => {
                               value={stageData.faults}
                               onChange={(value) => handleCellUpdate(month.id, stageData.id, 'faults', value)}
                               type="faults"
+                              isLocked={isLocked}
                             />
                           </div>
                           <div className="text-center text-sm text-gray-300 flex items-center justify-center" style={{backgroundColor: '#3A3A3A'}}>
@@ -460,6 +567,79 @@ const AdminTable: React.FC = () => {
         onClose={() => setIsAddStageModalOpen(false)}
         onAdd={handleAddStage}
       />
+
+      {/* Password Modal for Unlocking */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-gray-900 via-black to-gray-800 border-2 border-yellow-600/30 rounded-xl shadow-2xl p-6 w-96">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500 rounded-t-xl"></div>
+            
+            <div className="relative">
+              <h3 className="text-lg font-semibold mb-4 text-white flex items-center">
+                <Lock className="w-5 h-5 mr-2 text-yellow-400" />
+                Unlock Admin Table
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-gray-700 text-white p-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="Enter username"
+                    autoFocus
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-gray-700 text-white p-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    placeholder="Enter password"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handlePasswordSubmit();
+                      } else if (e.key === 'Escape') {
+                        handlePasswordCancel();
+                      }
+                    }}
+                  />
+                </div>
+                
+                {passwordError && (
+                  <div className="bg-red-900/50 border border-red-600 rounded p-3">
+                    <p className="text-red-200 text-sm">{passwordError}</p>
+                  </div>
+                )}
+                
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    onClick={handlePasswordCancel}
+                    className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePasswordSubmit}
+                    className="px-4 py-2 bg-yellow-600 text-black font-bold rounded hover:bg-yellow-700 transition-colors duration-200"
+                  >
+                    Unlock
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Monthly Report Generator */}
       <div className="mt-8">
