@@ -53,21 +53,53 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, initialDat
   const loadDataFromMongoDB = async () => {
     setLoading(true);
     setError(null);
+    
+    // Corporate firewall-friendly: Try localStorage first, then MongoDB as fallback
+    const savedData = localStorage.getItem('inspection-data');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        if (parsedData && parsedData.length > 0) {
+          setData(parsedData);
+          console.log('Loaded data from localStorage (corporate-friendly mode)');
+          setLoading(false);
+          
+          // Try to sync with MongoDB in background (non-blocking)
+          try {
+            const mongoData = await ApiService.getInspections();
+            if (mongoData.length > 0) {
+              const sortedData = mongoData.sort((a, b) => {
+                if (a.year !== b.year) return a.year - b.year;
+                const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                return monthOrder.indexOf(a.date.substring(0, 3)) - monthOrder.indexOf(b.date.substring(0, 3));
+              });
+              setData(sortedData);
+              localStorage.setItem('inspection-data', JSON.stringify(sortedData));
+              console.log('Synced with MongoDB successfully');
+            }
+          } catch (mongoError) {
+            console.log('MongoDB sync failed (expected in corporate environments)');
+          }
+          return;
+        }
+      } catch (parseError) {
+        console.error('Failed to parse saved data:', parseError);
+      }
+    }
+    
+    // If no localStorage data, try MongoDB
     try {
       const mongoData = await ApiService.getInspections();
       if (mongoData.length > 0) {
-        // Sort data by year and then by month
         const sortedData = mongoData.sort((a, b) => {
           if (a.year !== b.year) return a.year - b.year;
           const monthOrder = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
           return monthOrder.indexOf(a.date.substring(0, 3)) - monthOrder.indexOf(b.date.substring(0, 3));
         });
         setData(sortedData);
-        // Also save to localStorage as backup
         localStorage.setItem('inspection-data', JSON.stringify(sortedData));
       } else {
-        // If no data in MongoDB, seed with initial data (all 12 months for 2025)
-        await ApiService.updateAllInspections(initialData);
+        // If no data in MongoDB, use initial data
         setData(initialData);
         localStorage.setItem('inspection-data', JSON.stringify(initialData));
       }
@@ -76,22 +108,9 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children, initialDat
       console.error('Failed to load data from MongoDB:', error);
       setError('Using offline mode - MongoDB not available');
       
-      // Fallback to localStorage if MongoDB fails
-      const savedData = localStorage.getItem('inspection-data');
-      if (savedData) {
-        try {
-          const parsedData = JSON.parse(savedData);
-          setData(parsedData);
-          console.log('Loaded data from localStorage fallback');
-        } catch (parseError) {
-          console.error('Failed to parse saved data:', parseError);
-          setData(initialData);
-          localStorage.setItem('inspection-data', JSON.stringify(initialData));
-        }
-      } else {
-        setData(initialData);
-        localStorage.setItem('inspection-data', JSON.stringify(initialData));
-      }
+      // Use initial data as fallback
+      setData(initialData);
+      localStorage.setItem('inspection-data', JSON.stringify(initialData));
       setLoading(false);
     }
   };

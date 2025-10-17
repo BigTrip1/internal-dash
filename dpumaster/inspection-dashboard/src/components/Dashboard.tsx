@@ -124,14 +124,14 @@ const Dashboard: React.FC = () => {
   // Get current month data (including Sep if it has data)
   const currentMonthData = data.filter(month => {
     const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month.date.substring(0, 3));
-    const combinedDpu = month.combinedTotalDpu ?? month.totalDpu ?? 0;
+    const combinedDpu = month.combinedTotalDpu ?? 0;
     return combinedDpu > 0 && monthIndex <= currentMonth;
   });
   
   // Get completed months for improvement calculation (exclude current month)
   const completedMonths = data.filter(month => {
     const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month.date.substring(0, 3));
-    const combinedDpu = month.combinedTotalDpu ?? month.totalDpu ?? 0;
+    const combinedDpu = month.combinedTotalDpu ?? 0;
     return combinedDpu > 0 && monthIndex < currentMonth;
   });
   
@@ -139,19 +139,33 @@ const Dashboard: React.FC = () => {
   const latestCompletedMonth = completedMonths[completedMonths.length - 1] || data[0];
   const firstMonth = data[0];
 
+  // Early return if no data available
+  if (!data || data.length === 0 || !latestCurrentMonth) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="text-gray-400 text-lg mb-2">No data available</div>
+            <div className="text-gray-500 text-sm">Please check your data source or try again later.</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate month-to-month differences for KPI cards
-  const previousMonth = data[data.indexOf(latestCurrentMonth) - 1];
-  const currentCombinedDpu = latestCurrentMonth?.combinedTotalDpu ?? latestCurrentMonth?.totalDpu ?? 0;
-  const previousCombinedDpu = previousMonth?.combinedTotalDpu ?? previousMonth?.totalDpu ?? 0;
+  const previousMonth = latestCurrentMonth ? data[data.indexOf(latestCurrentMonth) - 1] : undefined;
+  const currentCombinedDpu = latestCurrentMonth?.combinedTotalDpu ?? 0;
+  const previousCombinedDpu = previousMonth?.combinedTotalDpu ?? 0;
   const currentDpuChange = latestCurrentMonth && previousMonth ? currentCombinedDpu - previousCombinedDpu : 0;
   const currentBuildVolumeChange = latestCurrentMonth && previousMonth ? 
-    ((latestCurrentMonth.signoutVolume ?? latestCurrentMonth.stages.find(s => s.name === 'SIGN')?.inspected) || 0) - 
-    ((previousMonth.signoutVolume ?? previousMonth.stages.find(s => s.name === 'SIGN')?.inspected) || 0) : 0;
-  const currentCombinedFaults = latestCurrentMonth?.combinedTotalFaults ?? latestCurrentMonth?.totalFaults ?? 0;
-  const previousCombinedFaults = previousMonth?.combinedTotalFaults ?? previousMonth?.totalFaults ?? 0;
+    ((latestCurrentMonth?.signoutVolume ?? latestCurrentMonth?.stages?.find(s => s.name === 'SIGN')?.inspected) || 0) - 
+    ((previousMonth?.signoutVolume ?? previousMonth?.stages?.find(s => s.name === 'SIGN')?.inspected) || 0) : 0;
+  const currentCombinedFaults = latestCurrentMonth?.combinedTotalFaults ?? 0;
+  const previousCombinedFaults = previousMonth?.combinedTotalFaults ?? 0;
   const currentFaultsChange = latestCurrentMonth && previousMonth ? currentCombinedFaults - previousCombinedFaults : 0;
-  const firstCombinedDpu = firstMonth?.combinedTotalDpu ?? firstMonth?.totalDpu ?? 0;
-  const completedCombinedDpu = latestCompletedMonth?.combinedTotalDpu ?? latestCompletedMonth?.totalDpu ?? 0;
+  const firstCombinedDpu = firstMonth?.combinedTotalDpu ?? 0;
+  const completedCombinedDpu = latestCompletedMonth?.combinedTotalDpu ?? 0;
   const dpuImprovement = firstCombinedDpu - completedCombinedDpu;
   const dpuImprovementPercent = firstCombinedDpu > 0 ? ((dpuImprovement / firstCombinedDpu) * 100).toFixed(1) : '0.0';
 
@@ -163,7 +177,7 @@ const Dashboard: React.FC = () => {
 
   // Calculate YTD Total Faults
   const ytdTotalFaults = data.reduce((total, month) => {
-    const faults = month.combinedTotalFaults ?? month.totalFaults ?? 0;
+    const faults = month.combinedTotalFaults ?? 0;
     return total + faults;
   }, 0);
 
@@ -175,8 +189,8 @@ const Dashboard: React.FC = () => {
     if (selectedStage === 'PRODUCTION TOTALS') {
       return {
         month: month.date,
-        totalDpu: month.productionTotalDpu ?? month.totalDpu ?? 0,
-        totalFaults: month.productionTotalFaults ?? month.totalFaults ?? 0,
+        totalDpu: month.productionTotalDpu ?? 0,
+        totalFaults: month.productionTotalFaults ?? 0,
         buildVolume: month.signoutVolume ?? month.stages.find(s => s.name === 'SIGN')?.inspected ?? 0
       };
     } else if (selectedStage === 'DPDI TOTALS') {
@@ -189,8 +203,8 @@ const Dashboard: React.FC = () => {
     } else if (selectedStage === 'COMBINED TOTALS') {
       return {
         month: month.date,
-        totalDpu: month.combinedTotalDpu ?? month.totalDpu ?? 0,
-        totalFaults: month.combinedTotalFaults ?? month.totalFaults ?? 0,
+        totalDpu: month.combinedTotalDpu ?? 0,
+        totalFaults: month.combinedTotalFaults ?? 0,
         buildVolume: month.signoutVolume ?? month.stages.find(s => s.name === 'SIGN')?.inspected ?? 0
       };
     } else {
@@ -257,7 +271,7 @@ const Dashboard: React.FC = () => {
     
     return data.find(month => {
       const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month.date.substring(0, 3));
-      return monthIndex === previousMonthIndex && month.totalDpu > 0;
+      return monthIndex === previousMonthIndex && (month.combinedTotalDpu > 0 || month.productionTotalDpu > 0);
     });
   };
 
@@ -329,7 +343,7 @@ const Dashboard: React.FC = () => {
 
   // Calculate correlation coefficient between DPU and Build Volume
   const calculateCorrelation = (data: any[]) => {
-    const validData = data.filter(d => d.totalDpu > 0 && d.buildVolume > 0);
+    const validData = data.filter(d => (d.totalDpu > 0 || d.buildVolume > 0));
     if (validData.length < 2) return 0;
     
     const n = validData.length;
@@ -698,11 +712,11 @@ const Dashboard: React.FC = () => {
                   <span className="text-2xl font-bold text-white group-hover:text-blue-400 transition-colors duration-300">
                     {isTotalsFilter()
                       ? formatDPU(
-                          selectedStage === 'PRODUCTION TOTALS' ? (latestCurrentMonth.productionTotalDpu ?? latestCurrentMonth.totalDpu ?? 0) :
-                          selectedStage === 'DPDI TOTALS' ? (latestCurrentMonth.dpdiTotalDpu ?? 0) :
-                          (latestCurrentMonth.combinedTotalDpu ?? latestCurrentMonth.totalDpu ?? 0)
+                          selectedStage === 'PRODUCTION TOTALS' ? (latestCurrentMonth?.productionTotalDpu ?? 0) :
+                          selectedStage === 'DPDI TOTALS' ? (latestCurrentMonth?.dpdiTotalDpu ?? 0) :
+                          (latestCurrentMonth?.combinedTotalDpu ?? 0)
                         )
-                      : formatDPU(latestCurrentMonth.stages.find(s => s.name === selectedStage)?.dpu ?? 0)
+                      : formatDPU(latestCurrentMonth?.stages?.find(s => s.name === selectedStage)?.dpu ?? 0)
                     }
                   </span>
                   <div className="flex items-center space-x-1">
@@ -711,7 +725,7 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-400 font-medium">{latestCurrentMonth.date}</p>
+                  <p className="text-xs text-gray-400 font-medium">{latestCurrentMonth?.date || 'No data'}</p>
                   {/* Trend Indicator */}
                   <div className="flex items-center space-x-1">
                     {currentDpuChange < 0 ? (
@@ -772,8 +786,8 @@ const Dashboard: React.FC = () => {
                 <div className="flex items-baseline space-x-2">
                   <span className="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-300">
                     {isTotalsFilter()
-                      ? formatNumber(latestCurrentMonth.signoutVolume ?? latestCurrentMonth.stages.find(s => s.name === 'SIGN')?.inspected ?? 0)
-                      : formatNumber(latestCurrentMonth.stages.find(s => s.name === selectedStage)?.inspected ?? 0)
+                      ? formatNumber(latestCurrentMonth?.signoutVolume ?? latestCurrentMonth?.stages?.find(s => s.name === 'SIGN')?.inspected ?? 0)
+                      : formatNumber(latestCurrentMonth?.stages?.find(s => s.name === selectedStage)?.inspected ?? 0)
                     }
                   </span>
                   <div className="flex items-center space-x-1">
@@ -782,7 +796,7 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-400 font-medium">{latestCurrentMonth.date}</p>
+                  <p className="text-xs text-gray-400 font-medium">{latestCurrentMonth?.date || 'No data'}</p>
                   {/* Trend Indicator */}
                   <div className="flex items-center space-x-1">
                     {currentBuildVolumeChange > 0 ? (
@@ -844,11 +858,11 @@ const Dashboard: React.FC = () => {
                   <span className="text-2xl font-bold text-white group-hover:text-red-400 transition-colors duration-300">
                     {isTotalsFilter()
                       ? formatNumber(
-                          selectedStage === 'PRODUCTION TOTALS' ? (latestCurrentMonth.productionTotalFaults ?? latestCurrentMonth.totalFaults ?? 0) :
-                          selectedStage === 'DPDI TOTALS' ? (latestCurrentMonth.dpdiTotalFaults ?? 0) :
-                          (latestCurrentMonth.combinedTotalFaults ?? latestCurrentMonth.totalFaults ?? 0)
+                          selectedStage === 'PRODUCTION TOTALS' ? (latestCurrentMonth?.productionTotalFaults ?? 0) :
+                          selectedStage === 'DPDI TOTALS' ? (latestCurrentMonth?.dpdiTotalFaults ?? 0) :
+                          (latestCurrentMonth?.combinedTotalFaults ?? 0)
                         )
-                      : formatNumber(latestCurrentMonth.stages.find(s => s.name === selectedStage)?.faults ?? 0)
+                      : formatNumber(latestCurrentMonth?.stages?.find(s => s.name === selectedStage)?.faults ?? 0)
                     }
                   </span>
                   <div className="flex items-center space-x-1">
@@ -857,7 +871,7 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-400 font-medium">{latestCurrentMonth.date}</p>
+                  <p className="text-xs text-gray-400 font-medium">{latestCurrentMonth?.date || 'No data'}</p>
                   {/* Trend Indicator */}
                   <div className="flex items-center space-x-1">
                     {currentFaultsChange > 0 ? (
@@ -1209,7 +1223,7 @@ const Dashboard: React.FC = () => {
                        const actualMonthRecord = data.find(m => m.date === monthData.month);
                        
                        if (isTotalsFilter()) {
-                         return `${label} - Total Faults: ${formatNumber(actualMonthRecord?.totalFaults || 0)} | Total Inspections: ${formatNumber(actualMonthRecord?.totalInspections || 0)}`;
+                         return `${label} - Total Faults: ${formatNumber(actualMonthRecord?.combinedTotalFaults || 0)} | Total Inspections: ${formatNumber(actualMonthRecord?.combinedTotalInspections || 0)}`;
                        } else {
                          const stageData = actualMonthRecord?.stages.find(s => s.name === selectedStage);
                          return `${label} - ${selectedStage} Faults: ${formatNumber(stageData?.faults || 0)} | ${selectedStage} Inspected: ${formatNumber(stageData?.inspected || 0)}`;
@@ -1233,7 +1247,7 @@ const Dashboard: React.FC = () => {
                      fill: '#000000', 
                      fontSize: 11,
                      fontWeight: 'bold',
-                     formatter: (value) => value > 0 ? formatDPU(value) : ''
+                     formatter: (value) => (value && typeof value === 'number' && value > 0) ? formatDPU(value) : ''
                    }}
                  />
                  {/* Build Volume Line */}
@@ -1252,7 +1266,7 @@ const Dashboard: React.FC = () => {
                      fontSize: 10,
                      fontWeight: 'bold',
                      offset: 25,
-                     formatter: (value) => value > 0 ? formatNumber(value) : ''
+                     formatter: (value) => (value && typeof value === 'number' && value > 0) ? formatNumber(value) : ''
                    }}
                  />
                  {/* Target Glide Path - Required path to reach 8.2 DPU */}
@@ -1371,8 +1385,8 @@ const Dashboard: React.FC = () => {
                     if (actualData.length < 2) return <div>Insufficient data</div>;
                     
                     // Calculate actual improvement rate from trendline
-                    const firstTrend = performanceTrendline[0];
-                    const lastTrend = performanceTrendline[actualData.length - 1];
+                    const firstTrend = performanceTrendline[0] ?? 0;
+                    const lastTrend = performanceTrendline[actualData.length - 1] ?? 0;
                     const totalChange = firstTrend - lastTrend; // Positive = improving (DPU decreased)
                     const monthlyRate = totalChange / actualData.length;
                     const trend = totalChange > 0 ? 'Improving' : 'Deteriorating';
@@ -1498,8 +1512,8 @@ const Dashboard: React.FC = () => {
                     const monthsRemaining = monthsAvailable - monthsElapsed;
                     
                     // Calculate actual performance rate
-                    const firstTrend = performanceTrendline[0];
-                    const lastTrend = performanceTrendline[actualData.length - 1];
+                    const firstTrend = performanceTrendline[0] ?? 0;
+                    const lastTrend = performanceTrendline[actualData.length - 1] ?? 0;
                     const totalChange = firstTrend - lastTrend;
                     const monthlyRate = totalChange / actualData.length;
                     const trend = totalChange > 0 ? 'Improving' : 'Deteriorating';
@@ -1595,7 +1609,7 @@ const Dashboard: React.FC = () => {
               <tbody>
                 {data.map((month, index) => {
                   const prevMonth = index > 0 ? data[index - 1] : null;
-                  const dpuChange = prevMonth ? month.totalDpu - prevMonth.totalDpu : 0;
+                  const dpuChange = prevMonth ? (month.combinedTotalDpu ?? 0) - (prevMonth.combinedTotalDpu ?? 0) : 0;
                   
                      return (
                        <tr key={month.id} className={`${index % 2 === 0 ? 'bg-gray-900/50' : 'bg-black/50'} hover:bg-yellow-600/10 transition-colors duration-200 border-b border-gray-700/50`}>
@@ -1606,13 +1620,13 @@ const Dashboard: React.FC = () => {
                            </div>
                          </td>
                          <td className="whitespace-nowrap text-sm text-white text-right py-3 px-4 font-mono">
-                           {formatNumber(month.totalInspections)}
+                           {formatNumber(month.combinedTotalInspections)}
                          </td>
                          <td className="whitespace-nowrap text-sm text-white text-right py-3 px-4 font-mono">
-                           {formatNumber(month.totalFaults)}
+                           {formatNumber(month.combinedTotalFaults)}
                          </td>
                          <td className="whitespace-nowrap text-sm text-white text-right py-3 px-4 font-mono font-bold">
-                           {formatDPU(month.totalDpu)}
+                           {formatDPU(month.combinedTotalDpu)}
                          </td>
                       <td className="whitespace-nowrap text-sm text-right py-3 px-4">
                         {index > 0 && (

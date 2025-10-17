@@ -49,10 +49,9 @@ const ReportPage: React.FC = () => {
       } else if (actualStageName === 'COMBINED TOTALS') {
         return (month.combinedTotalDpu ?? month.totalDpu ?? 0) > 0;
       } else {
-        // Individual stage - check if stage has data
-        const inspectedKey = `${actualStageName}_INSPECTED`;
-        const dpuKey = `${actualStageName}_DPU`;
-        return (month[inspectedKey] ?? 0) > 0 || (month[dpuKey] ?? 0) > 0;
+        // Individual stage - check if stage has data in the stages array
+        const stageData = month.stages?.find(stage => stage.name === actualStageName);
+        return (stageData?.inspected ?? 0) > 0 || (stageData?.dpu ?? 0) > 0;
       }
     });
     
@@ -78,21 +77,18 @@ const ReportPage: React.FC = () => {
       buildVolume = currentMonth?.signoutVolume ?? 0; // Use signout volume for build volume
       totalFaults = currentMonth?.combinedTotalFaults ?? currentMonth?.totalFaults ?? 0;
     } else {
-      // Individual stage
-      const dpuKey = `${actualStageName}_DPU`;
-      const inspectedKey = `${actualStageName}_INSPECTED`;
-      const faultsKey = `${actualStageName}_FAULTS`;
-      
-      currentDPU = currentMonth?.[dpuKey] ?? 0;
-      buildVolume = currentMonth?.[inspectedKey] ?? 0; // Use inspected quantity for individual stages
-      totalFaults = currentMonth?.[faultsKey] ?? 0;
+      // Individual stage - get data from stages array
+      const stageData = currentMonth?.stages?.find(stage => stage.name === actualStageName);
+      currentDPU = stageData?.dpu ?? 0;
+      buildVolume = stageData?.inspected ?? 0; // Use inspected quantity for individual stages
+      totalFaults = stageData?.faults ?? 0;
     }
     
     const lastMonthDPU = lastMonth ? (
       actualStageName === 'PRODUCTION TOTALS' ? (lastMonth.productionTotalDpu ?? lastMonth.totalDpu ?? 0) :
       actualStageName === 'DPDI TOTALS' ? (lastMonth.dpdiTotalDpu ?? 0) :
       actualStageName === 'COMBINED TOTALS' ? (lastMonth.combinedTotalDpu ?? lastMonth.totalDpu ?? 0) :
-      lastMonth[`${actualStageName}_DPU`] ?? 0
+      lastMonth?.stages?.find(stage => stage.name === actualStageName)?.dpu ?? 0
     ) : 0;
     
     // Calculate month-over-month change (negative = improvement for DPU)
@@ -108,7 +104,9 @@ const ReportPage: React.FC = () => {
       if (actualStageName === 'PRODUCTION TOTALS') return month.productionTotalDpu ?? month.totalDpu ?? 0;
       if (actualStageName === 'DPDI TOTALS') return month.dpdiTotalDpu ?? 0;
       if (actualStageName === 'COMBINED TOTALS') return month.combinedTotalDpu ?? month.totalDpu ?? 0;
-      return month[`${actualStageName}_DPU`] ?? 0;
+      // Individual stage - get data from stages array
+      const stageData = month.stages?.find(stage => stage.name === actualStageName);
+      return stageData?.dpu ?? 0;
     }).filter(dpu => dpu > 0);
     
     const ytdAverage = ytdDPUs.length > 0 ? ytdDPUs.reduce((sum, dpu) => sum + dpu, 0) / ytdDPUs.length : 0;
@@ -217,8 +215,12 @@ const ReportPage: React.FC = () => {
         return (month.productionTotalDpu ?? month.totalDpu ?? 0) > 0;
       } else if (stageName === 'DPDI TOTALS') {
         return (month.dpdiTotalDpu ?? 0) > 0;
-      } else {
+      } else if (stageName === 'COMBINED TOTALS') {
         return (month.combinedTotalDpu ?? month.totalDpu ?? 0) > 0;
+      } else {
+        // Individual stage - check if stage has data in the stages array
+        const stageData = month.stages?.find(stage => stage.name === stageName);
+        return (stageData?.inspected ?? 0) > 0 || (stageData?.dpu ?? 0) > 0;
       }
     });
     
@@ -229,6 +231,7 @@ const ReportPage: React.FC = () => {
   const lastProductionMonth = getLastMonthWithData('PRODUCTION TOTALS');
   const lastDpdiMonth = getLastMonthWithData('DPDI TOTALS');
   const lastCombinedMonth = getLastMonthWithData('COMBINED TOTALS');
+  const lastStageMonth = reportType === 'stage' && stageName ? getLastMonthWithData(stageName) : null;
 
   const safeProductionMetrics = productionMetrics || {
     currentDPU: lastProductionMonth ? (lastProductionMonth.productionTotalDpu ?? lastProductionMonth.totalDpu ?? 0) : 0,
@@ -251,15 +254,29 @@ const ReportPage: React.FC = () => {
   };
 
   // Safe metrics for current report type
-  const safeCurrentMetrics = currentMetrics || {
-    currentDPU: 0,
-    buildVolume: 0,
-    totalFaults: 0,
-    momChange: 0,
-    ytdAverage: 0,
-    ytdImprovement: 0,
-    faultRate: 0
-  };
+  const safeCurrentMetrics = currentMetrics || (() => {
+    if (reportType === 'stage' && stageName && lastStageMonth) {
+      const stageData = lastStageMonth.stages?.find(stage => stage.name === stageName);
+      return {
+        currentDPU: stageData?.dpu ?? 0,
+        buildVolume: stageData?.inspected ?? 0,
+        totalFaults: stageData?.faults ?? 0,
+        momChange: 0,
+        ytdAverage: 0,
+        ytdImprovement: 0,
+        faultRate: (stageData?.inspected ?? 0) > 0 ? ((stageData?.faults ?? 0) / (stageData?.inspected ?? 1)) * 1000 : 0
+      };
+    }
+    return {
+      currentDPU: 0,
+      buildVolume: 0,
+      totalFaults: 0,
+      momChange: 0,
+      ytdAverage: 0,
+      ytdImprovement: 0,
+      faultRate: 0
+    };
+  })();
 
 
   // Get targets based on report type
@@ -272,7 +289,10 @@ const ReportPage: React.FC = () => {
       return yearTargets?.dpdiTarget || 0;
     } else if (reportType === 'stage' && stageName) {
       // For individual stages, use the stage-specific target or fallback to combined
-      return yearTargets?.stageTargets?.[stageName.toLowerCase().replace(/\s+/g, '_')] || yearTargets?.combinedTarget || 8.2;
+      const stageTarget = yearTargets?.stageTargets?.find(target => 
+        target.stageName.toLowerCase().replace(/\s+/g, '_') === stageName.toLowerCase().replace(/\s+/g, '_')
+      );
+      return stageTarget?.targetDpu || yearTargets?.combinedTarget || 8.2;
     }
     return yearTargets?.combinedTarget || 8.2;
   };

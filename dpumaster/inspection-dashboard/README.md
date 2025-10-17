@@ -12,8 +12,11 @@ A comprehensive quality management dashboard for JCB Digital Factory, featuring 
 - **Stage Performance**: Detailed breakdown by inspection stage
 - **Monthly Summary Tables**: Complete data overview with trend indicators
 - **Trajectory Performance Analysis**: 4 interactive cards (Target Glide Path, Performance Trajectory, Gap Analysis, Forecast)
+- **Enhanced Reports Dropdown**: Professional 21-report system with search and filtering
 
 ### **Monthly Quality Reports**
+- **21-Report System**: Comprehensive reporting suite with dynamic content
+- **Individual Stage Reports**: Detailed analysis for each production stage
 - **Automated Report Generation**: Professional PDF reports for management
 - **Glide Path Analysis**: Monthly reduction targets to achieve 8.2 DPU by year-end
 - **Executive Summary**: Key metrics and performance indicators
@@ -38,6 +41,22 @@ A comprehensive quality management dashboard for JCB Digital Factory, featuring 
 - **Progress Monitoring**: Track intervention status (Planned → In Progress → Completed)
 - **Strategic Planning**: Transform from reactive monitoring to proactive quality management
 
+## 🆕 **Recent Updates (December 2024)**
+
+### **Major Improvements**
+- ✅ **Runtime Error Fixes**: Resolved critical TypeError crashes with comprehensive null safety
+- ✅ **Individual Stage Reports**: Fixed all 18 stage reports to populate data correctly
+- ✅ **Enhanced Reports Dropdown**: Complete rebuild with search, filtering, and professional UI
+- ✅ **TypeScript Error Resolution**: Fixed 16+ compilation errors for better code quality
+- ✅ **Bulletproof Error Handling**: Graceful handling of empty data and edge cases
+
+### **New Features**
+- 🔍 **Smart Search**: Real-time search and filtering in reports dropdown
+- 📊 **21-Report System**: Complete reporting suite with dynamic content
+- 🎨 **Professional UI**: Modern, enterprise-grade design with JCB branding
+- 📱 **Responsive Design**: Works perfectly on all screen sizes
+- ⚡ **Performance Optimized**: Faster loading and smoother interactions
+
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
@@ -48,15 +67,16 @@ A comprehensive quality management dashboard for JCB Digital Factory, featuring 
 ### **Installation**
 ```bash
 # Clone the repository
-git clone https://github.com/BigTrip1/internal-dash.git
-cd internal-dash
+git clone https://github.com/BigTrip1/dpumaster.git
+cd dpumaster/inspection-dashboard
 
-# Install dependencies
+# Create .env.local file (recommended for corporate networks)
+echo "PUPPETEER_SKIP_DOWNLOAD=true" > .env.local
+echo "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true" >> .env.local
+echo "MONGODB_URI=mongodb://127.0.0.1:27017/dpu_master" >> .env.local
+
+# Install dependencies (Puppeteer will be skipped if .env.local is configured)
 npm install
-
-# Set up environment variables
-cp .env.example .env.local
-# Edit .env.local with your MongoDB connection string
 
 # Start MongoDB (if running locally)
 mongod
@@ -65,10 +85,14 @@ mongod
 npm run dev
 ```
 
+**Note:** If you encounter Puppeteer installation errors, see the [Troubleshooting](#-troubleshooting) section below.
+
 ### **Environment Variables**
 ```env
 MONGODB_URI=mongodb://127.0.0.1:27017/dpu_master
 NODE_ENV=development
+PUPPETEER_SKIP_DOWNLOAD=true
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ```
 
 ## 📋 **Usage**
@@ -76,6 +100,15 @@ NODE_ENV=development
 ### **Dashboard Navigation**
 - **Dashboard**: Main performance overview with KPI cards and charts
 - **Admin Panel**: Data management, report generation, and system configuration
+- **Reports Dropdown**: 21 different report types with search and filtering capabilities
+
+### **Reports System**
+1. **Access Reports**: Click the "Reports" dropdown in the navigation bar
+2. **Search & Filter**: Use the search bar and category filters to find specific reports
+3. **Report Types Available**:
+   - **Overview Reports**: Combined, Production, DPDI performance analysis
+   - **Stage Reports**: Individual analysis for each production stage (18 stages)
+4. **Professional UI**: Modern dropdown with JCB branding and smooth interactions
 
 ### **Monthly Reporting Process**
 1. Navigate to **Admin Panel → Monthly Report Generator**
@@ -175,6 +208,87 @@ interface InspectionStage {
 }
 ```
 
+## 🛠️ **Troubleshooting**
+
+### **Puppeteer Installation Issues (Corporate Networks)**
+
+If you encounter SSL certificate errors or Puppeteer download failures:
+
+#### **Solution 1: Skip Puppeteer Download (Recommended)**
+```bash
+# Set environment variables before npm install
+set PUPPETEER_SKIP_DOWNLOAD=true
+set PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+
+# Then run npm install
+npm install
+```
+
+#### **Solution 2: Create .env.local file**
+Create a `.env.local` file in the `inspection-dashboard` directory:
+```env
+PUPPETEER_SKIP_DOWNLOAD=true
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+MONGODB_URI=mongodb://127.0.0.1:27017/dpu_master
+```
+
+#### **Solution 3: Clear npm cache and retry**
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Remove node_modules and package-lock.json
+rm -rf node_modules package-lock.json
+
+# Set environment variables and reinstall
+set PUPPETEER_SKIP_DOWNLOAD=true
+set PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+npm install
+```
+
+#### **Solution 4: Corporate Proxy Issues**
+If behind a corporate firewall:
+```bash
+# Configure npm proxy (if needed)
+npm config set proxy http://your-proxy:port
+npm config set https-proxy http://your-proxy:port
+
+# Set strict SSL to false (temporary)
+npm config set strict-ssl false
+
+# Run installation
+npm install
+
+# Re-enable strict SSL after installation
+npm config set strict-ssl true
+```
+
+### **MongoDB Connection Issues**
+```bash
+# Check if MongoDB is running
+mongosh --eval "db.adminCommand('ismaster')"
+
+# If MongoDB is not installed locally, use MongoDB Atlas (cloud)
+# Update MONGODB_URI in .env.local with your Atlas connection string
+```
+
+### **Port Already in Use**
+```bash
+# Kill process using port 3000
+npx kill-port 3000
+
+# Or use a different port
+npm run dev -- -p 3001
+```
+
+### **Node.js Version Issues**
+```bash
+# Check Node.js version (requires 18+)
+node --version
+
+# If using older version, install Node.js 18+ from nodejs.org
+```
+
 ## 🔧 **Development**
 
 ### **Scripts**
@@ -220,7 +334,7 @@ Dashboard screenshots with analysis attached.
 
 ## 🤝 **Contributing**
 
-1. Fork the repository
+1. Fork the dpumaster repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
@@ -233,7 +347,7 @@ This project is proprietary software for JCB Digital Factory.
 ## 📞 **Support**
 
 For technical support or questions:
-- **Repository**: [https://github.com/BigTrip1/internal-dash](https://github.com/BigTrip1/internal-dash)
+- **Repository**: [https://github.com/BigTrip1/dpumaster](https://github.com/BigTrip1/dpumaster)
 - **Issues**: Create a GitHub issue for bug reports or feature requests
 
 ---

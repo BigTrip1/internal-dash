@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { DataProvider } from "@/context/DataContext";
 import { INITIAL_DATA } from "@/types";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
-const inter = Inter({ subsets: ["latin"] });
+// Use system fonts instead of Google Fonts for corporate firewall compatibility
+// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "JCB Inspection Dashboard",
@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>
+      <body className="font-sans antialiased">
         <DataProvider initialData={INITIAL_DATA}>
           <Navigation />
           <main className="jcb-main-content">{children}</main>
