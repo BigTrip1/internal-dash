@@ -21,9 +21,40 @@ The DPU Master Dashboard is a comprehensive quality performance management syste
 
 ---
 
+## 🎯 **Latest Features (October 2025)**
+
+### 🎯 **Intervention Tracking System** 🆕 **MAJOR RELEASE**
+- **Predictive Planning**: Document improvement initiatives and forecast their impact
+- **Dual-Scenario Forecasting**: Compare "baseline trajectory" vs "with interventions"
+- **Confidence-Based Projections**: Weight interventions by confidence level and status
+- **Interactive Cards**: All 4 trajectory cards now clickable to add/edit plans
+- **Progress Tracking**: Monitor intervention status (Planned → In Progress → Completed)
+- **Accountability**: Assign owners, timelines, and measure actual impact
+- **ROI Analysis**: Justify investments with projected DPU improvements
+
+### 🎯 **Smart Target Management System** ✅
+- **Intelligent Target Allocation**: Set year-specific DPU targets with 3 allocation strategies
+- **YTD Context Metrics**: View current month + year-to-date averages for informed decisions
+- **Interactive Learning Tooltips**: Hover-activated detailed calculation explanations
+- **2025 Trial Mode**: Test and validate with current year data before production
+- **MongoDB Persistence**: Store targets for future dashboard integration
+
+### 📊 **Three Separate Totals Tracking** ✅
+- **Production Totals**: Main production line quality metrics
+- **DPDI Totals**: Dealer Pre-Delivery Inspection metrics (new building)
+- **Combined Totals**: Comprehensive view including both systems
+- **Signout Volume**: Accurate build volume tracking per filter type
+
+### 🔧 **Critical Bug Fixes** ✅
+- **Forecast Logic Fix**: Fixed projection logic for deteriorating stages
+- **Card Consistency**: Unified calculations across all trajectory cards
+- **Late-Stage Handling**: Accurate calculations for mid-year stage additions
+
+---
+
 ## ✨ **Core Features**
 
-### 📊 **Dual Trajectory Chart System** 🆕
+### 📊 **Dual Trajectory Chart System**
 - **Target Glide Path**: Mathematical trajectory showing required improvement path
 - **Performance Trajectory**: Data-driven trend analysis using linear regression
 - **Gap Analysis**: Visual comparison between actual vs. required performance
@@ -37,7 +68,8 @@ The DPU Master Dashboard is a comprehensive quality performance management syste
 
 ### 📈 **Comprehensive Reporting**
 - **Monthly Reports**: Detailed performance analysis with visual insights
-- **Educational Tooltips**: Interactive explanations of complex concepts
+- **Interactive Tooltips**: Hover-activated explanations for trajectory analysis cards 🆕
+- **Educational Content**: Comprehensive explanations of analytical methodologies
 - **Mathematical Analysis**: Formula-based calculations with clear explanations
 - **Executive Summaries**: High-level insights for management review
 
